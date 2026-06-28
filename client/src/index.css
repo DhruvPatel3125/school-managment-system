@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --color-primary: var(--tenant-primary);
+  --color-secondary: var(--tenant-secondary);
+}
+
+:root {
+  /* Default placeholder theme colors before DB resolution */
+  --tenant-primary: #1e3a8a;   /* default blue */
+  --tenant-secondary: #d97706; /* default amber */
+  
+  --bg-app-dark: #0f172a;
+  --bg-card-dark: #1e293b;
+  --border-dark: #334155;
+  
+  --bg-app-light: #f8fafc;
+  --bg-card-light: #ffffff;
+  --border-light: #e2e8f0;
+}
+
+/* Light / Dark baseline reset */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  background-color: var(--bg-app-light);
+  color: #1e293b;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: var(--bg-app-dark);
+    color: #f1f5f9;
+  }
+}
+
+/* Custom Glassmorphism styles */
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+@media (prefers-color-scheme: dark) {
+  .glass-card {
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+}
+
+/* Micro-animations */
+.hover-scale {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.hover-scale:hover {
+  transform: scale(1.02);
+}

@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: educore_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootsecretpwd
+      MYSQL_DATABASE: educore_db
+      MYSQL_USER: educore_user
+      MYSQL_PASSWORD: educore_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - educore_network
+
+volumes:
+  mysql_data:
+
+networks:
+  educore_network:
+    driver: bridge
