@@ -1,8 +1,14 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const cookieParser = require('cookie-parser');
 const healthRouter = require('./routes/health');
 const tenantsRouter = require('./routes/tenants');
+const authRouter = require('./routes/auth');
+const superadminRouter = require('./routes/superadmin');
+const classesRouter = require('./routes/classes');
+const studentsRouter = require('./routes/students');
+const staffRouter = require('./routes/staff');
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
@@ -16,7 +22,8 @@ app.use(cors({
   credentials: true
 }));
 
-// Body Parsers
+// Cookies and Body Parsers
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -31,6 +38,11 @@ if (process.env.NODE_ENV === 'development') {
 // Routes
 app.use('/api/v1', healthRouter);
 app.use('/api/v1/tenants', tenantsRouter);
+app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/superadmin', superadminRouter);
+app.use('/api/v1/classes', classesRouter);
+app.use('/api/v1/students', studentsRouter);
+app.use('/api/v1/staff', staffRouter);
 
 // Fallback for unhandled endpoints
 app.use((req, res, next) => {

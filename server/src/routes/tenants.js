@@ -15,7 +15,7 @@ router.post('/', async (req, res, next) => {
       });
     }
 
-    const existingTenant = await Tenant.findOne({ where: { subdomain: subdomain.toLowerCase() } });
+    const existingTenant = await Tenant.findOne({ subdomain: subdomain.toLowerCase() });
     if (existingTenant) {
       return res.status(400).json({
         success: false,
@@ -43,7 +43,7 @@ router.post('/', async (req, res, next) => {
 // 2. List all tenants (Super Admin operation / Dev Tool)
 router.get('/', async (req, res, next) => {
   try {
-    const tenants = await Tenant.findAll();
+    const tenants = await Tenant.find();
     res.status(200).json({
       success: true,
       data: tenants

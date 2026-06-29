@@ -1,54 +1,37 @@
-const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/db');
+const mongoose = require('mongoose');
 
-const Tenant = sequelize.define('Tenant', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true
-  },
+// Define Schema for School Tenant (representing individual schools)
+const TenantSchema = new mongoose.Schema({
   schoolName: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    field: 'school_name'
+    type: String,
+    required: true
   },
   subdomain: {
-    type: DataTypes.STRING,
-    allowNull: false,
+    type: String,
+    required: true,
     unique: true,
-    field: 'subdomain'
+    lowercase: true,
+    index: true
   },
   logoUrl: {
-    type: DataTypes.STRING,
-    allowNull: true,
-    field: 'logo_url'
+    type: String,
+    default: ''
   },
   primaryColor: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    defaultValue: '#1e3a8a', // Default Tailwind Blue-800
-    field: 'primary_color'
+    type: String,
+    default: '#1e3a8a' // Default Tailwind Blue-800
   },
   secondaryColor: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    defaultValue: '#d97706', // Default Tailwind Amber-600
-    field: 'secondary_color'
+    type: String,
+    default: '#d97706' // Default Tailwind Amber-600
   },
   status: {
-    type: DataTypes.ENUM('active', 'suspended', 'draft'),
-    allowNull: false,
-    defaultValue: 'active',
-    field: 'status'
+    type: String,
+    enum: ['active', 'suspended', 'draft'],
+    default: 'active'
   }
 }, {
-  tableName: 'tenants',
-  indexes: [
-    {
-      unique: true,
-      fields: ['subdomain']
-    }
-  ]
+  timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } // Maps to frontend snake_case standard
 });
 
-module.exports = Tenant;
+module.exports = mongoose.model('Tenant', TenantSchema);

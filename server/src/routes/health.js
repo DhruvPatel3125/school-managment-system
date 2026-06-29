@@ -1,11 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const { sequelize } = require('../config/db');
+const mongoose = require('mongoose');
 
 router.get('/health', async (req, res) => {
   try {
-    // Check database connectivity
-    await sequelize.authenticate();
+    // Check database connectivity (readyState 1 indicates connected)
+    const isDbConnected = mongoose.connection.readyState === 1;
+    if (!isDbConnected) {
+      throw new Error('MongoDB connection is not established.');
+    }
     
     res.status(200).json({
       success: true,

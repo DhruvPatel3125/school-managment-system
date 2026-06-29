@@ -1,9 +1,11 @@
 import React from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import { useTenantTheme } from '../context/TenantThemeContext';
+import { useAuth } from '../context/AuthContext';
 
 const BaseLayout = () => {
   const { tenant } = useTenantTheme();
+  const { logout, user } = useAuth();
 
   return (
     <div className="min-h-screen flex flex-col transition-colors duration-300 dark:bg-slate-900 bg-slate-50">
@@ -34,10 +36,18 @@ const BaseLayout = () => {
 
           <div className="flex items-center space-x-4">
             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">
-              ● Active Tenant
+              ● Active
             </span>
-            <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold text-sm">
-              AD
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs uppercase shadow-inner">
+                {user?.name?.split(' ').map(n => n[0]).slice(0, 2).join('') || 'U'}
+              </div>
+              <button 
+                onClick={logout}
+                className="text-xs text-rose-500 hover:text-rose-600 font-semibold px-2 py-1 rounded hover:bg-rose-50 dark:hover:bg-rose-950/20 active:scale-95 transition-all"
+              >
+                Log Out
+              </button>
             </div>
           </div>
         </div>
@@ -60,23 +70,29 @@ const BaseLayout = () => {
               Overview Dashboard
             </Link>
 
-            <a 
-              href="#" 
+            <Link 
+              to="/classes" 
               className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all border-l-4 border-transparent pl-2"
-              onClick={(e) => e.preventDefault()}
+            >
+              <span className="mr-3 text-lg">📚</span>
+              Classes & Sections
+            </Link>
+
+            <Link 
+              to="/students" 
+              className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all border-l-4 border-transparent pl-2"
             >
               <span className="mr-3 text-lg">👥</span>
               Students (SIS)
-            </a>
+            </Link>
 
-            <a 
-              href="#" 
+            <Link 
+              to="/staff" 
               className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all border-l-4 border-transparent pl-2"
-              onClick={(e) => e.preventDefault()}
             >
               <span className="mr-3 text-lg">👨‍🏫</span>
               Staff Directory
-            </a>
+            </Link>
 
             <a 
               href="#" 

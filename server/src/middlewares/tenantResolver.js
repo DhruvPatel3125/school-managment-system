@@ -48,10 +48,8 @@ const tenantResolver = async (req, res, next) => {
 
     // Resolve tenant from database
     const tenant = await Tenant.findOne({
-      where: {
-        subdomain: subdomain.toLowerCase(),
-        status: 'active'
-      }
+      subdomain: subdomain.toLowerCase(),
+      status: 'active'
     });
 
     if (!tenant) {
