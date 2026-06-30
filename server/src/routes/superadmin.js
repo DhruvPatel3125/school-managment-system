@@ -3,11 +3,57 @@ const router = express.Router();
 const Tenant = require('../models/tenant');
 const User = require('../models/user');
 const Role = require('../models/role');
+const Class = require('../models/class');
+const Student = require('../models/student');
+const Staff = require('../models/staff');
+const ActivityLog = require('../models/activityLog');
 const auth = require('../middlewares/auth');
 const checkPermission = require('../middlewares/rbac');
 
+// GET /api/v1/superadmin/metrics - Retrieve platform-wide aggregate counts
+router.get(
+  '/metrics',
+  auth,
+  checkPermission('manage:tenants'),
+  async (req, res, next) => {
+    try {
+      const schoolsCount = await Tenant.countDocuments();
+      const studentsCount = await Student.countDocuments();
+      const staffCount = await Staff.countDocuments();
+
+      res.status(200).json({
+        success: true,
+        data: {
+          schools: schoolsCount,
+          students: studentsCount,
+          staff: staffCount
+        }
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// GET /api/v1/superadmin/logs - Retrieve last 50 audit activity logs
+router.get(
+  '/logs',
+  auth,
+  checkPermission('manage:tenants'),
+  async (req, res, next) => {
+    try {
+      const logs = await ActivityLog.find().sort({ createdAt: -1 }).limit(50);
+      res.status(200).json({
+        success: true,
+        data: logs
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 // POST /api/v1/superadmin/tenants - Onboard a new school tenant
-// Restricted to Super Admins only (possessing the "manage:tenants" permission)
 router.post(
   '/tenants',
   auth,
@@ -22,7 +68,9 @@ router.post(
         secondaryColor,
         adminName,
         adminEmail,
-        adminPassword
+        adminPassword,
+        plan,
+        maxStudents
       } = req.body;
 
       // Validate required inputs
@@ -67,7 +115,9 @@ router.post(
         logoUrl: logoUrl || 'https://images.unsplash.com/photo-1546410531-bb4caa6b424d?q=80&w=200&h=200&fit=crop',
         primaryColor: primaryColor || '#1e3a8a',
         secondaryColor: secondaryColor || '#d97706',
-        status: 'active'
+        status: 'active',
+        plan: plan || 'free_trial',
+        maxStudents: maxStudents !== undefined ? maxStudents : 10
       });
 
       // 2. Create the Default School Administrator
@@ -87,6 +137,13 @@ router.post(
         throw userCreationError; // Pass to Express global error handler
       }
 
+      // Write Log
+      await ActivityLog.create({
+        action: 'TENANT_ONBOARDED',
+        details: `Onboarded school '${schoolName}' on subdomain '${subdomain}' (Plan: ${tenant.plan.toUpperCase()}, Limit: ${tenant.maxStudents} students).`,
+        performedBy: req.user.email
+      });
+
       res.status(201).json({
         success: true,
         message: `School '${schoolName}' onboarded successfully.`,
@@ -102,6 +159,92 @@ router.post(
             email: adminUser.email
           }
         }
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// PUT /api/v1/superadmin/tenants/:id - Update an existing school tenant settings
+router.put(
+  '/tenants/:id',
+  auth,
+  checkPermission('manage:tenants'),
+  async (req, res, next) => {
+    try {
+      const { schoolName, logoUrl, primaryColor, secondaryColor, status, plan, maxStudents } = req.body;
+
+      const tenant = await Tenant.findById(req.params.id);
+      if (!tenant) {
+        return res.status(404).json({
+          success: false,
+          error: 'School tenant not found.'
+        });
+      }
+
+      if (schoolName) tenant.schoolName = schoolName;
+      if (logoUrl !== undefined) tenant.logoUrl = logoUrl;
+      if (primaryColor) tenant.primaryColor = primaryColor;
+      if (secondaryColor) tenant.secondaryColor = secondaryColor;
+      if (status) tenant.status = status;
+      if (plan) tenant.plan = plan;
+      if (maxStudents !== undefined) tenant.maxStudents = maxStudents;
+
+      await tenant.save();
+
+      // Write Log
+      await ActivityLog.create({
+        action: 'TENANT_UPDATED',
+        details: `Updated configurations for school '${tenant.schoolName}' (Status: ${tenant.status.toUpperCase()}, Plan: ${tenant.plan.toUpperCase()}, Limit: ${tenant.maxStudents} students).`,
+        performedBy: req.user.email
+      });
+
+      res.status(200).json({
+        success: true,
+        message: 'School tenant configurations updated successfully.',
+        data: tenant
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// DELETE /api/v1/superadmin/tenants/:id - Permanently delete a school tenant and cascade clean up
+router.delete(
+  '/tenants/:id',
+  auth,
+  checkPermission('manage:tenants'),
+  async (req, res, next) => {
+    try {
+      const tenant = await Tenant.findById(req.params.id);
+      if (!tenant) {
+        return res.status(404).json({
+          success: false,
+          error: 'School tenant not found.'
+        });
+      }
+
+      // Cascade Delete everything belonging to this school ID
+      await User.deleteMany({ tenantId: tenant._id });
+      await Class.deleteMany({ tenantId: tenant._id });
+      await Student.deleteMany({ tenantId: tenant._id });
+      await Staff.deleteMany({ tenantId: tenant._id });
+
+      // Finally delete tenant record
+      await Tenant.findByIdAndDelete(tenant._id);
+
+      // Write Log
+      await ActivityLog.create({
+        action: 'TENANT_DELETED',
+        details: `Permanently deleted school '${tenant.schoolName}' and cleaned up all associated users, classes, student, and staff records.`,
+        performedBy: req.user.email
+      });
+
+      res.status(200).json({
+        success: true,
+        message: `Permanently removed school '${tenant.schoolName}' and cleaned up all users, students, and staff directory records.`
       });
     } catch (error) {
       next(error);

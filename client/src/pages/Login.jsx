@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTenantTheme } from '../context/TenantThemeContext';
+import { School, Info } from 'lucide-react';
 
 const Login = () => {
   const { login, error: authError } = useAuth();
@@ -11,6 +12,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [logoError, setLogoError] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -60,15 +62,16 @@ const Login = () => {
       {/* Main Container glassmorphic card */}
       <div className="w-full max-w-md glass-card rounded-2xl p-8 border border-white/10 shadow-2xl relative z-10">
         <div className="flex flex-col items-center text-center space-y-4 mb-6">
-          {tenant?.logoUrl ? (
+          {tenant?.logoUrl && !logoError ? (
             <img 
               src={tenant.logoUrl} 
               alt={`${tenant.schoolName} logo`} 
               className="w-16 h-16 rounded-full border-2 border-primary object-cover shadow-md"
+              onError={() => setLogoError(true)}
             />
           ) : (
-            <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center text-3xl shadow-md">
-              🏫
+            <div className="w-16 h-16 rounded-full bg-primary/10 text-primary border-2 border-primary/20 flex items-center justify-center shadow-md">
+              <School className="w-8 h-8 text-primary" />
             </div>
           )}
 
@@ -83,8 +86,11 @@ const Login = () => {
         </div>
 
         {/* Info alerts */}
-        <div className="bg-slate-900/60 border border-slate-700/60 p-3 rounded-xl mb-5 text-xs text-slate-300">
-          <p className="font-semibold text-primary mb-1">💡 Demo Accounts Credentials:</p>
+        <div className="bg-slate-900/60 border border-slate-750 p-3 rounded-xl mb-5 text-xs text-slate-300">
+          <p className="font-semibold text-primary mb-1.5 flex items-center gap-1.5">
+            <Info className="w-3.5 h-3.5" />
+            Demo Accounts Credentials:
+          </p>
           <ul className="list-disc pl-4 space-y-1 text-slate-400">
             <li><strong>Super Admin (Global):</strong> <code>admin@educore.app</code> / Password123</li>
             <li><strong>DPS Admin (School A):</strong> <code>admin@schoola.com</code> / Password123</li>

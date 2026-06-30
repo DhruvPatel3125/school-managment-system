@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const Staff = require('../models/staff');
+const User = require('../models/user');
+const Role = require('../models/role');
 const auth = require('../middlewares/auth');
 const tenantResolver = require('../middlewares/tenantResolver');
 
@@ -39,23 +41,59 @@ router.post('/', isSchoolAdmin, async (req, res, next) => {
       return res.status(400).json({ success: false, error: 'Please fill in all required fields.' });
     }
 
+    // Check if email is already taken globally
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    if (existingUser) {
+      return res.status(400).json({ success: false, error: `Email "${email}" is already registered in the system.` });
+    }
+
     // Verify employeeId is unique within the tenant
     const existingStaff = await Staff.findOne({ employeeId, tenantId: req.tenantId });
     if (existingStaff) {
-      return res.status(400).json({ success: false, error: `Employee ID "${employeeId}" already exists.` });
+      return res.status(400).json({ success: false, error: `Employee ID "${employeeId}" already exists under this school.` });
     }
 
     const newStaff = await Staff.create({
       employeeId,
       name,
-      email,
+      email: email.toLowerCase(),
       designation,
       department,
       joiningDate: joiningDate || undefined,
       tenantId: req.tenantId
     });
 
-    res.status(201).json({ success: true, data: newStaff });
+    // Auto-create User credentials based on designation
+    const isTeacher = designation.toLowerCase().includes('teacher') || !designation.toLowerCase().includes('admin');
+    const roleName = isTeacher ? 'teacher' : 'school_admin';
+    const staffRole = await Role.findOne({ name: roleName });
+    if (!staffRole) {
+      await Staff.findByIdAndDelete(newStaff._id);
+      return res.status(500).json({ success: false, error: `System Role "${roleName}" not found.` });
+    }
+
+    try {
+      await User.create({
+        name,
+        email: email.toLowerCase(),
+        passwordHash: 'Password123', // auto-hashed
+        roleId: staffRole._id,
+        tenantId: req.tenantId,
+        status: 'active'
+      });
+    } catch (userErr) {
+      await Staff.findByIdAndDelete(newStaff._id);
+      throw userErr;
+    }
+
+    res.status(201).json({ 
+      success: true, 
+      data: newStaff,
+      credentials: {
+        email: email.toLowerCase(),
+        password: 'Password123'
+      }
+    });
   } catch (error) {
     next(error);
   }
@@ -88,6 +126,9 @@ router.delete('/:id', isSchoolAdmin, async (req, res, next) => {
     if (!deletedStaff) {
       return res.status(404).json({ success: false, error: 'Staff member not found.' });
     }
+
+    // Cascade delete corresponding User credentials
+    await User.findOneAndDelete({ email: deletedStaff.email.toLowerCase(), tenantId: req.tenantId });
 
     res.status(200).json({ success: true, message: 'Staff record deleted successfully.' });
   } catch (error) {

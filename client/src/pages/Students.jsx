@@ -1,6 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useTenantTheme } from '../context/TenantThemeContext';
+import { 
+  Search, 
+  UserPlus, 
+  Printer, 
+  Trash2, 
+  GraduationCap, 
+  School, 
+  Contact, 
+  AlertTriangle,
+  CheckCircle
+} from 'lucide-react';
 
 const Students = () => {
   const { tenant } = useTenantTheme();
@@ -16,6 +27,7 @@ const Students = () => {
 
   // Admission Modal State
   const [showAddModal, setShowAddModal] = useState(false);
+  const [onboardedCredentials, setOnboardedCredentials] = useState(null);
   const [admissionNo, setAdmissionNo] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -94,6 +106,7 @@ const Students = () => {
     setParentName('');
     setParentPhone('');
     setError('');
+    setOnboardedCredentials(null);
     setShowAddModal(true);
   };
 
@@ -107,7 +120,7 @@ const Students = () => {
     }
 
     try {
-      await axios.post('http://localhost:5001/api/v1/students', {
+      const res = await axios.post('http://localhost:5001/api/v1/students', {
         admissionNo,
         name,
         email,
@@ -117,7 +130,11 @@ const Students = () => {
         parentName,
         parentPhone
       });
-      setShowAddModal(false);
+      if (res.data.success && res.data.credentials) {
+        setOnboardedCredentials(res.data.credentials);
+      } else {
+        setShowAddModal(false);
+      }
       fetchData();
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to submit admission form.');
@@ -176,7 +193,7 @@ const Students = () => {
           onClick={openAdmissionModal}
           className="px-4 py-2.5 bg-primary hover:opacity-90 active:scale-95 text-white font-semibold text-sm rounded-lg shadow-lg transition-all flex items-center gap-2"
         >
-          <span>🎓</span> New Admission
+          <UserPlus className="w-4 h-4" /> New Admission
         </button>
       </div>
 
@@ -190,7 +207,7 @@ const Students = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
           />
-          <span className="absolute left-3 top-2.5 text-slate-400 text-sm">🔍</span>
+          <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
         </div>
         
         <div className="w-full sm:w-60">
@@ -210,8 +227,8 @@ const Students = () => {
       </div>
 
       {error && !showAddModal && (
-        <div className="p-4 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-lg text-sm font-medium">
-          ⚠️ {error}
+        <div className="p-4 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-lg text-sm font-medium flex items-center gap-1.5">
+          <AlertTriangle className="w-4 h-4" /> {error}
         </div>
       )}
 
@@ -223,7 +240,7 @@ const Students = () => {
         </div>
       ) : students.length === 0 ? (
         <div className="glass-card text-center p-12 border border-slate-200 dark:border-slate-800 rounded-xl">
-          <span className="text-5xl block mb-4">👨‍🎓</span>
+          <GraduationCap className="w-12 h-12 text-slate-400 mx-auto mb-4" />
           <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">No Students Found</h3>
           <p className="text-slate-500 dark:text-slate-400 text-sm max-w-sm mx-auto mb-6">Create classes first, then admit students using the "New Admission" button.</p>
           <button
@@ -280,13 +297,13 @@ const Students = () => {
                           onClick={() => openIdCard(student)}
                           className="px-2.5 py-1.5 bg-slate-100 dark:bg-slate-700 hover:bg-primary hover:text-white dark:hover:bg-primary rounded-lg text-slate-700 dark:text-slate-300 font-semibold text-xs transition-all flex items-center gap-1 shadow-sm"
                         >
-                          🪪 ID Card
+                          <Contact className="w-3.5 h-3.5" /> ID Card
                         </button>
                         <button
                           onClick={() => handleDelete(student._id)}
                           className="p-1.5 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded transition-all"
                         >
-                          🗑️
+                          <Trash2 className="w-4 h-4 text-rose-500" />
                         </button>
                       </div>
                     </td>
@@ -302,139 +319,176 @@ const Students = () => {
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm transition-opacity duration-300">
           <div className="w-full max-w-lg bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-2xl relative">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">🎓 Admit New Student</h3>
-
-            {error && (
-              <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-lg text-xs font-medium mb-4">
-                ⚠️ {error}
+            {onboardedCredentials ? (
+              <div className="text-center py-4 space-y-4">
+                <div className="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-500 mx-auto flex items-center justify-center">
+                  <CheckCircle className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">Admission Successful</h3>
+                  <p className="text-xs text-slate-500 mt-1">Student portal login credentials have been generated automatically.</p>
+                </div>
+                <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-xl p-4 text-left text-sm space-y-2">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Portal Username (Email)</span>
+                    <strong className="text-slate-800 dark:text-slate-200 select-all font-mono">{onboardedCredentials.email}</strong>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Temporary Password</span>
+                    <strong className="text-slate-800 dark:text-slate-200 select-all font-mono">{onboardedCredentials.password}</strong>
+                  </div>
+                </div>
+                <div className="flex justify-center pt-2">
+                  <button
+                    onClick={() => {
+                      setOnboardedCredentials(null);
+                      setShowAddModal(false);
+                    }}
+                    className="px-6 py-2 bg-emerald-600 hover:bg-emerald-555 text-white rounded-lg text-xs font-semibold shadow transition-all active:scale-95"
+                  >
+                    Copy & Close
+                  </button>
+                </div>
               </div>
+            ) : (
+              <>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                  <UserPlus className="w-5 h-5 text-indigo-500" /> Admit New Student
+                </h3>
+
+                {error && (
+                  <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-lg text-xs font-medium mb-4 flex items-center gap-1.5">
+                    <AlertTriangle className="w-4 h-4" /> {error}
+                  </div>
+                )}
+
+                <form onSubmit={handleAdmissionSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+                      Admission Number
+                    </label>
+                    <input
+                      type="text"
+                      value={admissionNo}
+                      onChange={(e) => setAdmissionNo(e.target.value)}
+                      className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+                      Student Full Name
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Rahul Patel"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      placeholder="e.g. rahul@gmail.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+                      Date of Birth
+                    </label>
+                    <input
+                      type="date"
+                      value={dob}
+                      onChange={(e) => setDob(e.target.value)}
+                      className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+                      Assign Class
+                    </label>
+                    <select
+                      value={selectedClassId}
+                      onChange={(e) => handleClassChangeInForm(e.target.value)}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                    >
+                      <option value="" disabled className="dark:bg-slate-800">Select Class</option>
+                      {classes.map((cls) => (
+                        <option key={cls._id} value={cls._id} className="dark:bg-slate-800">{cls.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+                      Select Section
+                    </label>
+                    <select
+                      value={selectedSection}
+                      onChange={(e) => setSelectedSection(e.target.value)}
+                      disabled={availableSections.length === 0}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all disabled:opacity-50"
+                    >
+                      {availableSections.map((sec) => (
+                        <option key={sec} value={sec} className="dark:bg-slate-800">Section {sec}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+                      Parent / Guardian Name
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Ramesh Patel"
+                      value={parentName}
+                      onChange={(e) => setParentName(e.target.value)}
+                      className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+                      Parent Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      placeholder="e.g. 9876543210"
+                      value={parentPhone}
+                      onChange={(e) => setParentPhone(e.target.value)}
+                      className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                    />
+                  </div>
+
+                  <div className="col-span-1 sm:col-span-2 flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700/50">
+                    <button
+                      type="button"
+                      onClick={() => setShowAddModal(false)}
+                      className="px-4 py-2 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg text-slate-700 dark:text-slate-300 font-semibold text-xs transition-all"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-primary hover:opacity-90 active:scale-95 text-white rounded-lg font-semibold text-xs transition-all shadow-md flex items-center gap-1.5"
+                    >
+                      <UserPlus className="w-4 h-4" /> Submit Admission
+                    </button>
+                  </div>
+                </form>
+              </>
             )}
-
-            <form onSubmit={handleAdmissionSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
-                  Admission Number
-                </label>
-                <input
-                  type="text"
-                  value={admissionNo}
-                  onChange={(e) => setAdmissionNo(e.target.value)}
-                  className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
-                  Student Full Name
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Rahul Patel"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  placeholder="e.g. rahul@gmail.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
-                  Date of Birth
-                </label>
-                <input
-                  type="date"
-                  value={dob}
-                  onChange={(e) => setDob(e.target.value)}
-                  className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
-                  Assign Class
-                </label>
-                <select
-                  value={selectedClassId}
-                  onChange={(e) => handleClassChangeInForm(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-                >
-                  <option value="" disabled className="dark:bg-slate-800">Select Class</option>
-                  {classes.map((cls) => (
-                    <option key={cls._id} value={cls._id} className="dark:bg-slate-800">{cls.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
-                  Select Section
-                </label>
-                <select
-                  value={selectedSection}
-                  onChange={(e) => setSelectedSection(e.target.value)}
-                  disabled={availableSections.length === 0}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all disabled:opacity-50"
-                >
-                  {availableSections.map((sec) => (
-                    <option key={sec} value={sec} className="dark:bg-slate-800">Section {sec}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
-                  Parent / Guardian Name
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Ramesh Patel"
-                  value={parentName}
-                  onChange={(e) => setParentName(e.target.value)}
-                  className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
-                  Parent Phone Number
-                </label>
-                <input
-                  type="tel"
-                  placeholder="e.g. 9876543210"
-                  value={parentPhone}
-                  onChange={(e) => setParentPhone(e.target.value)}
-                  className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-                />
-              </div>
-
-              <div className="col-span-1 sm:col-span-2 flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700/50">
-                <button
-                  type="button"
-                  onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg text-slate-700 dark:text-slate-300 font-semibold text-xs transition-all"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-primary hover:opacity-90 active:scale-95 text-white rounded-lg font-semibold text-xs transition-all shadow-md"
-                >
-                  Submit Admission
-                </button>
-              </div>
-            </form>
           </div>
         </div>
       )}
@@ -455,7 +509,7 @@ const Students = () => {
                 {tenant?.logoUrl ? (
                   <img src={tenant.logoUrl} alt="Logo" className="w-8 h-8 rounded-full object-cover" />
                 ) : (
-                  <span className="text-xl">🏫</span>
+                  <School className="w-6 h-6 text-primary" />
                 )}
                 <div>
                   <h4 className="text-sm font-bold tracking-tight text-white leading-none uppercase">{tenant?.schoolName || 'EduCore School'}</h4>
@@ -465,8 +519,8 @@ const Students = () => {
 
               {/* Photo */}
               <div className="relative z-10 my-4 flex flex-col items-center">
-                <div className="w-24 h-24 rounded-full bg-primary/10 text-primary border-2 border-primary flex items-center justify-center font-bold text-3xl shadow-lg">
-                  🎓
+                <div className="w-24 h-24 rounded-full bg-primary/10 text-primary border-2 border-primary flex items-center justify-center shadow-lg">
+                  <GraduationCap className="w-12 h-12 text-primary" />
                 </div>
                 <h3 className="text-md font-bold mt-3 text-white">{activeStudentForIdCard.name}</h3>
                 <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
@@ -511,7 +565,7 @@ const Students = () => {
                 onClick={handlePrintIdCard}
                 className="px-4 py-2 bg-primary hover:opacity-90 active:scale-95 text-white rounded-lg font-semibold text-xs transition-all shadow-md flex items-center gap-1.5"
               >
-                <span>🖨️</span> Print Pass Card
+                <Printer className="w-4 h-4" /> Print Pass Card
               </button>
             </div>
 

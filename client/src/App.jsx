@@ -7,6 +7,7 @@ import BaseLayout from './layouts/BaseLayout';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
+import MainLandingPage from './pages/MainLandingPage';
 import Classes from './pages/Classes';
 import Students from './pages/Students';
 import Staff from './pages/Staff';
@@ -14,7 +15,7 @@ import NotFound from './pages/NotFound';
 
 // Wrapper that displays the dynamic brand tenant resolving view
 const AppContent = () => {
-  const { loading: tenantLoading, error: tenantError } = useTenantTheme();
+  const { tenant, loading: tenantLoading, error: tenantError } = useTenantTheme();
   const { loading: authLoading } = useAuth();
 
   if (tenantLoading || authLoading) {
@@ -37,7 +38,7 @@ const AppContent = () => {
         <p className="mt-2 text-slate-400 max-w-md">{tenantError}</p>
         <button 
           onClick={() => window.location.reload()} 
-          className="mt-6 px-4 py-2 bg-indigo-650 hover:bg-indigo-650 rounded-lg text-white font-semibold shadow transition-all active:scale-95"
+          className="mt-6 px-4 py-2 bg-indigo-600 hover:bg-indigo-550 rounded-lg text-white font-semibold shadow transition-all active:scale-95"
         >
           Retry Connection
         </button>
@@ -45,6 +46,33 @@ const AppContent = () => {
     );
   }
 
+  // SPLIT ROUTING: If no subdomain/tenant is active, show the Main SaaS Landing Page & Super Admin Dashboard
+  if (!tenant) {
+    return (
+      <Routes>
+        {/* Main Platform Landing Page */}
+        <Route path="/" element={<MainLandingPage />} />
+
+        {/* Public Login Route */}
+        <Route path="/login" element={<Login />} />
+
+        {/* Protected Global Super Admin Dashboard */}
+        <Route 
+          path="/super-admin" 
+          element={
+            <ProtectedRoute requiredRole="super_admin">
+              <SuperAdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Fallback to Landing Page */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    );
+  }
+
+  // SCHOOL PORTAL MODE: If a subdomain tenant is resolved (e.g. tapovan.localhost)
   return (
     <Routes>
       {/* Public Login Route (Gets custom theme variables dynamically) */}
@@ -65,17 +93,7 @@ const AppContent = () => {
         <Route path="staff" element={<Staff />} />
       </Route>
 
-      {/* Protected Global Super Admin Routes */}
-      <Route 
-        path="/super-admin" 
-        element={
-          <ProtectedRoute requiredRole="super_admin">
-            <SuperAdminDashboard />
-          </ProtectedRoute>
-        }
-      />
-
-      {/* Fallback */}
+      {/* Fallback back to Portal Root */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

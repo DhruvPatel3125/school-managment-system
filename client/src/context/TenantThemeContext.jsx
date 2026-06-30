@@ -31,7 +31,14 @@ export const TenantThemeProvider = ({ children }) => {
         // If no subdomain found, look for 'tenant' query parameter as fallback (dev helper)
         if (!subdomain) {
           const urlParams = new URLSearchParams(window.location.search);
-          subdomain = urlParams.get('tenant') || 'schoola'; // Default to schoola for easy testing
+          subdomain = urlParams.get('tenant'); // Do not default to 'schoola'
+        }
+
+        if (!subdomain) {
+          // Main platform landing page mode
+          setTenant(null);
+          setLoading(false);
+          return;
         }
 
         console.log(`Resolving branding settings for tenant: "${subdomain}"`);

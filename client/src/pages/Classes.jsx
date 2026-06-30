@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Plus, Edit2, Trash2, BookOpen, AlertTriangle } from 'lucide-react';
 
 const Classes = () => {
   const [classes, setClasses] = useState([]);
@@ -109,13 +110,13 @@ const Classes = () => {
           onClick={openAddModal}
           className="px-4 py-2.5 bg-primary hover:opacity-90 active:scale-95 text-white font-semibold text-sm rounded-lg shadow-lg transition-all flex items-center gap-2"
         >
-          <span>➕</span> Add Class
+          <Plus className="w-4 h-4" /> Add Class
         </button>
       </div>
 
       {error && !showModal && (
-        <div className="p-4 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-lg text-sm font-medium">
-          ⚠️ {error}
+        <div className="p-4 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-lg text-sm font-medium flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4" /> {error}
         </div>
       )}
 
@@ -126,14 +127,14 @@ const Classes = () => {
         </div>
       ) : classes.length === 0 ? (
         <div className="glass-card text-center p-12 border border-slate-200 dark:border-slate-800 rounded-xl">
-          <span className="text-5xl block mb-4">📚</span>
+          <BookOpen className="w-12 h-12 text-slate-400 mx-auto mb-4" />
           <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">No Classes Configured</h3>
           <p className="text-slate-500 dark:text-slate-400 text-sm max-w-sm mx-auto mb-6">Create classes like "Class 10" or "Grade 6" to begin admitting students under them.</p>
           <button
             onClick={openAddModal}
-            className="px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary font-semibold text-sm rounded-lg transition-all"
+            className="px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary font-semibold text-sm rounded-lg transition-all flex items-center gap-1.5 mx-auto"
           >
-            Create Your First Class
+            <Plus className="w-4 h-4" /> Create Your First Class
           </button>
         </div>
       ) : (
@@ -151,13 +152,13 @@ const Classes = () => {
                       onClick={() => openEditModal(cls)}
                       className="p-1.5 text-slate-400 hover:text-primary dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-all"
                     >
-                      ✏️
+                      <Edit2 className="w-4 h-4" />
                     </button>
                     <button 
                       onClick={() => handleDelete(cls._id)}
                       className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded transition-all"
                     >
-                      🗑️
+                      <Trash2 className="w-4 h-4 text-rose-500" />
                     </button>
                   </div>
                 </div>
@@ -190,13 +191,14 @@ const Classes = () => {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm transition-opacity duration-300">
           <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-2xl relative">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">
-              {editingClass ? '✏️ Edit Class Configuration' : '📚 Add New Class'}
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+              {editingClass ? <Edit2 className="w-5 h-5 text-indigo-500" /> : <BookOpen className="w-5 h-5 text-indigo-500" />}
+              {editingClass ? 'Edit Class Configuration' : 'Add New Class'}
             </h3>
 
             {error && (
-              <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-lg text-xs font-medium mb-4">
-                ⚠️ {error}
+              <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-lg text-xs font-medium mb-4 flex items-center gap-1.5">
+                <AlertTriangle className="w-4 h-4" /> {error}
               </div>
             )}
 
@@ -238,7 +240,7 @@ const Classes = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-primary hover:opacity-90 active:scale-95 text-white rounded-lg font-semibold text-xs transition-all shadow-md"
+                  className="px-4 py-2 bg-primary hover:opacity-90 active:scale-95 text-white rounded-lg font-semibold text-xs transition-all shadow-md flex items-center gap-1"
                 >
                   Save Configuration
                 </button>

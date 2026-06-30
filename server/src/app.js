@@ -9,12 +9,16 @@ const superadminRouter = require('./routes/superadmin');
 const classesRouter = require('./routes/classes');
 const studentsRouter = require('./routes/students');
 const staffRouter = require('./routes/staff');
+const teachersRouter = require('./routes/teachers');
+const uploadRouter = require('./routes/upload');
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
 
 // Security Middlewares
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: false
+}));
 
 // Configure CORS to allow credentials and wildcard subdomains
 app.use(cors({
@@ -43,6 +47,8 @@ app.use('/api/v1/superadmin', superadminRouter);
 app.use('/api/v1/classes', classesRouter);
 app.use('/api/v1/students', studentsRouter);
 app.use('/api/v1/staff', staffRouter);
+app.use('/api/v1/teachers', teachersRouter);
+app.use('/api/v1/upload', uploadRouter);
 
 // Fallback for unhandled endpoints
 app.use((req, res, next) => {

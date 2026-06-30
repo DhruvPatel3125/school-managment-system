@@ -1,11 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import { useTenantTheme } from '../context/TenantThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { 
+  LayoutDashboard, 
+  GraduationCap, 
+  Users, 
+  Users2, 
+  CreditCard, 
+  Palette, 
+  LogOut,
+  School
+} from 'lucide-react';
 
 const BaseLayout = () => {
   const { tenant } = useTenantTheme();
   const { logout, user } = useAuth();
+  const [logoError, setLogoError] = useState(false);
 
   return (
     <div className="min-h-screen flex flex-col transition-colors duration-300 dark:bg-slate-900 bg-slate-50">
@@ -13,15 +24,16 @@ const BaseLayout = () => {
       <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            {tenant?.logoUrl ? (
+            {tenant?.logoUrl && !logoError ? (
               <img 
                 src={tenant.logoUrl} 
                 alt={`${tenant.schoolName} logo`} 
                 className="w-10 h-10 rounded-full border-2 border-primary object-cover"
+                onError={() => setLogoError(true)}
               />
             ) : (
-              <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">
-                🏫
+              <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white shadow-inner">
+                <School className="w-5 h-5 text-white" />
               </div>
             )}
             <div>
@@ -44,8 +56,9 @@ const BaseLayout = () => {
               </div>
               <button 
                 onClick={logout}
-                className="text-xs text-rose-500 hover:text-rose-600 font-semibold px-2 py-1 rounded hover:bg-rose-50 dark:hover:bg-rose-950/20 active:scale-95 transition-all"
+                className="text-xs text-rose-500 hover:text-rose-600 font-semibold px-2 py-1 rounded hover:bg-rose-50 dark:hover:bg-rose-950/20 active:scale-95 transition-all flex items-center gap-1"
               >
+                <LogOut className="w-3 h-3" />
                 Log Out
               </button>
             </div>
@@ -66,57 +79,69 @@ const BaseLayout = () => {
               to="/" 
               className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-700/50 group border-l-4 border-primary pl-2 transition-all"
             >
-              <span className="mr-3 text-lg">📊</span>
+              <LayoutDashboard className="w-4 h-4 mr-3 text-slate-400 group-hover:text-primary transition-colors" />
               Overview Dashboard
             </Link>
 
-            <Link 
-              to="/classes" 
-              className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all border-l-4 border-transparent pl-2"
-            >
-              <span className="mr-3 text-lg">📚</span>
-              Classes & Sections
-            </Link>
+            {user?.role === 'school_admin' && (
+              <Link 
+                to="/classes" 
+                className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 group border-l-4 border-transparent pl-2 transition-all"
+              >
+                <GraduationCap className="w-4 h-4 mr-3 text-slate-400 group-hover:text-primary transition-colors" />
+                Classes & Sections
+              </Link>
+            )}
 
-            <Link 
-              to="/students" 
-              className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all border-l-4 border-transparent pl-2"
-            >
-              <span className="mr-3 text-lg">👥</span>
-              Students (SIS)
-            </Link>
+            {(user?.role === 'school_admin' || user?.role === 'teacher') && (
+              <Link 
+                to="/students" 
+                className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 group border-l-4 border-transparent pl-2 transition-all"
+              >
+                <Users className="w-4 h-4 mr-3 text-slate-400 group-hover:text-primary transition-colors" />
+                Students (SIS)
+              </Link>
+            )}
 
-            <Link 
-              to="/staff" 
-              className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all border-l-4 border-transparent pl-2"
-            >
-              <span className="mr-3 text-lg">👨‍🏫</span>
-              Staff Directory
-            </Link>
+            {user?.role === 'school_admin' && (
+              <>
+                <Link 
+                  to="/staff" 
+                  className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 group border-l-4 border-transparent pl-2 transition-all"
+                >
+                  <Users2 className="w-4 h-4 mr-3 text-slate-400 group-hover:text-primary transition-colors" />
+                  Staff Directory
+                </Link>
 
-            <a 
-              href="#" 
-              className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all border-l-4 border-transparent pl-2"
-              onClick={(e) => e.preventDefault()}
-            >
-              <span className="mr-3 text-lg">💰</span>
-              Fee Management
-            </a>
+                <a 
+                  href="#" 
+                  className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 group border-l-4 border-transparent pl-2 transition-all"
+                  onClick={(e) => e.preventDefault()}
+                >
+                  <CreditCard className="w-4 h-4 mr-3 text-slate-400 group-hover:text-primary transition-colors" />
+                  Fee Management
+                </a>
+              </>
+            )}
 
-            <div className="pt-4 border-t border-slate-200 dark:border-slate-700 my-2"></div>
+            {user?.role === 'school_admin' && (
+              <>
+                <div className="pt-4 border-t border-slate-200 dark:border-slate-700 my-2"></div>
 
-            <div className="px-3 py-2 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-              Tenant Settings
-            </div>
+                <div className="px-3 py-2 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                  Tenant Settings
+                </div>
 
-            <a 
-              href="#" 
-              className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all border-l-4 border-transparent pl-2"
-              onClick={(e) => e.preventDefault()}
-            >
-              <span className="mr-3 text-lg">🎨</span>
-              Branding Config
-            </a>
+                <a 
+                  href="#" 
+                  className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 group border-l-4 border-transparent pl-2 transition-all"
+                  onClick={(e) => e.preventDefault()}
+                >
+                  <Palette className="w-4 h-4 mr-3 text-slate-400 group-hover:text-primary transition-colors" />
+                  Branding Config
+                </a>
+              </>
+            )}
           </nav>
         </aside>
 
