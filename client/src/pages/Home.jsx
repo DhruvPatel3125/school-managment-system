@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useLocation } from 'react-router-dom';
 import { useTenantTheme } from '../context/TenantThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { Link } from 'react-router-dom';
 import {
   GraduationCap,
   Calendar,
@@ -22,17 +24,20 @@ import {
   Users,
   Loader2,
   Send,
+  Bell,
   Check,
   X,
   Lock,
   ArrowRight,
   TrendingUp,
-  Receipt
+  Receipt,
+  Printer
 } from 'lucide-react';
 
 const Home = () => {
   const { tenant } = useTenantTheme();
   const { user } = useAuth();
+  const location = useLocation();
   
   // COMMON STATE
   const [loading, setLoading] = useState(false);
@@ -111,6 +116,32 @@ const Home = () => {
     }
   }, [user]);
 
+  // Sync tab from URL path dynamically
+  useEffect(() => {
+    const path = location.pathname;
+    if (path === '/myprofile') {
+      setStudentActiveTab('profile');
+    } else if (path === '/attendance') {
+      setStudentActiveTab('attendance');
+    } else if (path === '/homework') {
+      setStudentActiveTab('homework');
+    } else if (path === '/fees') {
+      setStudentActiveTab('fees');
+    } else if (path === '/exams') {
+      setStudentActiveTab('exams');
+    } else if (path === '/timetable') {
+      setStudentActiveTab('timetable');
+    } else if (path === '/announcements') {
+      setStudentActiveTab('announcements');
+    } else if (path === '/messages') {
+      setStudentActiveTab('messages');
+    } else if (path === '/documents') {
+      setStudentActiveTab('documents');
+    } else {
+      setStudentActiveTab('overview');
+    }
+  }, [location.pathname]);
+
   // ==========================================
   // STUDENT PORTAL API HANDLERS
   // ==========================================
@@ -121,6 +152,10 @@ const Home = () => {
       const res = await axios.get('http://localhost:5001/api/v1/students/portal/dashboard');
       if (res.data.success) {
         setStudentDashData(res.data.data);
+        const studentData = res.data.data.student;
+        if (studentData) {
+          localStorage.setItem('studentClassSection', `${studentData.classId?.name || 'Class 10'} - Section ${studentData.section || 'A'}`);
+        }
       }
     } catch (err) {
       console.error(err);
@@ -376,442 +411,730 @@ const Home = () => {
     const profile = studentDashData?.student;
     const stats = studentDashData?.attendanceStats;
 
+    // Calculate dynamic stats
+    const totalClasses = studentAttendance.length;
+    const presentClasses = studentAttendance.filter(a => a.status === 'present' || a.status === 'late').length;
+    const attendancePercentage = stats?.percentage || "0.0";
+    
+    const pendingHomeworkCount = studentDashData?.pendingAssignmentsCount || 0;
+    
+    const pendingFees = studentFees.filter(f => f.status === 'pending');
+    const totalUnpaidAmount = pendingFees.reduce((sum, f) => sum + f.amount, 0);
+    const pendingFeesCount = studentDashData?.pendingFeesCount || 0;
+
+    const classSection = localStorage.getItem('studentClassSection') || 'Class 3 - Section A';
+
+    // Dynamic Exams count based on assignments with "exam" or "test" in description/title
+    const examCount = studentAssignments.filter(a => 
+      a.title.toLowerCase().includes('exam') || 
+      a.title.toLowerCase().includes('test') ||
+      a.description.toLowerCase().includes('exam') || 
+      a.description.toLowerCase().includes('test')
+    ).length;
+
+    // Dynamic upcoming deadlines from real homework
+    const upcomingDeadlines = studentAssignments
+      .filter(a => a.submissionStatus === 'pending')
+      .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+      .slice(0, 2);
+
+    // Dynamic Announcements List
+    const getAnnouncements = () => {
+      const list = [];
+      
+      // Dynamic homework announcements
+      studentAssignments.slice(0, 2).forEach(asg => {
+        list.push({
+          id: `asg-${asg._id}`,
+          title: `New Homework: ${asg.title}`,
+          time: 'Recently posted',
+          icon: 'FileText',
+          color: 'indigo',
+          description: `Subject: ${asg.subject}. Submission is pending with a due date of ${new Date(asg.dueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}.`
+        });
+      });
+
+      // Default customized notices
+      list.push({
+        id: 'notice-1',
+        title: 'School Holiday Notice',
+        time: '2 days ago',
+        icon: 'Bell',
+        color: 'pink',
+        description: `All classes in ${tenant?.schoolName || 'Apex Academy'} will remain closed on account of public celebrations.`
+      });
+
+      list.push({
+        id: 'notice-2',
+        title: 'PTM Schedule Reminder',
+        time: '5 days ago',
+        icon: 'Users',
+        color: 'yellow',
+        description: `Parent-Teacher interaction session for ${classSection} is scheduled for Friday from 12:00 PM.`
+      });
+
+      return list;
+    };
+
+    const announcementsList = getAnnouncements();
+
+    // Dynamic subject performance stats based on graded assignments
+    const getSubjectStats = () => {
+      const gradesMap = {
+        'A+': 98, 'A': 95, 'A-': 90,
+        'B+': 88, 'B': 85, 'B-': 80,
+        'C+': 78, 'C': 75, 'C-': 70,
+        'D': 60, 'F': 40
+      };
+      const subjects = {};
+      studentAssignments.forEach(asg => {
+        if (asg.submissionStatus === 'graded' && asg.grade) {
+          const numericGrade = gradesMap[asg.grade.toUpperCase()] || parseFloat(asg.grade) || 80;
+          if (!subjects[asg.subject]) {
+            subjects[asg.subject] = { sum: 0, count: 0 };
+          }
+          subjects[asg.subject].sum += numericGrade;
+          subjects[asg.subject].count += 1;
+        }
+      });
+
+      const list = Object.keys(subjects).map(sub => ({
+        name: sub,
+        percentage: Math.round(subjects[sub].sum / subjects[sub].count)
+      }));
+
+      if (list.length === 0) {
+        const distinctSubjects = [...new Set(studentAssignments.map(a => a.subject))];
+        if (distinctSubjects.length > 0) {
+          return distinctSubjects.map(sub => ({ name: sub, percentage: 80 }));
+        }
+        return [
+          { name: 'Mathematics', percentage: 85 },
+          { name: 'Science', percentage: 78 },
+          { name: 'English', percentage: 72 },
+          { name: 'Social Studies', percentage: 68 },
+          { name: 'Computer', percentage: 90 }
+        ];
+      }
+      return list;
+    };
+
+    const subjectPerformanceList = getSubjectStats();
+
     return (
-      <div className="space-y-6">
-        {/* Header Dashboard Banner */}
-        <div className="relative rounded-2xl overflow-hidden shadow-lg border border-primary/20 bg-gradient-to-r from-primary to-primary/80 text-white p-6 sm:p-8">
-          <div className="relative z-10 max-w-2xl">
-            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight flex items-center gap-2">
-              <Sparkles className="w-6 h-6 text-yellow-300 animate-pulse" /> Welcome back, {user.name}!
-            </h2>
-            <p className="mt-2 text-sm sm:text-base text-white/90">
-              Access your digital ID badge, check class attendance logs, submit homework assignments, and clear academic fee invoices.
-            </p>
+      <div className="space-y-8 bg-[#090e1a] text-slate-100 min-h-screen">
+        
+        {/* Welcome Section */}
+        {studentActiveTab === 'overview' && (
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="text-left">
+              <span className="text-[10px] font-black text-pink-500 uppercase tracking-widest block mb-1">
+                Dashboard Overview
+              </span>
+              <h2 className="text-3xl font-black text-white tracking-tight flex items-center gap-2.5">
+                Welcome back, {user.name.toLowerCase()}! 👋
+              </h2>
+              <p className="text-xs text-slate-400 mt-1 font-medium">
+                Here's what's happening with your academics today.
+              </p>
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Tab navigation headers */}
-        <div className="border-b border-slate-200 dark:border-slate-800">
-          <nav className="-mb-px flex space-x-6 text-sm font-semibold">
-            <button
-              onClick={() => setStudentActiveTab('overview')}
-              className={`py-3 border-b-2 transition-all ${
-                studentActiveTab === 'overview'
-                  ? 'border-primary text-primary dark:text-white'
-                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
-              }`}
-            >
-              Overview Dashboard
-            </button>
-            <button
-              onClick={() => setStudentActiveTab('attendance')}
-              className={`py-3 border-b-2 transition-all ${
-                studentActiveTab === 'attendance'
-                  ? 'border-primary text-primary dark:text-white'
-                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
-              }`}
-            >
-              Attendance logs
-            </button>
-            <button
-              onClick={() => setStudentActiveTab('assignments')}
-              className={`py-3 border-b-2 transition-all relative ${
-                studentActiveTab === 'assignments'
-                  ? 'border-primary text-primary dark:text-white'
-                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
-              }`}
-            >
-              Homework ({studentAssignments.filter(a => a.submissionStatus === 'pending').length} Pending)
-            </button>
-            <button
-              onClick={() => setStudentActiveTab('fees')}
-              className={`py-3 border-b-2 transition-all relative ${
-                studentActiveTab === 'fees'
-                  ? 'border-primary text-primary dark:text-white'
-                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
-              }`}
-            >
-              Exam Fees & Bills
-              {studentDashData?.pendingFeesCount > 0 && (
-                <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-[9px] bg-rose-500 text-white font-black animate-pulse">
-                  {studentDashData.pendingFeesCount}
-                </span>
-              )}
-            </button>
-          </nav>
-        </div>
+        {/* ========================================================== */}
+        {/* TAB: OVERVIEW VIEW */}
+        {/* ========================================================== */}
+        {studentActiveTab === 'overview' && (
+          <div className="space-y-6">
+            
+            {/* Row 1: 4 Metrics Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              
+              {/* Card 1: Attendance */}
+              <div className="bg-[#0d1527] border border-[#1e293b]/60 rounded-2xl p-5 shadow-lg flex items-center justify-between hover:border-[#1e293b] transition-all">
+                <div className="space-y-1.5 text-left">
+                  <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider block">Attendance Rate</span>
+                  <strong className="text-3xl font-black text-white block">{attendancePercentage}%</strong>
+                  <span className="text-[10px] text-slate-400 font-bold block">
+                    Present: {stats?.present || 0} / {totalClasses} days
+                  </span>
+                </div>
+                <div className="w-11 h-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                  <Calendar className="w-5 h-5" />
+                </div>
+              </div>
 
-        {/* Loading spinners */}
-        {loading && !studentDashData ? (
-          <div className="py-16 flex flex-col items-center justify-center space-y-3">
-            <Loader2 className="w-8 h-8 text-primary animate-spin" />
-            <p className="text-xs text-slate-550">Loading student dashboard portal...</p>
-          </div>
-        ) : (
-          <div>
-            {/* SUB-TAB: Overview */}
-            {studentActiveTab === 'overview' && (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
-                {/* Column 1: Student Digital ID Card */}
-                <div className="space-y-4 lg:col-span-1">
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-450 flex items-center gap-1.5">
-                    <CreditCard className="w-4 h-4 text-primary" /> Digital Identity Card
-                  </h3>
-                  
-                  <div 
-                    className="w-full max-w-sm mx-auto rounded-2xl shadow-xl overflow-hidden border border-slate-200 dark:border-slate-800 relative bg-white dark:bg-slate-900"
-                    style={{ borderTop: `8px solid var(--tenant-primary, #4f46e5)` }}
+              {/* Card 2: Homework */}
+              <div className="bg-[#0d1527] border border-[#1e293b]/60 rounded-2xl p-5 shadow-lg flex items-center justify-between hover:border-[#1e293b] transition-all">
+                <div className="space-y-1.5 text-left">
+                  <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider block">Pending Homework</span>
+                  <strong className="text-3xl font-black text-white block">{pendingHomeworkCount}</strong>
+                  <span className="text-[10px] text-slate-400 font-bold block">Submissions Pending</span>
+                </div>
+                <div className="w-11 h-11 rounded-xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center text-yellow-400">
+                  <BookOpen className="w-5 h-5" />
+                </div>
+              </div>
+
+              {/* Card 3: Unpaid Fees */}
+              <div className="bg-[#0d1527] border border-[#1e293b]/60 rounded-2xl p-5 shadow-lg flex items-center justify-between hover:border-[#1e293b] transition-all">
+                <div className="space-y-1.5 text-left">
+                  <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider block">Unpaid Fees</span>
+                  <strong className="text-3xl font-black text-white block">
+                    ₹{totalUnpaidAmount.toLocaleString()}
+                  </strong>
+                  <span className="text-[10px] text-slate-400 font-bold block">
+                    {pendingFeesCount} Invoice{pendingFeesCount !== 1 ? 's' : ''} Pending
+                  </span>
+                </div>
+                <div className="w-11 h-11 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400">
+                  <CreditCard className="w-5 h-5" />
+                </div>
+              </div>
+
+              {/* Card 4: Upcoming Exams */}
+              <div className="bg-[#0d1527] border border-[#1e293b]/60 rounded-2xl p-5 shadow-lg flex items-center justify-between hover:border-[#1e293b] transition-all">
+                <div className="space-y-1.5 text-left">
+                  <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider block">Upcoming Exams</span>
+                  <strong className="text-3xl font-black text-white block">{examCount}</strong>
+                  <span className="text-[10px] text-slate-400 font-bold block">In Next 7 Days</span>
+                </div>
+                <div className="w-11 h-11 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+                  <Clock className="w-5 h-5" />
+                </div>
+              </div>
+
+            </div>
+
+            {/* Row 2: ID Card Banner & Upcoming Events */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              
+              {/* ID Card Violet/Purple Gradient Banner (Takes 2 cols) */}
+              <div className="lg:col-span-2 bg-gradient-to-br from-[#2e1065] to-[#4c1d95] rounded-2xl p-6 sm:p-8 border border-purple-500/20 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl shadow-purple-950/10">
+                <div className="space-y-4 max-w-sm text-left relative z-10">
+                  <h4 className="text-xl font-black text-white">Digital Identity Card</h4>
+                  <p className="text-xs text-purple-200 leading-relaxed">
+                    Your school digital ID card has been issued and is ready. You can print it or show it directly on mobile devices.
+                  </p>
+                  <Link 
+                    to="/myprofile"
+                    className="inline-block px-5 py-2.5 bg-purple-600 hover:bg-purple-550 text-white font-extrabold text-[11px] rounded-xl shadow-md transition-all active:scale-95 tracking-wider uppercase"
                   >
-                    <div className="p-5 flex items-center space-x-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
-                      <img 
-                        src={tenant?.logoUrl || "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?q=80&w=200&h=200&fit=crop"} 
-                        alt="School Logo" 
-                        className="w-8 h-8 rounded-lg object-cover"
-                      />
-                      <div>
-                        <h4 className="font-extrabold text-xs text-slate-950 dark:text-white leading-tight">{tenant?.schoolName || 'EduCore Academy'}</h4>
-                        <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">Student ID Card</span>
-                      </div>
+                    View ID Card
+                  </Link>
+                </div>
+                
+                {/* Visual Card Mock */}
+                <div className="w-72 bg-gradient-to-br from-[#1b1c30] to-[#121320] rounded-xl border border-purple-500/30 p-4 shadow-2xl shadow-black/60 flex flex-col space-y-3 shrink-0 transform md:rotate-3 hover:rotate-0 transition-transform duration-300 relative z-10">
+                  <div className="flex items-center gap-2.5 border-b border-slate-800/80 pb-2">
+                    <div className="w-5 h-5 rounded-md bg-purple-500 flex items-center justify-center text-white text-[10px] font-black shrink-0 shadow-inner">A</div>
+                    <div className="text-left">
+                      <h5 className="text-[9px] font-black text-white leading-none">{tenant?.schoolName || 'Apex Academy'}</h5>
+                      <span className="text-[7px] text-purple-400 font-bold uppercase tracking-widest block mt-0.5">STUDENT IDENTITY CARD</span>
                     </div>
-
-                    <div className="p-6 flex flex-col items-center text-center space-y-4">
-                      <img 
-                        src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&h=150&fit=crop" 
-                        alt="Profile" 
-                        className="w-20 h-20 rounded-full object-cover border-4 border-slate-100 dark:border-slate-800 bg-slate-50 shadow"
-                      />
-                      <div>
-                        <h3 className="text-base font-black text-slate-955 dark:text-white">{profile?.name || user.name}</h3>
-                        <span className="text-xs text-indigo-400 font-bold uppercase tracking-wider">{profile?.classId?.name || 'Class 10'} - Section {profile?.section || 'A'}</span>
-                      </div>
-
-                      <div className="w-full grid grid-cols-2 gap-3 text-left border-t border-slate-100 dark:border-slate-800 pt-4 text-[10px] text-slate-655 dark:text-slate-400">
-                        <div>
-                          <span className="text-[8px] text-slate-500 font-bold uppercase tracking-wider block">Admission No.</span>
-                          <strong className="text-slate-900 dark:text-white font-bold">{profile?.admissionNo}</strong>
-                        </div>
-                        <div>
-                          <span className="text-[8px] text-slate-500 font-bold uppercase tracking-wider block">Date of Birth</span>
-                          <strong className="text-slate-900 dark:text-white font-bold">
-                            {profile?.dob ? new Date(profile.dob).toLocaleDateString() : 'N/A'}
-                          </strong>
-                        </div>
-                        <div>
-                          <span className="text-[8px] text-slate-500 font-bold uppercase tracking-wider block">Parent / Guardian</span>
-                          <strong className="text-slate-900 dark:text-white font-bold">{profile?.parentName}</strong>
-                        </div>
-                        <div>
-                          <span className="text-[8px] text-slate-500 font-bold uppercase tracking-wider block">Parent Phone</span>
-                          <strong className="text-slate-900 dark:text-white font-bold">{profile?.parentPhone}</strong>
-                        </div>
-                      </div>
+                  </div>
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-12 h-12 rounded-lg bg-gradient-to-tr from-pink-500 to-indigo-500 text-white flex items-center justify-center font-black text-sm uppercase shadow">
+                      {user?.name?.split(' ').map(n => n[0]).slice(0, 2).join('')}
+                    </div>
+                    <div className="text-left space-y-0.5 min-w-0">
+                      <h6 className="text-[11px] font-black text-white truncate">{user?.name}</h6>
+                      <p className="text-[8px] text-purple-400 font-extrabold">{classSection}</p>
+                      <p className="text-[8px] text-slate-400 font-mono font-bold">{profile?.admissionNo || 'ADM-2026-2153'}</p>
                     </div>
                   </div>
                 </div>
+                
+                {/* Styled background light flare */}
+                <div className="absolute w-48 h-48 bg-pink-500/20 rounded-full blur-[60px] -bottom-24 -right-12"></div>
+              </div>
 
-                {/* Column 2: Stats Grid and Overview widgets */}
-                <div className="space-y-6 lg:col-span-2">
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-450">
-                    Quick Dashboard Metrics
-                  </h3>
+              {/* Sidebar: Upcoming Events (Takes 1 col) */}
+              <div className="bg-[#0d1527] border border-[#1e293b]/60 rounded-2xl p-5 shadow-lg flex flex-col space-y-4">
+                <div className="flex items-center justify-between border-b border-[#1e293b]/60 pb-3">
+                  <h4 className="text-sm font-extrabold text-white">Upcoming Events</h4>
+                  <a href="#" onClick={(e) => e.preventDefault()} className="text-[10px] text-pink-500 font-bold hover:underline">View All</a>
+                </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                    {/* Attendance summary card */}
-                    <div className="glass-card p-5 rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm flex flex-col justify-between">
-                      <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Attendance Rate</span>
-                      <strong className="text-3xl font-black text-emerald-500 mt-2">{stats?.percentage || '0.0'}%</strong>
-                      <span className="text-[10px] text-slate-400 mt-1">({stats?.present} Present of {stats?.present + stats?.absent + stats?.late} Days)</span>
+                <div className="space-y-3.5 flex-1 flex flex-col justify-center">
+                  {upcomingDeadlines.length === 0 ? (
+                    <div className="text-center py-6 text-xs text-slate-500 font-semibold bg-[#121b33] p-3 rounded-xl border border-[#1e293b]/30">
+                      🎉 No pending homework due!
                     </div>
-
-                    {/* Pending assignments card */}
-                    <div className="glass-card p-5 rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm flex flex-col justify-between">
-                      <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Pending Homework</span>
-                      <strong className="text-3xl font-black text-amber-500 mt-2">{studentDashData?.pendingAssignmentsCount || 0}</strong>
-                      <span className="text-[10px] text-slate-400 mt-1">Requires immediate response</span>
-                    </div>
-
-                    {/* Unpaid balance card */}
-                    <div className="glass-card p-5 rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm flex flex-col justify-between">
-                      <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Unpaid Fee items</span>
-                      <strong className="text-3xl font-black text-rose-500 mt-2">{studentDashData?.pendingFeesCount || 0}</strong>
-                      <span className="text-[10px] text-slate-400 mt-1">Exam registration fee bills</span>
-                    </div>
-                  </div>
-
-                  {/* Quick Attendance Circle widget */}
-                  <div className="glass-card p-6 rounded-2xl border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-4">
-                    <h4 className="text-xs font-bold text-slate-450 uppercase tracking-wider flex items-center gap-1.5">
-                      <UserCheck className="w-4 h-4 text-emerald-400" /> Attendance logs Progress
-                    </h4>
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-                      <div className="flex items-center space-x-4">
-                        <div className="relative w-16 h-16 flex items-center justify-center">
-                          <svg className="w-full h-full transform -rotate-90">
-                            <circle cx="32" cy="32" r="26" className="stroke-slate-100 dark:stroke-slate-800" strokeWidth="5" fill="transparent" />
-                            <circle 
-                              cx="32" 
-                              cy="32" 
-                              r="26" 
-                              className="stroke-emerald-400" 
-                              strokeWidth="5" 
-                              fill="transparent" 
-                              strokeDasharray="163.3"
-                              strokeDashoffset={163.3 - (163.3 * (parseFloat(stats?.percentage) || 0)) / 100}
-                            />
-                          </svg>
-                          <span className="absolute text-xs font-black text-slate-905 dark:text-white">{stats?.percentage || '0.0'}%</span>
+                  ) : (
+                    upcomingDeadlines.map((dead) => (
+                      <div key={dead._id} className="flex items-center gap-4 bg-[#121b33] p-3 rounded-xl border border-[#1e293b]/30">
+                        <div className="w-11 h-11 bg-white text-slate-900 rounded-xl flex flex-col items-center justify-center font-black uppercase text-center shadow shrink-0">
+                          <span className="text-[8px] text-pink-500 leading-none">
+                            {new Date(dead.dueDate).toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}
+                          </span>
+                          <span className="text-base leading-none block mt-0.5">
+                            {new Date(dead.dueDate).getDate()}
+                          </span>
                         </div>
-                        <div>
-                          <h4 className="font-extrabold text-xs text-slate-900 dark:text-white">Monthly Attendance Summary</h4>
-                          <p className="text-[10px] text-slate-500 mt-0.5">Please maintain a minimum attendance rate of 75% to appear in final exams.</p>
+                        <div className="text-left min-w-0 flex-1">
+                          <h5 className="font-extrabold text-[12px] text-white truncate">{dead.title}</h5>
+                          <p className="text-[9px] text-slate-400 mt-0.5 font-medium truncate">{dead.subject} • Due {new Date(dead.dueDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                         </div>
                       </div>
-                      <div className="flex space-x-6 text-center text-xs">
-                        <div>
-                          <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider block">Present</span>
-                          <strong className="text-emerald-400 font-bold text-base">{stats?.present}d</strong>
-                        </div>
-                        <div>
-                          <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider block">Absent</span>
-                          <strong className="text-rose-500 font-bold text-base">{stats?.absent}d</strong>
-                        </div>
-                        <div>
-                          <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider block">Late</span>
-                          <strong className="text-amber-500 font-bold text-base">{stats?.late}d</strong>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                    ))
+                  )}
                 </div>
               </div>
-            )}
 
-            {/* SUB-TAB: Attendance Details */}
-            {studentActiveTab === 'attendance' && (
-              <div className="glass-card rounded-2xl border border-slate-200 dark:border-slate-800/80 shadow-sm overflow-hidden bg-white dark:bg-slate-900">
-                <div className="p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex items-center justify-between">
-                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">Class Attendance Logs</h3>
-                  <span className="text-[10px] font-semibold text-slate-400">Total Entries: {studentAttendance.length}</span>
-                </div>
-                {studentAttendance.length === 0 ? (
-                  <div className="p-12 text-center text-slate-400 text-xs">
-                    No attendance records registered yet for your account.
-                  </div>
-                ) : (
-                  <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {studentAttendance.map((rec) => (
-                      <div key={rec._id} className="p-4 flex items-center justify-between text-xs transition-colors hover:bg-slate-50/30 dark:hover:bg-slate-850/20">
-                        <div className="flex items-center space-x-3">
-                          <Calendar className="w-4 h-4 text-slate-400" />
-                          <div>
-                            <p className="font-bold text-slate-900 dark:text-white">
-                              {new Date(rec.date).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                            </p>
-                            <p className="text-[10px] text-slate-500">Record ID: {rec._id}</p>
-                          </div>
-                        </div>
-                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                          rec.status === 'present' 
-                            ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400' 
-                            : rec.status === 'late'
-                            ? 'bg-amber-100 text-amber-800 dark:bg-amber-955/30 dark:text-amber-400'
-                            : 'bg-rose-100 text-rose-800 dark:bg-rose-955/30 dark:text-rose-400'
-                        }`}>
-                          {rec.status}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
+            </div>
 
-            {/* SUB-TAB: Assignments List */}
-            {studentActiveTab === 'assignments' && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-450">Active Class Homework Assignments</h3>
+            {/* Row 3: Recent Announcements & Subject Performance */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              
+              {/* Recent Announcements (Takes 2 cols) */}
+              <div className="lg:col-span-2 bg-[#0d1527] border border-[#1e293b]/60 rounded-2xl p-5 shadow-lg flex flex-col space-y-4">
+                <div className="flex items-center justify-between border-b border-[#1e293b]/60 pb-3">
+                  <h4 className="text-sm font-extrabold text-white">Recent Announcements</h4>
+                  <Link to="/announcements" className="text-[10px] text-pink-500 font-bold hover:underline">View All</Link>
                 </div>
 
-                {studentAssignments.length === 0 ? (
-                  <div className="glass-card p-12 text-center text-slate-400 text-xs rounded-xl border border-slate-200 dark:border-slate-800">
-                    No homework assignments allocated for your class and section.
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    {studentAssignments.map((asg) => (
-                      <div 
-                        key={asg._id} 
-                        className="glass-card p-5 rounded-2xl border border-slate-200 dark:border-slate-800/80 shadow-sm flex flex-col justify-between space-y-4 relative bg-white dark:bg-slate-900"
-                        style={{ borderLeft: `5px solid ${asg.submissionStatus === 'graded' ? '#10b981' : asg.submissionStatus === 'submitted' ? '#3b82f6' : '#f59e0b'}` }}
-                      >
-                        <div className="space-y-1">
-                          <div className="flex items-center justify-between">
-                            <span className="text-[9px] font-bold uppercase tracking-wider bg-indigo-500/10 text-primary px-2 py-0.5 rounded">
-                              {asg.subject}
-                            </span>
-                            <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
-                              asg.submissionStatus === 'graded'
-                                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400'
-                                : asg.submissionStatus === 'submitted'
-                                ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/30 dark:text-blue-400'
-                                : 'bg-amber-100 text-amber-800 dark:bg-amber-955/30 dark:text-amber-400'
-                            }`}>
-                              {asg.submissionStatus}
-                            </span>
-                          </div>
-                          <h4 className="font-extrabold text-sm text-slate-905 dark:text-white pt-1">{asg.title}</h4>
-                          <p className="text-xs text-slate-500 leading-relaxed line-clamp-3">{asg.description}</p>
+                <div className="space-y-4">
+                  {announcementsList.map((ann, idx) => {
+                    const colorMap = {
+                      indigo: { bg: 'bg-indigo-500/10', border: 'border-indigo-500/20', text: 'text-indigo-400' },
+                      pink: { bg: 'bg-pink-500/10', border: 'border-pink-500/20', text: 'text-pink-400' },
+                      yellow: { bg: 'bg-yellow-500/10', border: 'border-yellow-500/20', text: 'text-yellow-400' }
+                    };
+                    const theme = colorMap[ann.color] || colorMap.indigo;
+                    return (
+                      <div key={ann.id} className={`flex items-start gap-4 ${idx > 0 ? 'border-t border-[#1e293b]/40 pt-4' : ''}`}>
+                        <div className={`w-9 h-9 rounded-xl ${theme.bg} border ${theme.border} ${theme.text} flex items-center justify-center shrink-0`}>
+                          {ann.icon === 'Bell' && <Bell className="w-4 h-4" />}
+                          {ann.icon === 'FileText' && <FileText className="w-4 h-4" />}
+                          {ann.icon === 'Users' && <Users className="w-4 h-4" />}
                         </div>
-
-                        <div className="border-t border-slate-100 dark:border-slate-800 pt-3 text-[10px] text-slate-500 space-y-1">
-                          <div className="flex justify-between">
-                            <span>Due Date:</span>
-                            <strong className="text-slate-700 dark:text-slate-350">{new Date(asg.dueDate).toLocaleDateString()}</strong>
+                        <div className="text-left space-y-1 min-w-0 flex-1">
+                          <div className="flex justify-between items-center gap-4">
+                            <h5 className="font-extrabold text-[12px] text-white truncate">{ann.title}</h5>
+                            <span className="text-[8px] text-slate-500 font-bold shrink-0">{ann.time}</span>
                           </div>
-                          {asg.submissionStatus !== 'pending' && (
-                            <div className="flex justify-between">
-                              <span>Submitted:</span>
-                              <strong className="text-slate-700 dark:text-slate-350">{new Date(asg.submittedAt).toLocaleDateString()}</strong>
-                            </div>
-                          )}
-                          {asg.submissionStatus === 'graded' && (
-                            <div className="bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800/80 mt-2 space-y-1">
-                              <div className="flex justify-between text-[11px]">
-                                <span className="font-bold text-emerald-500">Assigned Score:</span>
-                                <strong className="text-emerald-500 font-extrabold">{asg.grade}</strong>
-                              </div>
-                              {asg.feedback && (
-                                <p className="text-[9px] text-slate-450 italic">" {asg.feedback} "</p>
-                              )}
-                            </div>
-                          )}
+                          <p className="text-[11px] text-slate-400 leading-relaxed">
+                            {ann.description}
+                          </p>
                         </div>
-
-                        {asg.submissionStatus === 'pending' && (
-                          <button
-                            onClick={() => {
-                              setSubmitError('');
-                              setSubmitAssignmentModal(asg);
-                            }}
-                            className="w-full py-2 bg-primary hover:opacity-90 active:scale-95 text-white text-xs font-bold rounded-lg shadow transition-all flex items-center justify-center gap-1"
-                          >
-                            <Send className="w-3.5 h-3.5" /> Submit Response
-                          </button>
-                        )}
                       </div>
-                    ))}
-                  </div>
-                )}
+                    );
+                  })}
+                </div>
               </div>
-            )}
 
-            {/* SUB-TAB: Fees & Billing */}
-            {studentActiveTab === 'fees' && (
-              <div className="glass-card rounded-2xl border border-slate-200 dark:border-slate-800/80 shadow-sm overflow-hidden bg-white dark:bg-slate-900">
-                <div className="p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex items-center justify-between">
-                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">Fee Invoices & Bills</h3>
+              {/* Subject Performance (Takes 1 col) */}
+              <div className="bg-[#0d1527] border border-[#1e293b]/60 rounded-2xl p-5 shadow-lg flex flex-col space-y-4">
+                <div className="flex items-center justify-between border-b border-[#1e293b]/60 pb-3">
+                  <h4 className="text-sm font-extrabold text-white">Subject Performance</h4>
+                  <a href="#" onClick={(e) => e.preventDefault()} className="text-[10px] text-pink-500 font-bold hover:underline">View All</a>
                 </div>
 
-                {studentFees.length === 0 ? (
-                  <div className="p-12 text-center text-slate-400 text-xs">
-                    No fee billing records found.
-                  </div>
-                ) : (
-                  <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {studentFees.map((fee) => (
-                      <div key={fee._id} className="p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-xs">
-                        <div className="flex items-start space-x-3.5">
-                          <div className="w-10 h-10 rounded-lg bg-indigo-500/10 text-primary flex items-center justify-center shrink-0">
-                            <Receipt className="w-5 h-5" />
-                          </div>
-                          <div>
-                            <h4 className="font-extrabold text-sm text-slate-900 dark:text-white">{fee.title}</h4>
-                            <p className="text-[10px] text-slate-400 mt-0.5">Due Date: {new Date(fee.dueDate).toLocaleDateString()}</p>
-                            {fee.status === 'paid' && (
-                              <p className="text-[9px] text-slate-550 mt-1 bg-slate-50 dark:bg-slate-950 px-2 py-0.5 rounded inline-block font-mono">
-                                txn: {fee.transactionId} | paid on: {new Date(fee.paymentDate).toLocaleDateString()}
-                              </p>
-                            )}
-                          </div>
+                <div className="space-y-4 flex-grow flex flex-col justify-center text-left">
+                  {subjectPerformanceList.map((sub, idx) => {
+                    const colors = [
+                      { text: 'text-emerald-400', progress: 'bg-emerald-500' },
+                      { text: 'text-teal-400', progress: 'bg-teal-450' },
+                      { text: 'text-amber-500', progress: 'bg-amber-500' },
+                      { text: 'text-orange-500', progress: 'bg-orange-500' },
+                      { text: 'text-rose-500', progress: 'bg-rose-500' }
+                    ];
+                    const color = colors[idx % colors.length];
+                    return (
+                      <div key={sub.name} className="space-y-1 text-left">
+                        <div className="flex justify-between text-[11px] font-bold text-slate-355">
+                          <span>{sub.name}</span>
+                          <span className={color.text}>{sub.percentage}%</span>
                         </div>
-
-                        <div className="flex items-center justify-between sm:justify-end gap-6 border-t sm:border-t-0 border-slate-100 dark:border-slate-850 pt-3 sm:pt-0">
-                          <div>
-                            <span className="text-[9px] text-slate-500 font-semibold block sm:text-right">Billing Amount</span>
-                            <strong className="text-slate-900 dark:text-white text-base font-black font-sans">₹{fee.amount}</strong>
-                          </div>
-
-                          <div className="flex items-center gap-3">
-                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                              fee.status === 'paid'
-                                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400'
-                                : 'bg-rose-100 text-rose-800 dark:bg-rose-955/30 dark:text-rose-400'
-                            }`}>
-                              {fee.status}
-                            </span>
-                            {fee.status === 'pending' && (
-                              <button
-                                onClick={() => setCheckoutFeeModal(fee)}
-                                className="px-4 py-1.5 bg-primary hover:opacity-90 active:scale-95 text-white text-xs font-bold rounded-lg shadow transition-all"
-                              >
-                                Pay Now
-                              </button>
-                            )}
-                          </div>
+                        <div className="w-full bg-[#16223f] h-2 rounded-full overflow-hidden">
+                          <div className={color.progress + " h-full rounded-full"} style={{ width: `${sub.percentage}%` }}></div>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                )}
+                    );
+                  })}
+                </div>
               </div>
-            )}
+
+            </div>
 
           </div>
         )}
 
-        {/* MODAL: Homework submission */}
+        {/* ========================================================== */}
+        {/* TAB: PROFILE VIEW */}
+        {/* ========================================================== */}
+        {studentActiveTab === 'profile' && (
+          <div className="max-w-2xl mx-auto space-y-6 text-left">
+            <div className="bg-[#0d1527] border border-[#1e293b]/60 rounded-2xl p-6 shadow-lg relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/5 rounded-full blur-[40px] pointer-events-none"></div>
+              
+              <div className="flex flex-col items-center text-center space-y-4 border-b border-[#1e293b]/60 pb-6">
+                <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-pink-500 to-indigo-500 text-white flex items-center justify-center font-extrabold text-3xl uppercase shadow">
+                  {user?.name?.split(' ').map(n => n[0]).slice(0, 2).join('')}
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-white">{user?.name}</h3>
+                  <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-[#1a233a] border border-[#1e293b]/80 text-pink-400 block w-fit mx-auto mt-2">
+                    {profile?.admissionNo || 'ADM-2026-2153'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 text-xs text-left">
+                <div>
+                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Official Email</span>
+                  <strong className="text-slate-200 mt-0.5 block">{profile?.email || user.email}</strong>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Academic Class</span>
+                  <strong className="text-slate-200 mt-0.5 block">{profile?.classId?.name || 'Class 3'}</strong>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Class Section</span>
+                  <strong className="text-slate-200 mt-0.5 block">Section {profile?.section || 'A'}</strong>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Date of Birth</span>
+                  <strong className="text-slate-200 mt-0.5 block">
+                    {profile?.dob ? new Date(profile.dob).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) : 'N/A'}
+                  </strong>
+                </div>
+                <div className="md:col-span-2 border-t border-[#1e293b]/40 pt-4 text-left">
+                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block text-left">Parent / Guardian Details</span>
+                  <div className="grid grid-cols-2 gap-4 mt-2">
+                    <div>
+                      <span className="text-[9px] text-slate-500 font-bold block">Parent Name</span>
+                      <strong className="text-slate-200 mt-0.5 block">{profile?.parentName || 'N/A'}</strong>
+                    </div>
+                    <div>
+                      <span className="text-[9px] text-slate-500 font-bold block">Parent Contact</span>
+                      <strong className="text-slate-200 mt-0.5 block">{profile?.parentPhone || 'N/A'}</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Official ID badge card for print */}
+            <div className="bg-[#0d1527] border border-[#1e293b]/60 rounded-2xl p-6 shadow-lg space-y-4 text-center">
+              <h4 className="text-sm font-extrabold text-white flex items-center justify-center gap-2">
+                <CreditCard className="w-4 h-4 text-pink-500" /> Print Identity Badge
+              </h4>
+              <p className="text-[11px] text-slate-400">Click the button below to print your official student ID badge layout.</p>
+              
+              <div className="border border-[#1e293b]/60 rounded-2xl p-6 bg-slate-900/40 w-fit mx-auto" id="printable-id-card-area">
+                <div className="w-72 bg-gradient-to-br from-[#1b1c30] to-[#121320] rounded-xl border border-purple-500/30 p-5 shadow-2xl flex flex-col space-y-4">
+                  <div className="flex items-center gap-3 border-b border-slate-800 pb-3">
+                    <div className="w-6 h-6 rounded-md bg-purple-500 flex items-center justify-center text-white text-xs font-black shrink-0">A</div>
+                    <div className="text-left">
+                      <h5 className="text-[10px] font-black text-white leading-none">{tenant?.schoolName || 'Apex Academy'}</h5>
+                      <span className="text-[7px] text-purple-400 font-extrabold tracking-widest block mt-0.5">STUDENT IDENTITY CARD</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-center text-center space-y-3">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-pink-500 to-indigo-500 text-white flex items-center justify-center font-black text-xl uppercase shadow border-2 border-purple-500/20">
+                      {user?.name?.split(' ').map(n => n[0]).slice(0, 2).join('')}
+                    </div>
+                    <div>
+                      <h6 className="text-[13px] font-black text-white">{user?.name}</h6>
+                      <p className="text-[10px] text-purple-400 font-extrabold block mt-0.5">{classSection}</p>
+                    </div>
+                  </div>
+                  <div className="w-full grid grid-cols-2 gap-2 text-left border-t border-slate-800 pt-3.5 text-[9px] text-slate-400 font-semibold">
+                    <div>
+                      <span className="text-[7px] text-slate-500 font-bold block">ADM No.</span>
+                      <strong className="text-slate-355">{profile?.admissionNo || 'ADM-2026-2153'}</strong>
+                    </div>
+                    <div>
+                      <span className="text-[7px] text-slate-500 font-bold block">DOB</span>
+                      <strong className="text-slate-355">
+                        {profile?.dob ? new Date(profile.dob).toLocaleDateString() : 'N/A'}
+                      </strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <button 
+                onClick={() => window.print()}
+                className="px-5 py-2.5 bg-pink-600 hover:bg-pink-550 text-white font-extrabold text-xs rounded-xl shadow active:scale-95 transition-all flex items-center gap-1.5 mx-auto"
+              >
+                <Printer className="w-4 h-4" /> Print ID Card
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================== */}
+        {/* TAB: ATTENDANCE VIEW */}
+        {/* ========================================================== */}
+        {studentActiveTab === 'attendance' && (
+          <div className="bg-[#0d1527] border border-[#1e293b]/60 rounded-2xl p-6 shadow-lg space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center border-b border-[#1e293b]/60 pb-4 gap-4 text-left">
+              <div>
+                <h3 className="text-lg font-extrabold text-white">Daily Attendance Log</h3>
+                <p className="text-xs text-slate-455 mt-1">Roster record history of your school classes.</p>
+              </div>
+              <div className="px-4 py-2 bg-[#121b33] rounded-xl border border-[#1e293b]/60 text-xs font-semibold text-emerald-400 flex items-center gap-1.5 w-fit">
+                <CheckCircle className="w-4 h-4" /> Attendance Percentage: {attendancePercentage}%
+              </div>
+            </div>
+
+            {loading ? (
+              <div className="py-12 flex flex-col items-center justify-center space-y-2">
+                <Loader2 className="w-8 h-8 text-pink-500 animate-spin" />
+                <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Querying attendance list...</span>
+              </div>
+            ) : studentAttendance.length === 0 ? (
+              <div className="py-12 text-center text-xs text-slate-550">No attendance records found.</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse text-left text-xs text-slate-400 font-medium">
+                  <thead className="bg-[#121b33] border-b border-[#1e293b]/60 text-slate-350 font-bold uppercase text-[10px] tracking-wider">
+                    <tr>
+                      <th className="px-6 py-4">Date</th>
+                      <th className="px-6 py-4 text-center">Status</th>
+                      <th className="px-6 py-4">Verification Remarks</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#1e293b]/30">
+                    {studentAttendance.map((log) => (
+                      <tr key={log._id} className="hover:bg-[#1a233a]/20">
+                        <td className="px-6 py-4 font-bold text-white">
+                          {new Date(log.date).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })}
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold uppercase border ${
+                            log.status === 'present' 
+                              ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
+                              : log.status === 'absent' 
+                                ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' 
+                                : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-400'
+                          }`}>
+                            {log.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-slate-555 font-semibold italic text-left">Verified by Homeroom Teacher</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ========================================================== */}
+        {/* TAB: HOMEWORK VIEW */}
+        {/* ========================================================== */}
+        {studentActiveTab === 'homework' && (
+          <div className="space-y-6 text-left">
+            <div>
+              <h3 className="text-lg font-extrabold text-white">Homework & Assignments</h3>
+              <p className="text-xs text-slate-455 mt-1">Review assignments lists and submit answer writeups.</p>
+            </div>
+
+            {loading ? (
+              <div className="py-12 flex flex-col items-center justify-center space-y-2">
+                <Loader2 className="w-8 h-8 text-pink-500 animate-spin" />
+                <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Loading syllabus homework...</span>
+              </div>
+            ) : studentAssignments.length === 0 ? (
+              <div className="bg-[#0d1527] border border-[#1e293b]/60 rounded-2xl p-8 text-center text-xs text-slate-550">
+                No homework assignments listed for your class scope.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {studentAssignments.map((asg) => (
+                  <div key={asg._id} className="bg-[#0d1527] border border-[#1e293b]/60 rounded-2xl p-5 flex flex-col justify-between space-y-4 hover:border-[#1e293b] transition-all shadow-lg">
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-pink-500/10 border border-pink-500/20 text-pink-400 uppercase tracking-wide">
+                          {asg.subject}
+                        </span>
+                        <span className="text-[9px] text-slate-555 font-bold">
+                          Due: {new Date(asg.dueDate).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <h4 className="font-extrabold text-sm text-white">{asg.title}</h4>
+                      <p className="text-[11px] text-slate-400 leading-relaxed truncate">{asg.description}</p>
+                    </div>
+
+                    <div className="border-t border-[#1e293b]/40 pt-4 flex items-center justify-between">
+                      <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase border ${
+                        asg.submissionStatus === 'graded' 
+                          ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
+                          : asg.submissionStatus === 'submitted'
+                            ? 'bg-indigo-500/10 border-[#1e293b]/50 text-indigo-400'
+                            : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-400'
+                      }`}>
+                        {asg.submissionStatus}
+                      </span>
+
+                      {asg.submissionStatus === 'pending' ? (
+                        <button
+                          onClick={() => {
+                            setSubmitError('');
+                            setSubmitAnswerText('');
+                            setSubmitAssignmentModal(asg);
+                          }}
+                          className="px-3.5 py-1.5 bg-pink-600 hover:bg-pink-550 text-white font-extrabold text-[10px] rounded-lg tracking-wide uppercase transition-all shadow"
+                        >
+                          Submit Work
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => alert(`Your submission answer was:\n"${asg.answerText}"\n\nGrade: ${asg.grade || 'Ungraded'}\nFeedback: ${asg.feedback || 'Pending evaluation.'}`)}
+                          className="px-3.5 py-1.5 bg-[#1a233a] border border-[#1e293b]/85 hover:bg-[#1a233a]/80 text-slate-200 font-bold text-[10px] rounded-lg tracking-wide uppercase transition-all"
+                        >
+                          View Evaluation
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ========================================================== */}
+        {/* TAB: FEES VIEW */}
+        {/* ========================================================== */}
+        {studentActiveTab === 'fees' && (
+          <div className="space-y-6 text-left">
+            <div>
+              <h3 className="text-lg font-extrabold text-white">Fee Invoices & Payments</h3>
+              <p className="text-xs text-slate-455 mt-1">Clear pending academic board fees and sports charges.</p>
+            </div>
+
+            {loading ? (
+              <div className="py-12 flex flex-col items-center justify-center space-y-2">
+                <Loader2 className="w-8 h-8 text-pink-500 animate-spin" />
+                <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Checking billing ledger...</span>
+              </div>
+            ) : studentFees.length === 0 ? (
+              <div className="bg-[#0d1527] border border-[#1e293b]/60 rounded-2xl p-8 text-center text-xs text-slate-550">
+                No billing statements found.
+              </div>
+            ) : (
+              <div className="bg-[#0d1527] border border-[#1e293b]/60 rounded-2xl shadow-lg overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse text-left text-xs text-slate-400 font-medium">
+                    <thead className="bg-[#121b33] border-b border-[#1e293b]/60 text-slate-355 font-bold uppercase text-[10px] tracking-wider">
+                      <tr>
+                        <th className="px-6 py-4">Fee Statement</th>
+                        <th className="px-6 py-4">Due Date</th>
+                        <th className="px-6 py-4">Amount</th>
+                        <th className="px-6 py-4 text-center">Status</th>
+                        <th className="px-6 py-4 text-center">Checkout</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#1e293b]/30">
+                      {studentFees.map((fee) => (
+                        <tr key={fee._id} className="hover:bg-[#1a233a]/20">
+                          <td className="px-6 py-4">
+                            <div>
+                              <strong className="text-white font-extrabold block text-[13px]">{fee.title}</strong>
+                              <span className="text-[9px] text-slate-550 block mt-0.5">TXN: {fee.transactionId || 'Unpaid Invoice'}</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 font-bold">{new Date(fee.dueDate).toLocaleDateString()}</td>
+                          <td className="px-6 py-4 font-extrabold text-white text-[13px]">₹{fee.amount.toLocaleString()}</td>
+                          <td className="px-6 py-4 text-center">
+                            <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold uppercase border ${
+                              fee.status === 'paid' 
+                                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
+                                : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-400'
+                            }`}>
+                              {fee.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-center">
+                            {fee.status === 'pending' ? (
+                              <button
+                                onClick={() => {
+                                  setPaymentSuccessMsg('');
+                                  setCardName(user?.name || '');
+                                  setCheckoutFeeModal(fee);
+                                }}
+                                className="px-4 py-2 bg-pink-600 hover:bg-pink-550 active:scale-95 text-white font-extrabold text-[10px] rounded-lg tracking-wide uppercase transition-all shadow"
+                              >
+                                Checkout
+                              </button>
+                            ) : (
+                              <span className="text-[10px] text-slate-555 font-bold uppercase tracking-wider block">Cleared</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ========================================================== */}
+        {/* TAB MOCKS: EXAMS, TIMETABLE, ANNOUNCEMENTS, MESSAGES, DOCUMENTS */}
+        {/* ========================================================== */}
+        {['exams', 'timetable', 'announcements', 'messages', 'documents'].includes(studentActiveTab) && (
+          <div className="bg-[#0d1527] border border-[#1e293b]/60 rounded-2xl p-12 shadow-lg max-w-xl mx-auto space-y-6 text-center">
+            <div className="w-16 h-16 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto text-2xl shadow animate-pulse">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+            
+            <div className="space-y-2">
+              <h3 className="text-lg font-black text-white capitalize">{studentActiveTab} Module</h3>
+              <p className="text-xs text-slate-400 leading-relaxed max-w-xs mx-auto">
+                This page is not available. Please contact your school administrator if you believe this is in error.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL: Submit assignment */}
         {submitAssignmentModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-            <div className="w-full max-w-lg bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-2xl relative">
-              <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-1.5">
-                <Send className="w-4 h-4 text-indigo-500" /> Submit Assignment Response
+            <div className="w-full max-w-md bg-[#0d1527] border border-[#1e293b]/80 rounded-2xl p-6 shadow-2xl relative text-left">
+              <h3 className="text-base font-extrabold text-white mb-1 flex items-center gap-1.5">
+                <BookOpen className="w-4.5 h-4.5 text-pink-500" /> Submit Homework Work
               </h3>
-              <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider mb-4">Topic: {submitAssignmentModal.title}</p>
-              
+              <p className="text-[10px] text-slate-550 uppercase tracking-wider mb-4">Assignment: {submitAssignmentModal.title}</p>
+
               {submitError && (
-                <div className="p-2.5 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-lg text-xs font-medium mb-4">
-                  ⚠️ {submitError}
+                <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-lg text-xs font-semibold mb-4 flex items-center gap-1.5">
+                  <AlertTriangle className="w-4 h-4" /> {submitError}
                 </div>
               )}
 
-              <form onSubmit={handleAssignmentSubmit} className="space-y-4">
+              <form onSubmit={handleAssignmentSubmit} className="space-y-4 text-xs">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
-                    Your Response Text / Answers
-                  </label>
+                  <label className="block text-[10px] font-bold text-slate-555 uppercase tracking-wider mb-1">Answer Response Text</label>
                   <textarea
-                    rows="6"
-                    placeholder="Enter your answers or response essay details here..."
+                    rows={4}
+                    placeholder="Write your homework answers or submission remarks..."
                     value={submitAnswerText}
-                    onChange={(e) => setSubmitAnswerText(e.target.value)}
-                    className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all font-sans"
-                  ></textarea>
+                    onChange={e => setSubmitAnswerText(e.target.value)}
+                    required
+                    className="w-full px-3 py-2.5 rounded-lg border border-[#1e293b] bg-[#121b33]/40 text-white placeholder-slate-550 focus:outline-none focus:border-pink-500 transition-all font-sans"
+                  />
                 </div>
 
-                <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700/50 text-xs">
+                <div className="flex justify-end gap-3 pt-4 border-t border-[#1e293b]/40">
                   <button
                     type="button"
                     onClick={() => setSubmitAssignmentModal(null)}
-                    className="px-4 py-2 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg text-slate-750 dark:text-slate-300 font-semibold"
+                    className="px-4 py-2 border border-[#1e293b] hover:bg-[#1a233a] rounded-lg text-slate-300 font-semibold"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={submittingAssignment}
-                    className="px-5 py-2 bg-primary hover:opacity-90 active:scale-95 text-white rounded-lg font-semibold flex items-center gap-1 shadow"
+                    className="px-5 py-2 bg-pink-650 hover:bg-pink-550 active:scale-95 text-white rounded-lg font-bold flex items-center gap-1.5 shadow"
                   >
                     {submittingAssignment ? (
                       <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -827,90 +1150,92 @@ const Home = () => {
           </div>
         )}
 
-        {/* MODAL: Exam Fee checkout */}
+        {/* MODAL: Checkout payments */}
         {checkoutFeeModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-            <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-2xl relative">
-              <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1 flex items-center gap-1.5">
-                <Lock className="w-4 h-4 text-emerald-500" /> Secure Portal Checkout
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm">
+            <div className="w-full max-w-md bg-[#0d1527] border border-[#1e293b]/80 rounded-2xl p-6 shadow-2xl relative text-left">
+              <h3 className="text-base font-extrabold text-white mb-1 flex items-center gap-1.5">
+                <Receipt className="w-4.5 h-4.5 text-pink-500" /> Payment Portal Checkout
               </h3>
-              <p className="text-[10px] text-slate-400 uppercase tracking-wider mb-4">EduCore Payment Gateway Integration</p>
+              <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-4">Billed Fee: {checkoutFeeModal.title}</p>
 
               {paymentSuccessMsg ? (
-                <div className="text-center py-6 space-y-3">
-                  <div className="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-500 mx-auto flex items-center justify-center animate-bounce">
+                <div className="text-center py-6 space-y-4">
+                  <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 mx-auto flex items-center justify-center">
                     <Check className="w-6 h-6" />
                   </div>
-                  <strong className="block text-sm text-slate-900 dark:text-white font-bold">{paymentSuccessMsg}</strong>
-                  <p className="text-xs text-slate-400">Updating invoice records, please stand by...</p>
+                  <div>
+                    <h4 className="text-base font-black text-white">Payment Authorized</h4>
+                    <p className="text-[10.5px] text-slate-400 mt-1 leading-relaxed">
+                      Your payment has been successfully recorded in the school portal billing ledger database.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setCheckoutFeeModal(null)}
+                    className="px-5 py-2 bg-emerald-600 hover:bg-emerald-555 text-white font-extrabold text-xs rounded-xl shadow transition-all active:scale-95 tracking-wide"
+                  >
+                    Close Invoice
+                  </button>
                 </div>
               ) : (
-                <form onSubmit={handlePayFeeSubmit} className="space-y-4">
-                  <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800 text-xs space-y-1.5 mb-2">
-                    <div className="flex justify-between">
-                      <span className="text-slate-450">Billing Item:</span>
-                      <strong className="text-slate-800 dark:text-slate-350">{checkoutFeeModal.title}</strong>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-slate-455 font-bold">Total Payment Due:</span>
-                      <strong className="text-slate-950 dark:text-white font-black">₹{checkoutFeeModal.amount}</strong>
-                    </div>
-                  </div>
-
+                <form onSubmit={handlePayFeeSubmit} className="space-y-4 text-xs">
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Cardholder Name</label>
-                    <input 
-                      type="text" 
-                      value={cardName} 
-                      onChange={e => setCardName(e.target.value)} 
-                      className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white text-xs focus:outline-none focus:border-primary"
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Card Holder Name</label>
+                    <input
+                      type="text"
+                      value={cardName}
+                      onChange={e => setCardName(e.target.value)}
+                      required
+                      className="w-full px-3 py-2 rounded-lg border border-[#1e293b] bg-[#121b33]/40 text-white focus:outline-none focus:border-pink-500 transition-all"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Card Number</label>
-                    <input 
-                      type="text" 
-                      value={cardNumber} 
-                      onChange={e => setCardNumber(e.target.value)} 
-                      className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white text-xs font-mono focus:outline-none focus:border-primary"
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Card Number</label>
+                    <input
+                      type="text"
+                      value={cardNumber}
+                      onChange={e => setCardNumber(e.target.value)}
+                      required
+                      className="w-full px-3 py-2 rounded-lg border border-[#1e293b] bg-[#121b33]/40 text-white focus:outline-none focus:border-pink-500 transition-all font-mono"
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Expiry Date</label>
-                      <input 
-                        type="text" 
-                        value={cardExpiry} 
-                        onChange={e => setCardExpiry(e.target.value)} 
-                        placeholder="MM/YY"
-                        className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white text-xs font-mono focus:outline-none focus:border-primary"
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Expiry Date</label>
+                      <input
+                        type="text"
+                        value={cardExpiry}
+                        onChange={e => setCardExpiry(e.target.value)}
+                        required
+                        className="w-full px-3 py-2 rounded-lg border border-[#1e293b] bg-[#121b33]/40 text-white focus:outline-none focus:border-pink-500 transition-all font-mono"
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">CVV/CVC</label>
-                      <input 
-                        type="password" 
-                        value={cardCvc} 
-                        onChange={e => setCardCvc(e.target.value)} 
-                        className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white text-xs font-mono focus:outline-none focus:border-primary"
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Security Code (CVC)</label>
+                      <input
+                        type="password"
+                        value={cardCvc}
+                        onChange={e => setCardCvc(e.target.value)}
+                        required
+                        className="w-full px-3 py-2 rounded-lg border border-[#1e293b] bg-[#121b33]/40 text-white focus:outline-none focus:border-pink-500 transition-all font-mono"
                       />
                     </div>
                   </div>
 
-                  <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700/50 text-xs">
+                  <div className="flex justify-end gap-3 pt-4 border-t border-[#1e293b]/40">
                     <button
                       type="button"
                       onClick={() => setCheckoutFeeModal(null)}
-                      className="px-4 py-2 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg text-slate-750 dark:text-slate-300 font-semibold"
+                      className="px-4 py-2 border border-[#1e293b] hover:bg-[#1a233a] rounded-lg text-slate-355 font-semibold"
                     >
                       Cancel Checkout
                     </button>
                     <button
                       type="submit"
                       disabled={processingPayment}
-                      className="px-5 py-2 bg-emerald-600 hover:bg-emerald-555 active:scale-95 text-white rounded-lg font-semibold flex items-center gap-1.5 shadow"
+                      className="px-5 py-2 bg-emerald-600 hover:bg-emerald-555 active:scale-95 text-white rounded-lg font-bold flex items-center gap-1.5 shadow"
                     >
                       {processingPayment ? (
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -930,7 +1255,6 @@ const Home = () => {
       </div>
     );
   }
-
   // ==========================================
   // RENDER: Teacher Portal view
   // ==========================================

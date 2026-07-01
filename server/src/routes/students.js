@@ -8,6 +8,7 @@ const Assignment = require('../models/assignment');
 const Fee = require('../models/fee');
 const auth = require('../middlewares/auth');
 const tenantResolver = require('../middlewares/tenantResolver');
+const { generateTempPassword, sendCredentialsEmail } = require('../utils/mailer');
 
 // Apply auth and tenant resolution to all routes in this router
 router.use(auth);
@@ -314,15 +315,29 @@ router.post('/', isAuthorizedStaff, async (req, res, next) => {
       return res.status(500).json({ success: false, error: 'System Role "student" not found. Contact administrator.' });
     }
 
+    const tempPassword = generateTempPassword();
+
     try {
       await User.create({
         name,
         email: email.toLowerCase(),
-        passwordHash: 'Password123', // hooks auto-hash
+        passwordHash: tempPassword, // hooks auto-hash
         roleId: studentRole._id,
         tenantId: req.tenantId,
         status: 'active'
       });
+
+      // Send credentials email via Nodemailer asynchronously
+      sendCredentialsEmail({
+        toEmail: email.toLowerCase(),
+        userName: name,
+        tempPassword,
+        roleName: 'student',
+        schoolName: req.tenant.schoolName
+      }).catch(err => {
+        console.error('⚠️ Nodemailer welcome email failed to send to student:', err.message || err);
+      });
+
     } catch (userCreationErr) {
       // Rollback
       await Student.findByIdAndDelete(student._id);
@@ -334,7 +349,7 @@ router.post('/', isAuthorizedStaff, async (req, res, next) => {
       data: student,
       credentials: {
         email: email.toLowerCase(),
-        password: 'Password123'
+        password: tempPassword
       }
     });
   } catch (error) {

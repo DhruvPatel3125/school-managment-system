@@ -88,9 +88,39 @@ const AppContent = () => {
         }
       >
         <Route index element={<Home />} />
-        <Route path="classes" element={<Classes />} />
-        <Route path="students" element={<Students />} />
-        <Route path="staff" element={<Staff />} />
+        <Route path="myprofile" element={<Home />} />
+        <Route path="attendance" element={<Home />} />
+        <Route path="homework" element={<Home />} />
+        <Route path="fees" element={<Home />} />
+        <Route path="exams" element={<Home />} />
+        <Route path="timetable" element={<Home />} />
+        <Route path="announcements" element={<Home />} />
+        <Route path="messages" element={<Home />} />
+        <Route path="documents" element={<Home />} />
+        <Route 
+          path="classes" 
+          element={
+            <ProtectedRoute requiredRole="school_admin">
+              <Classes />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="students" 
+          element={
+            <ProtectedRoute requiredPermission="read:students">
+              <Students />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="staff" 
+          element={
+            <ProtectedRoute requiredRole="school_admin">
+              <Staff />
+            </ProtectedRoute>
+          } 
+        />
       </Route>
 
       {/* Fallback back to Portal Root */}

@@ -95,6 +95,7 @@ router.post('/login', async (req, res, next) => {
     res.status(200).json({
       success: true,
       accessToken,
+      refreshToken,
       user: {
         id: user.id,
         name: user.name,
@@ -112,7 +113,7 @@ router.post('/login', async (req, res, next) => {
 // 2. POST /refresh - Rotate access and refresh tokens
 router.post('/refresh', async (req, res, next) => {
   try {
-    const refreshToken = req.cookies?.refreshToken;
+    const refreshToken = req.cookies?.refreshToken || req.body?.refreshToken || req.headers['x-refresh-token'];
 
     if (!refreshToken) {
       return res.status(401).json({ success: false, error: 'Session expired. Please login again.' });
@@ -154,7 +155,8 @@ router.post('/refresh', async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      accessToken: tokens.accessToken
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken
     });
   } catch (error) {
     next(error);

@@ -45,7 +45,7 @@ export const TenantThemeProvider = ({ children }) => {
 
         // 2. Fetch tenant profile from backend
         // We call the server running on port 5001 (standard dev port)
-        const response = await axios.get('http://localhost:5001/api/v1/tenants/current', {
+        const response = await axios.get(`http://${window.location.hostname}:5001/api/v1/tenants/current`, {
           headers: {
             'x-tenant-subdomain': subdomain
           }

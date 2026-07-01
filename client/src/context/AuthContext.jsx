@@ -28,6 +28,11 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const requestInterceptor = axios.interceptors.request.use(
       (config) => {
+        // Rewrite localhost:5001 to the current hostname:5001 to prevent CORS/subdomain issues
+        if (config.url && config.url.includes('localhost:5001')) {
+          config.url = config.url.replace('localhost:5001', `${window.location.hostname}:5001`);
+        }
+
         if (accessToken) {
           config.headers['Authorization'] = `Bearer ${accessToken}`;
         }
@@ -78,9 +83,19 @@ export const AuthProvider = ({ children }) => {
             isTokenRefreshing = true;
             try {
               console.log('🔄 Access token expired. Attempting token rotation...');
-              const res = await axios.post('http://localhost:5001/api/v1/auth/refresh');
+              const storedRefreshToken = localStorage.getItem('refreshToken');
+              const res = await axios.post(`http://${window.location.hostname}:5001/api/v1/auth/refresh`, {
+                refreshToken: storedRefreshToken
+              });
               const newToken = res.data.accessToken;
+              const newRefreshToken = res.data.refreshToken;
+              
               setAccessToken(newToken);
+              localStorage.setItem('accessToken', newToken);
+              if (newRefreshToken) {
+                localStorage.setItem('refreshToken', newRefreshToken);
+              }
+              
               isTokenRefreshing = false;
               onTokenRefreshed(newToken);
             } catch (refreshErr) {
@@ -88,6 +103,9 @@ export const AuthProvider = ({ children }) => {
               isTokenRefreshing = false;
               setUser(null);
               setAccessToken(null);
+              localStorage.removeItem('user');
+              localStorage.removeItem('accessToken');
+              localStorage.removeItem('refreshToken');
               return Promise.reject(refreshErr);
             }
           }
@@ -115,18 +133,77 @@ export const AuthProvider = ({ children }) => {
     const initializeAuth = async () => {
       try {
         setLoading(true);
-        // First try to refresh access token in memory using HTTPOnly cookie
-        const res = await axios.post('http://localhost:5001/api/v1/auth/refresh');
-        const token = res.data.accessToken;
-        setAccessToken(token);
+        
+        // Restore from localStorage first
+        const storedUser = localStorage.getItem('user');
+        const storedToken = localStorage.getItem('accessToken');
+        const storedRefreshToken = localStorage.getItem('refreshToken');
 
-        // Fetch user profile info
-        const meRes = await axios.get('http://localhost:5001/api/v1/auth/me', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setUser(meRes.data.user);
+        if (storedUser && storedToken) {
+          setUser(JSON.parse(storedUser));
+          setAccessToken(storedToken);
+        }
+
+        // Validate session / attempt refresh if token expired or verify profile
+        const activeToken = storedToken;
+        if (activeToken) {
+          try {
+            const meRes = await axios.get(`http://${window.location.hostname}:5001/api/v1/auth/me`, {
+              headers: { Authorization: `Bearer ${activeToken}` }
+            });
+            setUser(meRes.data.user);
+            localStorage.setItem('user', JSON.stringify(meRes.data.user));
+          } catch (meErr) {
+            // If token invalid/expired, try refresh
+            if (storedRefreshToken) {
+              console.log('🔄 Session profile verify failed. Attempting refresh token...');
+              const res = await axios.post(`http://${window.location.hostname}:5001/api/v1/auth/refresh`, {
+                refreshToken: storedRefreshToken
+              });
+              const newToken = res.data.accessToken;
+              const newRefreshToken = res.data.refreshToken;
+              
+              setAccessToken(newToken);
+              localStorage.setItem('accessToken', newToken);
+              if (newRefreshToken) {
+                localStorage.setItem('refreshToken', newRefreshToken);
+              }
+              
+              const meRes = await axios.get(`http://${window.location.hostname}:5001/api/v1/auth/me`, {
+                headers: { Authorization: `Bearer ${newToken}` }
+              });
+              setUser(meRes.data.user);
+              localStorage.setItem('user', JSON.stringify(meRes.data.user));
+            } else {
+              throw meErr;
+            }
+          }
+        } else if (storedRefreshToken) {
+          // No active access token but we have refresh token
+          const res = await axios.post(`http://${window.location.hostname}:5001/api/v1/auth/refresh`, {
+            refreshToken: storedRefreshToken
+          });
+          const newToken = res.data.accessToken;
+          const newRefreshToken = res.data.refreshToken;
+          
+          setAccessToken(newToken);
+          localStorage.setItem('accessToken', newToken);
+          if (newRefreshToken) {
+            localStorage.setItem('refreshToken', newRefreshToken);
+          }
+          
+          const meRes = await axios.get(`http://${window.location.hostname}:5001/api/v1/auth/me`, {
+            headers: { Authorization: `Bearer ${newToken}` }
+          });
+          setUser(meRes.data.user);
+          localStorage.setItem('user', JSON.stringify(meRes.data.user));
+        }
       } catch (err) {
         console.log('No active session found on initialization (guest access).');
+        // Clear stale local storage
+        localStorage.removeItem('user');
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
       } finally {
         setLoading(false);
       }
@@ -141,14 +218,20 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       setLoading(true);
 
-      const res = await axios.post('http://localhost:5001/api/v1/auth/login', 
+      const res = await axios.post(`http://${window.location.hostname}:5001/api/v1/auth/login`, 
         { email, password },
         { headers: { 'x-tenant-subdomain': subdomainScope } }
       );
 
-      const { accessToken: token, user: userData } = res.data;
+      const { accessToken: token, refreshToken: rToken, user: userData } = res.data;
       setAccessToken(token);
       setUser(userData);
+
+      // Persist in localStorage
+      localStorage.setItem('accessToken', token);
+      localStorage.setItem('refreshToken', rToken);
+      localStorage.setItem('user', JSON.stringify(userData));
+
       return userData;
     } catch (err) {
       const errMsg = err.response?.data?.error || 'Invalid login details. Please try again.';
@@ -162,13 +245,19 @@ export const AuthProvider = ({ children }) => {
   // Logout handler
   const logout = async () => {
     try {
-      await axios.post('http://localhost:5001/api/v1/auth/logout');
+      const storedRefreshToken = localStorage.getItem('refreshToken');
+      await axios.post(`http://${window.location.hostname}:5001/api/v1/auth/logout`, {
+        refreshToken: storedRefreshToken
+      });
     } catch (err) {
       console.error('Logout error on server:', err);
     } finally {
       setUser(null);
       setAccessToken(null);
       setError(null);
+      localStorage.removeItem('user');
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
     }
   };
 
