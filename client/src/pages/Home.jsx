@@ -52,6 +52,22 @@ const Home = () => {
   const [studentFees, setStudentFees] = useState([]);
   const [studentActiveTab, setStudentActiveTab] = useState('overview'); // 'overview', 'attendance', 'assignments', 'fees'
 
+  // Student Redesign UI Interactive States
+  const [homeworkFilter, setHomeworkFilter] = useState('all'); // 'all', 'pending', 'submitted', 'graded'
+  const [homeworkSearch, setHomeworkSearch] = useState('');
+  const [attendanceMonth, setAttendanceMonth] = useState('all');
+  const [cardFlipped, setCardFlipped] = useState(false);
+  const [timetableDay, setTimetableDay] = useState('Monday');
+  const [chatTeacher, setChatTeacher] = useState('Mrs. S. Sharma (Science)');
+  const [chatMessages, setChatMessages] = useState([
+    { sender: 'teacher', text: 'Hi! Did you check the new homework assigned for this week?', time: '09:15 AM' },
+    { sender: 'student', text: 'Yes, Mrs. Sharma. I am currently working on the physics assignment.', time: '09:20 AM' },
+    { sender: 'teacher', text: 'Perfect. Let me know if you need any help with the questions.', time: '09:25 AM' }
+  ]);
+  const [newMsgText, setNewMsgText] = useState('');
+  const [paymentStep, setPaymentStep] = useState('form'); // 'form', 'processing', 'success'
+  const [processingStatus, setProcessingStatus] = useState('');
+
   // Student Homework submission Modal
   const [submitAssignmentModal, setSubmitAssignmentModal] = useState(null); // { _id, title }
   const [submitAnswerText, setSubmitAnswerText] = useState('');
@@ -436,7 +452,7 @@ const Home = () => {
     const upcomingDeadlines = studentAssignments
       .filter(a => a.submissionStatus === 'pending')
       .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
-      .slice(0, 2);
+      .slice(0, 3);
 
     // Dynamic Announcements List
     const getAnnouncements = () => {
@@ -450,6 +466,7 @@ const Home = () => {
           time: 'Recently posted',
           icon: 'FileText',
           color: 'indigo',
+          tag: 'ACADEMIC',
           description: `Subject: ${asg.subject}. Submission is pending with a due date of ${new Date(asg.dueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}.`
         });
       });
@@ -461,6 +478,7 @@ const Home = () => {
         time: '2 days ago',
         icon: 'Bell',
         color: 'pink',
+        tag: 'HOLIDAY',
         description: `All classes in ${tenant?.schoolName || 'Apex Academy'} will remain closed on account of public celebrations.`
       });
 
@@ -470,6 +488,7 @@ const Home = () => {
         time: '5 days ago',
         icon: 'Users',
         color: 'yellow',
+        tag: 'PTM MEETING',
         description: `Parent-Teacher interaction session for ${classSection} is scheduled for Friday from 12:00 PM.`
       });
 
@@ -509,11 +528,11 @@ const Home = () => {
           return distinctSubjects.map(sub => ({ name: sub, percentage: 80 }));
         }
         return [
-          { name: 'Mathematics', percentage: 85 },
-          { name: 'Science', percentage: 78 },
-          { name: 'English', percentage: 72 },
-          { name: 'Social Studies', percentage: 68 },
-          { name: 'Computer', percentage: 90 }
+          { name: 'Mathematics', percentage: 88 },
+          { name: 'General Science', percentage: 76 },
+          { name: 'English Grammar', percentage: 82 },
+          { name: 'Social Studies', percentage: 70 },
+          { name: 'Computer Science', percentage: 92 }
         ];
       }
       return list;
@@ -521,23 +540,132 @@ const Home = () => {
 
     const subjectPerformanceList = getSubjectStats();
 
+    // MOCK DATASETS FOR REDESIGN
+    const mockExams = [
+      { id: 1, subject: 'Mathematics', code: 'MATH-301', date: '2026-07-15', time: '09:00 AM - 12:00 PM', room: 'Lab 2', invigilator: 'Mr. R. K. Sen', maxMarks: 100, syllabus: 'Algebra, Geometry, Fractions' },
+      { id: 2, subject: 'General Science', code: 'SCI-302', date: '2026-07-17', time: '09:00 AM - 12:00 PM', room: 'Hall A', invigilator: 'Mrs. S. Sharma', maxMarks: 100, syllabus: 'Human Body, Light, Plants structure' },
+      { id: 3, subject: 'English Grammar', code: 'ENG-303', date: '2026-07-20', time: '10:00 AM - 01:00 PM', room: 'Room 104', invigilator: 'Mr. A. Patel', maxMarks: 80, syllabus: 'Nouns, Verbs, Essay Writing, Clauses' },
+      { id: 4, subject: 'Computer Basics', code: 'COMP-304', date: '2026-07-22', time: '01:30 PM - 03:30 PM', room: 'Computer Lab', invigilator: 'Miss P. Roy', maxMarks: 50, syllabus: 'Introduction to HTML, Operating Systems' },
+    ];
+
+    const mockTimetable = {
+      Monday: [
+        { period: '1', subject: 'Mathematics', time: '08:30 AM - 09:20 AM', room: '104', teacher: 'Mr. R. K. Sen' },
+        { period: '2', subject: 'General Science', time: '09:20 AM - 10:10 AM', room: 'Science Lab', teacher: 'Mrs. S. Sharma' },
+        { period: '3', subject: 'English Grammar', time: '10:30 AM - 11:20 AM', room: '104', teacher: 'Mr. A. Patel' },
+        { period: '4', subject: 'Social Studies', time: '11:20 AM - 12:10 PM', room: '104', teacher: 'Miss P. Roy' },
+        { period: '5', subject: 'Computer Basics', time: '01:00 PM - 01:50 PM', room: 'Computer Lab', teacher: 'Mr. R. K. Sen' },
+      ],
+      Tuesday: [
+        { period: '1', subject: 'English Grammar', time: '08:30 AM - 09:20 AM', room: '104', teacher: 'Mr. A. Patel' },
+        { period: '2', subject: 'Mathematics', time: '09:20 AM - 10:10 AM', room: '104', teacher: 'Mr. R. K. Sen' },
+        { period: '3', subject: 'General Science', time: '10:30 AM - 11:20 AM', room: 'Science Lab', teacher: 'Mrs. S. Sharma' },
+        { period: '4', subject: 'Art & Craft', time: '11:20 AM - 12:10 PM', room: 'Art Studio', teacher: 'Miss K. Sen' },
+        { period: '5', subject: 'Physical Ed', time: '01:00 PM - 01:50 PM', room: 'Playground', teacher: 'Mr. D. Rathore' },
+      ],
+      Wednesday: [
+        { period: '1', subject: 'Mathematics', time: '08:30 AM - 09:20 AM', room: '104', teacher: 'Mr. R. K. Sen' },
+        { period: '2', subject: 'General Science', time: '09:20 AM - 10:10 AM', room: 'Science Lab', teacher: 'Mrs. S. Sharma' },
+        { period: '3', subject: 'Social Studies', time: '10:30 AM - 11:20 AM', room: '104', teacher: 'Miss P. Roy' },
+        { period: '4', subject: 'English Grammar', time: '11:20 AM - 12:10 PM', room: '104', teacher: 'Mr. A. Patel' },
+        { period: '5', subject: 'Library Study', time: '01:00 PM - 01:50 PM', room: 'Central Library', teacher: 'Mrs. G. Joshi' },
+      ],
+      Thursday: [
+        { period: '1', subject: 'General Science', time: '08:30 AM - 09:20 AM', room: 'Science Lab', teacher: 'Mrs. S. Sharma' },
+        { period: '2', subject: 'Social Studies', time: '09:20 AM - 10:10 AM', room: '104', teacher: 'Miss P. Roy' },
+        { period: '3', subject: 'Mathematics', time: '10:30 AM - 11:20 AM', room: '104', teacher: 'Mr. R. K. Sen' },
+        { period: '4', subject: 'English Grammar', time: '11:20 AM - 12:10 PM', room: '104', teacher: 'Mr. A. Patel' },
+        { period: '5', subject: 'Music & Theatre', time: '01:00 PM - 01:50 PM', room: 'Music Hall', teacher: 'Mr. N. Varma' },
+      ],
+      Friday: [
+        { period: '1', subject: 'Mathematics', time: '08:30 AM - 09:20 AM', room: '104', teacher: 'Mr. R. K. Sen' },
+        { period: '2', subject: 'General Science', time: '09:20 AM - 10:10 AM', room: 'Science Lab', teacher: 'Mrs. S. Sharma' },
+        { period: '3', subject: 'Computer Basics', time: '10:30 AM - 11:20 AM', room: 'Computer Lab', teacher: 'Mr. R. K. Sen' },
+        { period: '4', subject: 'Self Study / Project', time: '11:20 AM - 12:10 PM', room: '104', teacher: 'Class Teacher' },
+        { period: '5', subject: 'Weekly Assessment', time: '01:00 PM - 01:50 PM', room: 'Exam Hall A', teacher: 'Mr. R. K. Sen' },
+      ]
+    };
+
+    const mockDocuments = [
+      { id: 'doc-1', name: 'Annual Report Card - Term 1.pdf', size: '1.4 MB', type: 'PDF', category: 'Academic Report', date: '2026-06-15' },
+      { id: 'doc-2', name: 'Syllabus & Curriculum Guide 2026-27.pdf', size: '3.8 MB', type: 'PDF', category: 'Syllabus', date: '2026-06-01' },
+      { id: 'doc-3', name: 'Sports Day Participation Certificate.png', size: '820 KB', type: 'Image', category: 'Certificate', date: '2026-05-12' },
+      { id: 'doc-4', name: 'School Bus Route Map & Timings.pdf', size: '950 KB', type: 'PDF', category: 'General Info', date: '2026-06-20' },
+    ];
+
+    const mockTeachers = [
+      { name: 'Mrs. S. Sharma (Science)', status: 'Online' },
+      { name: 'Mr. R. K. Sen (Mathematics)', status: 'Offline' },
+      { name: 'Mr. A. Patel (English)', status: 'Online' },
+      { name: 'Miss P. Roy (Computer)', status: 'Online' }
+    ];
+
+    // Interactive message helper
+    const handleSendMessage = (e) => {
+      e.preventDefault();
+      if (!newMsgText.trim()) return;
+
+      const userMessage = { sender: 'student', text: newMsgText, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
+      setChatMessages(prev => [...prev, userMessage]);
+      setNewMsgText('');
+
+      // Auto reply mock simulation
+      setTimeout(() => {
+        const reply = {
+          sender: 'teacher',
+          text: `Got your message regarding ${chatTeacher.split(' ')[2] || 'academics'}. I will look into it and get back to you during school hours.`,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+        setChatMessages(prev => [...prev, reply]);
+      }, 1200);
+    };
+
+    // Override Payment Checkout for detailed gateway steps
+    const handlePaymentCheckoutSubmit = async (e) => {
+      e.preventDefault();
+      setPaymentStep('processing');
+      setProcessingStatus('Securing secure client connection...');
+
+      try {
+        await new Promise(r => setTimeout(r, 800));
+        setProcessingStatus('Verifying Visa/Mastercard 3D-Secure credentials...');
+        await new Promise(r => setTimeout(r, 800));
+        setProcessingStatus('Posting authorized ledger transaction...');
+        await new Promise(r => setTimeout(r, 600));
+
+        const res = await axios.post(`http://localhost:5001/api/v1/students/portal/fees/${checkoutFeeModal._id}/pay`);
+        if (res.data.success) {
+          setPaymentStep('success');
+          setPaymentSuccessMsg(`Payment Processed Successfully! Transaction ID: ${res.data.data.transactionId}`);
+          fetchStudentFees();
+          fetchStudentDashboard();
+        }
+      } catch (err) {
+        alert(err.response?.data?.error || 'Payment transaction failed.');
+        setPaymentStep('form');
+        setCheckoutFeeModal(null);
+      }
+    };
+
     return (
-      <div className="space-y-8 bg-[#090e1a] text-slate-100 min-h-screen">
+      <div className="space-y-8 bg-[#070a13] text-slate-100 min-h-screen pb-12 antialiased">
         
         {/* Welcome Section */}
         {studentActiveTab === 'overview' && (
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div className="text-left">
-              <span className="text-[10px] font-black text-pink-500 uppercase tracking-widest block mb-1">
-                Dashboard Overview
+          <div className="relative overflow-hidden rounded-3xl border border-slate-800/80 bg-gradient-to-r from-slate-900 to-[#0e172a] p-6 sm:p-8 shadow-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div className="text-left relative z-10 space-y-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black text-primary border border-primary/20 bg-primary/10 tracking-widest uppercase">
+                <Sparkles className="w-3.5 h-3.5 animate-pulse text-primary" /> Active Session
               </span>
-              <h2 className="text-3xl font-black text-white tracking-tight flex items-center gap-2.5">
-                Welcome back, {user.name.toLowerCase()}! 👋
+              <h2 className="text-3xl font-extrabold text-white tracking-tight flex items-center gap-2.5">
+                Welcome back, {user.name.split(' ')[0]}! 👋
               </h2>
-              <p className="text-xs text-slate-400 mt-1 font-medium">
-                Here's what's happening with your academics today.
+              <p className="text-sm text-slate-400 font-medium max-w-md">
+                Here's a comprehensive review of your educational status, schedules, and active tasks.
               </p>
             </div>
+            {/* Ambient glows */}
+            <div className="absolute right-0 top-0 w-64 h-64 bg-primary/10 rounded-full blur-[80px]"></div>
           </div>
         )}
 
@@ -545,215 +673,256 @@ const Home = () => {
         {/* TAB: OVERVIEW VIEW */}
         {/* ========================================================== */}
         {studentActiveTab === 'overview' && (
-          <div className="space-y-6">
+          <div className="space-y-8">
             
-            {/* Row 1: 4 Metrics Cards */}
+            {/* Metrics cards grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               
               {/* Card 1: Attendance */}
-              <div className="bg-[#0d1527] border border-[#1e293b]/60 rounded-2xl p-5 shadow-lg flex items-center justify-between hover:border-[#1e293b] transition-all">
-                <div className="space-y-1.5 text-left">
-                  <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider block">Attendance Rate</span>
-                  <strong className="text-3xl font-black text-white block">{attendancePercentage}%</strong>
-                  <span className="text-[10px] text-slate-400 font-bold block">
-                    Present: {stats?.present || 0} / {totalClasses} days
+              <div className="glass-card bg-[#0b101f]/80 border border-slate-800/60 rounded-3xl p-6 shadow-xl flex items-center justify-between hover:border-primary/40 hover:-translate-y-1 transition-all duration-300 group">
+                <div className="space-y-2 text-left">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Attendance Rate</span>
+                  <strong className="text-3xl font-black text-white block tracking-tight">{attendancePercentage}%</strong>
+                  <span className="text-xs text-emerald-400 font-semibold block flex items-center gap-1.5">
+                    <Check className="w-3 h-3" /> {stats?.present || 0} / {totalClasses} classes
                   </span>
                 </div>
-                <div className="w-11 h-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-                  <Calendar className="w-5 h-5" />
+                <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform shadow-inner">
+                  <Calendar className="w-6 h-6" />
                 </div>
               </div>
 
               {/* Card 2: Homework */}
-              <div className="bg-[#0d1527] border border-[#1e293b]/60 rounded-2xl p-5 shadow-lg flex items-center justify-between hover:border-[#1e293b] transition-all">
-                <div className="space-y-1.5 text-left">
-                  <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider block">Pending Homework</span>
-                  <strong className="text-3xl font-black text-white block">{pendingHomeworkCount}</strong>
-                  <span className="text-[10px] text-slate-400 font-bold block">Submissions Pending</span>
+              <div className="glass-card bg-[#0b101f]/80 border border-slate-800/60 rounded-3xl p-6 shadow-xl flex items-center justify-between hover:border-primary/40 hover:-translate-y-1 transition-all duration-300 group">
+                <div className="space-y-2 text-left">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Pending Tasks</span>
+                  <strong className="text-3xl font-black text-white block tracking-tight">{pendingHomeworkCount}</strong>
+                  <span className="text-xs text-amber-500 font-semibold block flex items-center gap-1.5">
+                    <Clock className="w-3 h-3 animate-pulse" /> Submissions Due
+                  </span>
                 </div>
-                <div className="w-11 h-11 rounded-xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center text-yellow-400">
-                  <BookOpen className="w-5 h-5" />
+                <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 group-hover:scale-110 transition-transform shadow-inner">
+                  <BookOpen className="w-6 h-6" />
                 </div>
               </div>
 
               {/* Card 3: Unpaid Fees */}
-              <div className="bg-[#0d1527] border border-[#1e293b]/60 rounded-2xl p-5 shadow-lg flex items-center justify-between hover:border-[#1e293b] transition-all">
-                <div className="space-y-1.5 text-left">
-                  <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider block">Unpaid Fees</span>
-                  <strong className="text-3xl font-black text-white block">
-                    ₹{totalUnpaidAmount.toLocaleString()}
-                  </strong>
-                  <span className="text-[10px] text-slate-400 font-bold block">
-                    {pendingFeesCount} Invoice{pendingFeesCount !== 1 ? 's' : ''} Pending
+              <div className="glass-card bg-[#0b101f]/80 border border-slate-800/60 rounded-3xl p-6 shadow-xl flex items-center justify-between hover:border-primary/40 hover:-translate-y-1 transition-all duration-300 group">
+                <div className="space-y-2 text-left">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Outstanding Fees</span>
+                  <strong className="text-3xl font-black text-white block tracking-tight">₹{totalUnpaidAmount.toLocaleString()}</strong>
+                  <span className="text-xs text-rose-500 font-semibold block flex items-center gap-1.5">
+                    <AlertTriangle className="w-3 h-3" /> {pendingFeesCount} invoices unpaid
                   </span>
                 </div>
-                <div className="w-11 h-11 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400">
-                  <CreditCard className="w-5 h-5" />
+                <div className="w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 group-hover:scale-110 transition-transform shadow-inner">
+                  <CreditCard className="w-6 h-6" />
                 </div>
               </div>
 
               {/* Card 4: Upcoming Exams */}
-              <div className="bg-[#0d1527] border border-[#1e293b]/60 rounded-2xl p-5 shadow-lg flex items-center justify-between hover:border-[#1e293b] transition-all">
-                <div className="space-y-1.5 text-left">
-                  <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider block">Upcoming Exams</span>
-                  <strong className="text-3xl font-black text-white block">{examCount}</strong>
-                  <span className="text-[10px] text-slate-400 font-bold block">In Next 7 Days</span>
+              <div className="glass-card bg-[#0b101f]/80 border border-slate-800/60 rounded-3xl p-6 shadow-xl flex items-center justify-between hover:border-primary/40 hover:-translate-y-1 transition-all duration-300 group">
+                <div className="space-y-2 text-left">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Upcoming Exams</span>
+                  <strong className="text-3xl font-black text-white block tracking-tight">{examCount}</strong>
+                  <span className="text-xs text-primary font-semibold block flex items-center gap-1.5">
+                    <Award className="w-3 h-3" /> In Next 30 Days
+                  </span>
                 </div>
-                <div className="w-11 h-11 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
-                  <Clock className="w-5 h-5" />
+                <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary group-hover:scale-110 transition-transform shadow-inner">
+                  <GraduationCap className="w-6 h-6" />
                 </div>
               </div>
 
             </div>
 
-            {/* Row 2: ID Card Banner & Upcoming Events */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Main Interactive Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               
-              {/* ID Card Violet/Purple Gradient Banner (Takes 2 cols) */}
-              <div className="lg:col-span-2 bg-gradient-to-br from-[#2e1065] to-[#4c1d95] rounded-2xl p-6 sm:p-8 border border-purple-500/20 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl shadow-purple-950/10">
-                <div className="space-y-4 max-w-sm text-left relative z-10">
-                  <h4 className="text-xl font-black text-white">Digital Identity Card</h4>
-                  <p className="text-xs text-purple-200 leading-relaxed">
-                    Your school digital ID card has been issued and is ready. You can print it or show it directly on mobile devices.
-                  </p>
-                  <Link 
-                    to="/myprofile"
-                    className="inline-block px-5 py-2.5 bg-purple-600 hover:bg-purple-550 text-white font-extrabold text-[11px] rounded-xl shadow-md transition-all active:scale-95 tracking-wider uppercase"
-                  >
-                    View ID Card
-                  </Link>
-                </div>
+              {/* Left Column (ID card & timelines - takes 2 cols) */}
+              <div className="lg:col-span-2 space-y-8">
                 
-                {/* Visual Card Mock */}
-                <div className="w-72 bg-gradient-to-br from-[#1b1c30] to-[#121320] rounded-xl border border-purple-500/30 p-4 shadow-2xl shadow-black/60 flex flex-col space-y-3 shrink-0 transform md:rotate-3 hover:rotate-0 transition-transform duration-300 relative z-10">
-                  <div className="flex items-center gap-2.5 border-b border-slate-800/80 pb-2">
-                    <div className="w-5 h-5 rounded-md bg-purple-500 flex items-center justify-center text-white text-[10px] font-black shrink-0 shadow-inner">A</div>
-                    <div className="text-left">
-                      <h5 className="text-[9px] font-black text-white leading-none">{tenant?.schoolName || 'Apex Academy'}</h5>
-                      <span className="text-[7px] text-purple-400 font-bold uppercase tracking-widest block mt-0.5">STUDENT IDENTITY CARD</span>
-                    </div>
+                {/* 3D Student Card Widget */}
+                <div className="glass-card bg-slate-900/65 rounded-3xl p-6 border border-slate-800/80 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
+                  <div className="space-y-4 max-w-sm text-left relative z-10">
+                    <span className="px-2 py-0.5 rounded-md text-[9px] font-black bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 tracking-wider block w-fit">STUDENT CREDENTIAL</span>
+                    <h4 className="text-2xl font-black text-white leading-tight">Digital Identity Pass</h4>
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                      Your certified digital ID. Use it to gain entry, verify identity, or print a hard-copy badge layout.
+                    </p>
+                    <button 
+                      onClick={() => setCardFlipped(!cardFlipped)}
+                      className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-extrabold text-[11px] rounded-xl shadow-md transition-all active:scale-95 tracking-wider uppercase flex items-center gap-2 border border-slate-700/60"
+                    >
+                      <UserCheck className="w-3.5 h-3.5 text-primary" /> Flip card View
+                    </button>
                   </div>
-                  <div className="flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-lg bg-gradient-to-tr from-pink-500 to-indigo-500 text-white flex items-center justify-center font-black text-sm uppercase shadow">
-                      {user?.name?.split(' ').map(n => n[0]).slice(0, 2).join('')}
-                    </div>
-                    <div className="text-left space-y-0.5 min-w-0">
-                      <h6 className="text-[11px] font-black text-white truncate">{user?.name}</h6>
-                      <p className="text-[8px] text-purple-400 font-extrabold">{classSection}</p>
-                      <p className="text-[8px] text-slate-400 font-mono font-bold">{profile?.admissionNo || 'ADM-2026-2153'}</p>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Styled background light flare */}
-                <div className="absolute w-48 h-48 bg-pink-500/20 rounded-full blur-[60px] -bottom-24 -right-12"></div>
-              </div>
-
-              {/* Sidebar: Upcoming Events (Takes 1 col) */}
-              <div className="bg-[#0d1527] border border-[#1e293b]/60 rounded-2xl p-5 shadow-lg flex flex-col space-y-4">
-                <div className="flex items-center justify-between border-b border-[#1e293b]/60 pb-3">
-                  <h4 className="text-sm font-extrabold text-white">Upcoming Events</h4>
-                  <a href="#" onClick={(e) => e.preventDefault()} className="text-[10px] text-pink-500 font-bold hover:underline">View All</a>
-                </div>
-
-                <div className="space-y-3.5 flex-1 flex flex-col justify-center">
-                  {upcomingDeadlines.length === 0 ? (
-                    <div className="text-center py-6 text-xs text-slate-500 font-semibold bg-[#121b33] p-3 rounded-xl border border-[#1e293b]/30">
-                      🎉 No pending homework due!
-                    </div>
-                  ) : (
-                    upcomingDeadlines.map((dead) => (
-                      <div key={dead._id} className="flex items-center gap-4 bg-[#121b33] p-3 rounded-xl border border-[#1e293b]/30">
-                        <div className="w-11 h-11 bg-white text-slate-900 rounded-xl flex flex-col items-center justify-center font-black uppercase text-center shadow shrink-0">
-                          <span className="text-[8px] text-pink-500 leading-none">
-                            {new Date(dead.dueDate).toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}
-                          </span>
-                          <span className="text-base leading-none block mt-0.5">
-                            {new Date(dead.dueDate).getDate()}
-                          </span>
+                  
+                  {/* Flip Card Container */}
+                  <div className="w-80 h-48 shrink-0 relative perspective cursor-pointer" onClick={() => setCardFlipped(!cardFlipped)}>
+                    <div className={`w-full h-full duration-700 transform-style-3d relative ${cardFlipped ? 'rotate-y-180' : ''}`}>
+                      
+                      {/* FRONT OF ID CARD */}
+                      <div className="absolute inset-0 w-full h-full rounded-2xl p-5 backface-hidden flex flex-col justify-between shadow-2xl bg-gradient-to-br from-primary to-[#2e1065] border border-white/10">
+                        {/* School header */}
+                        <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-7 h-7 rounded-lg bg-white/15 flex items-center justify-center text-white text-xs font-black shadow-inner">A</div>
+                            <div className="text-left">
+                              <h5 className="text-[10px] font-black text-white leading-none truncate max-w-[150px]">{tenant?.schoolName || 'Apex Academy'}</h5>
+                              <span className="text-[6px] text-white/50 font-extrabold uppercase tracking-widest block mt-0.5">ACADEMIC PROFILE PASS</span>
+                            </div>
+                          </div>
+                          <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[7px] font-extrabold uppercase tracking-wider">ACTIVE</span>
                         </div>
-                        <div className="text-left min-w-0 flex-1">
-                          <h5 className="font-extrabold text-[12px] text-white truncate">{dead.title}</h5>
-                          <p className="text-[9px] text-slate-400 mt-0.5 font-medium truncate">{dead.subject} • Due {new Date(dead.dueDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                        {/* Student details */}
+                        <div className="flex items-center gap-4">
+                          <div className="w-14 h-14 rounded-xl bg-gradient-to-tr from-pink-500 to-indigo-500 text-white flex items-center justify-center font-black text-lg uppercase shadow-lg border border-white/20 shrink-0">
+                            {user?.name?.split(' ').map(n => n[0]).slice(0, 2).join('')}
+                          </div>
+                          <div className="text-left space-y-1 min-w-0 flex-1">
+                            <h6 className="text-sm font-black text-white truncate leading-none mb-0.5">{user?.name}</h6>
+                            <p className="text-[9px] text-white/70 font-extrabold">{classSection}</p>
+                            <p className="text-[8px] text-white/40 font-mono font-bold">{profile?.admissionNo || 'ADM-2026-2153'}</p>
+                          </div>
+                        </div>
+                        {/* Footer barcode design */}
+                        <div className="flex justify-between items-center text-[7px] text-white/40 font-bold border-t border-white/5 pt-2">
+                          <span>EXPIRES: MAY 2027</span>
+                          <span className="font-mono">||| | | |||| | ||| | |||</span>
                         </div>
                       </div>
-                    ))
-                  )}
+
+                      {/* BACK OF ID CARD */}
+                      <div className="absolute inset-0 w-full h-full rounded-2xl p-5 backface-hidden rotate-y-180 flex flex-col justify-between shadow-2xl bg-gradient-to-br from-[#121320] to-[#1b1c30] border border-slate-800">
+                        <div className="text-left space-y-3">
+                          <h5 className="text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-850 pb-1">Emergency Contacts & Info</h5>
+                          <div className="grid grid-cols-2 gap-3 text-[9px]">
+                            <div>
+                              <span className="text-slate-500 block">Parent / Guardian:</span>
+                              <strong className="text-slate-300 font-bold block">{profile?.parentName || 'N/A'}</strong>
+                            </div>
+                            <div>
+                              <span className="text-slate-500 block">Emergency Call:</span>
+                              <strong className="text-slate-300 font-mono font-bold block">{profile?.parentPhone || 'N/A'}</strong>
+                            </div>
+                            <div>
+                              <span className="text-slate-500 block">Official Email:</span>
+                              <strong className="text-slate-300 truncate block">{profile?.email || user.email}</strong>
+                            </div>
+                            <div>
+                              <span className="text-slate-500 block">Blood Group:</span>
+                              <strong className="text-slate-300 font-bold block">O+ Positive</strong>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-center text-[7px] text-slate-500 font-semibold border-t border-slate-850 pt-2 flex justify-between items-center">
+                          <span>EDUCORE ECOSYSTEM SECURITY</span>
+                          <span className="text-primary font-bold">SCAN PASS</span>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
                 </div>
+
+                {/* Subject Performance & Goals progress */}
+                <div className="glass-card bg-[#0b101f]/80 border border-slate-850 rounded-3xl p-6 shadow-xl text-left">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-6">
+                    <h4 className="text-base font-extrabold text-white">Subject Assessment Report</h4>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Dynamic Stats</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {subjectPerformanceList.map((sub, idx) => {
+                      const colors = [
+                        { text: 'text-indigo-400', progress: 'bg-indigo-500', bg: 'bg-indigo-500/10' },
+                        { text: 'text-emerald-400', progress: 'bg-emerald-500', bg: 'bg-emerald-500/10' },
+                        { text: 'text-amber-500', progress: 'bg-amber-500', bg: 'bg-amber-500/10' },
+                        { text: 'text-rose-500', progress: 'bg-rose-500', bg: 'bg-rose-500/10' }
+                      ];
+                      const color = colors[idx % colors.length];
+                      return (
+                        <div key={sub.name} className="bg-slate-950/40 p-4 rounded-2xl border border-slate-850 hover:border-slate-800 transition-colors space-y-2">
+                          <div className="flex justify-between items-center text-xs font-bold">
+                            <span className="text-slate-300 truncate">{sub.name}</span>
+                            <span className={`${color.text} px-2 py-0.5 rounded-lg ${color.bg} text-[10px]`}>{sub.percentage}%</span>
+                          </div>
+                          <div className="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
+                            <div className={`${color.progress} h-full rounded-full transition-all duration-1000`} style={{ width: `${sub.percentage}%` }}></div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
               </div>
 
-            </div>
+              {/* Right Column (Upcoming Deadlines & Short Timelines) */}
+              <div className="space-y-8">
+                
+                {/* Upcoming Deadlines */}
+                <div className="glass-card bg-[#0b101f]/80 border border-slate-850 rounded-3xl p-6 shadow-xl flex flex-col space-y-4 text-left">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h4 className="text-sm font-extrabold text-white">Task Deadlines</h4>
+                    <span className="flex h-2 w-2 relative shrink-0">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                    </span>
+                  </div>
 
-            {/* Row 3: Recent Announcements & Subject Performance */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              
-              {/* Recent Announcements (Takes 2 cols) */}
-              <div className="lg:col-span-2 bg-[#0d1527] border border-[#1e293b]/60 rounded-2xl p-5 shadow-lg flex flex-col space-y-4">
-                <div className="flex items-center justify-between border-b border-[#1e293b]/60 pb-3">
-                  <h4 className="text-sm font-extrabold text-white">Recent Announcements</h4>
-                  <Link to="/announcements" className="text-[10px] text-pink-500 font-bold hover:underline">View All</Link>
+                  <div className="space-y-4">
+                    {upcomingDeadlines.length === 0 ? (
+                      <div className="text-center py-8 text-xs text-slate-550 bg-slate-950/40 p-3 rounded-2xl border border-slate-850">
+                        🎉 No homework assignments pending.
+                      </div>
+                    ) : (
+                      upcomingDeadlines.map((dead) => (
+                        <div key={dead._id} className="flex gap-4 items-center bg-slate-950/45 p-3.5 rounded-2xl border border-slate-850 hover:border-slate-800 transition-colors">
+                          <div className="w-12 h-12 bg-white text-slate-950 rounded-xl flex flex-col items-center justify-center font-black uppercase text-center shadow shrink-0">
+                            <span className="text-[9px] text-rose-500 leading-none">
+                              {new Date(dead.dueDate).toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}
+                            </span>
+                            <span className="text-lg leading-none block mt-1">
+                              {new Date(dead.dueDate).getDate()}
+                            </span>
+                          </div>
+                          <div className="text-left min-w-0 flex-1 space-y-0.5">
+                            <h5 className="font-extrabold text-[12px] text-white truncate">{dead.title}</h5>
+                            <p className="text-[10px] text-slate-450 truncate font-semibold">{dead.subject}</p>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
                 </div>
 
-                <div className="space-y-4">
-                  {announcementsList.map((ann, idx) => {
-                    const colorMap = {
-                      indigo: { bg: 'bg-indigo-500/10', border: 'border-indigo-500/20', text: 'text-indigo-400' },
-                      pink: { bg: 'bg-pink-500/10', border: 'border-pink-500/20', text: 'text-pink-400' },
-                      yellow: { bg: 'bg-yellow-500/10', border: 'border-yellow-500/20', text: 'text-yellow-400' }
-                    };
-                    const theme = colorMap[ann.color] || colorMap.indigo;
-                    return (
-                      <div key={ann.id} className={`flex items-start gap-4 ${idx > 0 ? 'border-t border-[#1e293b]/40 pt-4' : ''}`}>
-                        <div className={`w-9 h-9 rounded-xl ${theme.bg} border ${theme.border} ${theme.text} flex items-center justify-center shrink-0`}>
-                          {ann.icon === 'Bell' && <Bell className="w-4 h-4" />}
-                          {ann.icon === 'FileText' && <FileText className="w-4 h-4" />}
-                          {ann.icon === 'Users' && <Users className="w-4 h-4" />}
-                        </div>
-                        <div className="text-left space-y-1 min-w-0 flex-1">
-                          <div className="flex justify-between items-center gap-4">
-                            <h5 className="font-extrabold text-[12px] text-white truncate">{ann.title}</h5>
-                            <span className="text-[8px] text-slate-500 font-bold shrink-0">{ann.time}</span>
+                {/* Recent Announcements bulletin */}
+                <div className="glass-card bg-[#0b101f]/80 border border-slate-850 rounded-3xl p-6 shadow-xl flex flex-col space-y-4 text-left">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h4 className="text-sm font-extrabold text-white">Notice Bulletin</h4>
+                    <Link to="/announcements" className="text-[10px] text-primary font-bold hover:underline">See All</Link>
+                  </div>
+
+                  <div className="space-y-4">
+                    {announcementsList.slice(0, 3).map((ann) => {
+                      return (
+                        <div key={ann.id} className="bg-slate-950/40 p-3.5 rounded-2xl border border-slate-850 space-y-1.5">
+                          <div className="flex justify-between items-start gap-4">
+                            <h5 className="font-extrabold text-[11px] text-white truncate">{ann.title}</h5>
+                            <span className="px-1.5 py-0.5 rounded text-[7px] font-black bg-primary/10 border border-primary/20 text-primary uppercase shrink-0 tracking-wider">{ann.tag}</span>
                           </div>
-                          <p className="text-[11px] text-slate-400 leading-relaxed">
+                          <p className="text-[10px] text-slate-400 leading-relaxed truncate">
                             {ann.description}
                           </p>
+                          <span className="text-[8px] text-slate-550 block font-semibold">{ann.time}</span>
                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Subject Performance (Takes 1 col) */}
-              <div className="bg-[#0d1527] border border-[#1e293b]/60 rounded-2xl p-5 shadow-lg flex flex-col space-y-4">
-                <div className="flex items-center justify-between border-b border-[#1e293b]/60 pb-3">
-                  <h4 className="text-sm font-extrabold text-white">Subject Performance</h4>
-                  <a href="#" onClick={(e) => e.preventDefault()} className="text-[10px] text-pink-500 font-bold hover:underline">View All</a>
+                      );
+                    })}
+                  </div>
                 </div>
 
-                <div className="space-y-4 flex-grow flex flex-col justify-center text-left">
-                  {subjectPerformanceList.map((sub, idx) => {
-                    const colors = [
-                      { text: 'text-emerald-400', progress: 'bg-emerald-500' },
-                      { text: 'text-teal-400', progress: 'bg-teal-450' },
-                      { text: 'text-amber-500', progress: 'bg-amber-500' },
-                      { text: 'text-orange-500', progress: 'bg-orange-500' },
-                      { text: 'text-rose-500', progress: 'bg-rose-500' }
-                    ];
-                    const color = colors[idx % colors.length];
-                    return (
-                      <div key={sub.name} className="space-y-1 text-left">
-                        <div className="flex justify-between text-[11px] font-bold text-slate-355">
-                          <span>{sub.name}</span>
-                          <span className={color.text}>{sub.percentage}%</span>
-                        </div>
-                        <div className="w-full bg-[#16223f] h-2 rounded-full overflow-hidden">
-                          <div className={color.progress + " h-full rounded-full"} style={{ width: `${sub.percentage}%` }}></div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
               </div>
 
             </div>
@@ -765,90 +934,123 @@ const Home = () => {
         {/* TAB: PROFILE VIEW */}
         {/* ========================================================== */}
         {studentActiveTab === 'profile' && (
-          <div className="max-w-2xl mx-auto space-y-6 text-left">
-            <div className="bg-[#0d1527] border border-[#1e293b]/60 rounded-2xl p-6 shadow-lg relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/5 rounded-full blur-[40px] pointer-events-none"></div>
+          <div className="max-w-4xl mx-auto space-y-8 text-left">
+            <div className="glass-card bg-slate-900/65 border border-slate-800/80 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-48 h-48 bg-primary/10 rounded-full blur-[60px] pointer-events-none"></div>
               
-              <div className="flex flex-col items-center text-center space-y-4 border-b border-[#1e293b]/60 pb-6">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-pink-500 to-indigo-500 text-white flex items-center justify-center font-extrabold text-3xl uppercase shadow">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 border-b border-slate-800/80 pb-8">
+                <div className="w-24 h-24 rounded-3xl bg-gradient-to-tr from-primary to-purple-650 text-white flex items-center justify-center font-black text-4xl uppercase shadow-2xl border-2 border-white/10 shrink-0">
                   {user?.name?.split(' ').map(n => n[0]).slice(0, 2).join('')}
                 </div>
-                <div>
-                  <h3 className="text-xl font-black text-white">{user?.name}</h3>
-                  <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-[#1a233a] border border-[#1e293b]/80 text-pink-400 block w-fit mx-auto mt-2">
-                    {profile?.admissionNo || 'ADM-2026-2153'}
-                  </span>
+                <div className="text-center sm:text-left space-y-2.5">
+                  <h3 className="text-2xl font-black text-white tracking-tight">{user?.name}</h3>
+                  <div className="flex flex-wrap justify-center sm:justify-start gap-3">
+                    <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-slate-950 border border-slate-850 text-primary">
+                      ADM: {profile?.admissionNo || 'ADM-2026-2153'}
+                    </span>
+                    <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 uppercase tracking-wider font-extrabold">
+                      Active Student
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 text-xs text-left">
-                <div>
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Official Email</span>
-                  <strong className="text-slate-200 mt-0.5 block">{profile?.email || user.email}</strong>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Academic Class</span>
-                  <strong className="text-slate-200 mt-0.5 block">{profile?.classId?.name || 'Class 3'}</strong>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Class Section</span>
-                  <strong className="text-slate-200 mt-0.5 block">Section {profile?.section || 'A'}</strong>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Date of Birth</span>
-                  <strong className="text-slate-200 mt-0.5 block">
-                    {profile?.dob ? new Date(profile.dob).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) : 'N/A'}
-                  </strong>
-                </div>
-                <div className="md:col-span-2 border-t border-[#1e293b]/40 pt-4 text-left">
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block text-left">Parent / Guardian Details</span>
-                  <div className="grid grid-cols-2 gap-4 mt-2">
+              {/* Info Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 text-xs">
+                
+                {/* Academic info */}
+                <div className="space-y-4 bg-slate-950/40 p-5 rounded-2xl border border-slate-850">
+                  <h4 className="text-sm font-extrabold text-white border-b border-slate-850 pb-2 flex items-center gap-2">
+                    <GraduationCap className="w-4 h-4 text-primary" /> Academic Information
+                  </h4>
+                  <div className="grid grid-cols-2 gap-4 text-left">
                     <div>
-                      <span className="text-[9px] text-slate-500 font-bold block">Parent Name</span>
-                      <strong className="text-slate-200 mt-0.5 block">{profile?.parentName || 'N/A'}</strong>
+                      <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Assigned Class</span>
+                      <strong className="text-slate-200 mt-0.5 block text-sm">{profile?.classId?.name || 'Class 3'}</strong>
                     </div>
                     <div>
-                      <span className="text-[9px] text-slate-500 font-bold block">Parent Contact</span>
-                      <strong className="text-slate-200 mt-0.5 block">{profile?.parentPhone || 'N/A'}</strong>
+                      <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Section Group</span>
+                      <strong className="text-slate-200 mt-0.5 block text-sm">Section {profile?.section || 'A'}</strong>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Official Email</span>
+                      <strong className="text-slate-200 mt-0.5 block break-all font-semibold">{profile?.email || user.email}</strong>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Date of Birth</span>
+                      <strong className="text-slate-200 mt-0.5 block text-sm">
+                        {profile?.dob ? new Date(profile.dob).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) : 'N/A'}
+                      </strong>
                     </div>
                   </div>
                 </div>
+
+                {/* Family details */}
+                <div className="space-y-4 bg-slate-950/40 p-5 rounded-2xl border border-slate-850">
+                  <h4 className="text-sm font-extrabold text-white border-b border-slate-850 pb-2 flex items-center gap-2">
+                    <Users className="w-4 h-4 text-primary" /> Parent / Guardian Details
+                  </h4>
+                  <div className="grid grid-cols-2 gap-4 text-left">
+                    <div>
+                      <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Guardian Name</span>
+                      <strong className="text-slate-200 mt-0.5 block text-sm">{profile?.parentName || 'N/A'}</strong>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Phone Contact</span>
+                      <strong className="text-slate-200 mt-0.5 block text-sm font-mono">{profile?.parentPhone || 'N/A'}</strong>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Relationship</span>
+                      <strong className="text-slate-200 mt-0.5 block text-sm">Parent / Father</strong>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Authorized Address</span>
+                      <strong className="text-slate-200 mt-0.5 block text-sm">Main Campus Roster</strong>
+                    </div>
+                  </div>
+                </div>
+
               </div>
             </div>
 
-            {/* Official ID badge card for print */}
-            <div className="bg-[#0d1527] border border-[#1e293b]/60 rounded-2xl p-6 shadow-lg space-y-4 text-center">
-              <h4 className="text-sm font-extrabold text-white flex items-center justify-center gap-2">
-                <CreditCard className="w-4 h-4 text-pink-500" /> Print Identity Badge
-              </h4>
-              <p className="text-[11px] text-slate-400">Click the button below to print your official student ID badge layout.</p>
+            {/* Printable ID badge section */}
+            <div className="glass-card bg-slate-900/65 border border-slate-800/80 rounded-3xl p-6 shadow-xl space-y-6 text-center">
+              <div className="space-y-2">
+                <h4 className="text-base font-extrabold text-white flex items-center justify-center gap-2">
+                  <Printer className="w-5 h-5 text-primary" /> Identity Badge Printing Center
+                </h4>
+                <p className="text-xs text-slate-400 max-w-sm mx-auto">Generate a high-resolution printable ID badge for student verifications on site.</p>
+              </div>
               
-              <div className="border border-[#1e293b]/60 rounded-2xl p-6 bg-slate-900/40 w-fit mx-auto" id="printable-id-card-area">
-                <div className="w-72 bg-gradient-to-br from-[#1b1c30] to-[#121320] rounded-xl border border-purple-500/30 p-5 shadow-2xl flex flex-col space-y-4">
-                  <div className="flex items-center gap-3 border-b border-slate-800 pb-3">
-                    <div className="w-6 h-6 rounded-md bg-purple-500 flex items-center justify-center text-white text-xs font-black shrink-0">A</div>
+              <div className="border border-slate-800/80 rounded-2xl p-6 bg-slate-950/40 w-fit mx-auto shadow-inner" id="printable-id-card-area">
+                <div className="w-72 bg-gradient-to-br from-primary to-[#2e1065] rounded-2xl border border-white/10 p-5 shadow-2xl flex flex-col space-y-5 text-left text-white">
+                  <div className="flex items-center gap-3 border-b border-white/10 pb-3">
+                    <div className="w-6 h-6 rounded-md bg-white/15 flex items-center justify-center text-white text-xs font-black shrink-0">A</div>
                     <div className="text-left">
-                      <h5 className="text-[10px] font-black text-white leading-none">{tenant?.schoolName || 'Apex Academy'}</h5>
-                      <span className="text-[7px] text-purple-400 font-extrabold tracking-widest block mt-0.5">STUDENT IDENTITY CARD</span>
+                      <h5 className="text-[9px] font-black text-white leading-none">{tenant?.schoolName || 'Apex Academy'}</h5>
+                      <span className="text-[6px] text-white/50 font-extrabold tracking-widest block mt-0.5">STUDENT IDENTITY BADGE</span>
                     </div>
                   </div>
-                  <div className="flex flex-col items-center text-center space-y-3">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-pink-500 to-indigo-500 text-white flex items-center justify-center font-black text-xl uppercase shadow border-2 border-purple-500/20">
+                  
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-xl bg-gradient-to-tr from-pink-500 to-indigo-500 text-white flex items-center justify-center font-black text-lg uppercase shadow-lg border border-white/20 shrink-0">
                       {user?.name?.split(' ').map(n => n[0]).slice(0, 2).join('')}
                     </div>
-                    <div>
-                      <h6 className="text-[13px] font-black text-white">{user?.name}</h6>
-                      <p className="text-[10px] text-purple-400 font-extrabold block mt-0.5">{classSection}</p>
+                    <div className="text-left space-y-1 min-w-0">
+                      <h6 className="text-xs font-black text-white truncate leading-none">{user?.name}</h6>
+                      <p className="text-[9px] text-white/70 font-extrabold">{classSection}</p>
+                      <p className="text-[8px] text-white/40 font-mono font-bold">{profile?.admissionNo || 'ADM-2026-2153'}</p>
                     </div>
                   </div>
-                  <div className="w-full grid grid-cols-2 gap-2 text-left border-t border-slate-800 pt-3.5 text-[9px] text-slate-400 font-semibold">
+
+                  <div className="w-full grid grid-cols-2 gap-2 text-left border-t border-white/10 pt-3.5 text-[8px] text-white/50 font-semibold">
                     <div>
-                      <span className="text-[7px] text-slate-500 font-bold block">ADM No.</span>
-                      <strong className="text-slate-355">{profile?.admissionNo || 'ADM-2026-2153'}</strong>
+                      <span className="text-[7px] text-white/35 font-bold block">ADM No.</span>
+                      <strong className="text-white block mt-0.5">{profile?.admissionNo || 'ADM-2026-2153'}</strong>
                     </div>
                     <div>
-                      <span className="text-[7px] text-slate-500 font-bold block">DOB</span>
-                      <strong className="text-slate-355">
+                      <span className="text-[7px] text-white/35 font-bold block">DOB</span>
+                      <strong className="text-white block mt-0.5">
                         {profile?.dob ? new Date(profile.dob).toLocaleDateString() : 'N/A'}
                       </strong>
                     </div>
@@ -858,9 +1060,9 @@ const Home = () => {
 
               <button 
                 onClick={() => window.print()}
-                className="px-5 py-2.5 bg-pink-600 hover:bg-pink-550 text-white font-extrabold text-xs rounded-xl shadow active:scale-95 transition-all flex items-center gap-1.5 mx-auto"
+                className="px-6 py-3 bg-primary hover:bg-primary/95 text-white font-extrabold text-xs rounded-xl shadow-lg active:scale-95 transition-all flex items-center gap-2 mx-auto uppercase tracking-wider"
               >
-                <Printer className="w-4 h-4" /> Print ID Card
+                <Printer className="w-4 h-4" /> Print PDF ID Badge
               </button>
             </div>
           </div>
@@ -870,53 +1072,133 @@ const Home = () => {
         {/* TAB: ATTENDANCE VIEW */}
         {/* ========================================================== */}
         {studentActiveTab === 'attendance' && (
-          <div className="bg-[#0d1527] border border-[#1e293b]/60 rounded-2xl p-6 shadow-lg space-y-6">
-            <div className="flex flex-col sm:flex-row justify-between sm:items-center border-b border-[#1e293b]/60 pb-4 gap-4 text-left">
+          <div className="bg-[#0b101f]/80 border border-slate-800/80 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-8">
+            
+            {/* Header statistics section */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-800 pb-6 gap-6 text-left">
               <div>
-                <h3 className="text-lg font-extrabold text-white">Daily Attendance Log</h3>
-                <p className="text-xs text-slate-455 mt-1">Roster record history of your school classes.</p>
+                <h3 className="text-lg font-extrabold text-white">Daily Attendance Ledger</h3>
+                <p className="text-xs text-slate-400 mt-1">Check verified daily roster logs and overall present rates.</p>
               </div>
-              <div className="px-4 py-2 bg-[#121b33] rounded-xl border border-[#1e293b]/60 text-xs font-semibold text-emerald-400 flex items-center gap-1.5 w-fit">
-                <CheckCircle className="w-4 h-4" /> Attendance Percentage: {attendancePercentage}%
+              <div className="flex items-center gap-4">
+                <div className="text-xs font-semibold text-slate-350 bg-slate-950/40 px-3.5 py-2 rounded-xl border border-slate-850">
+                  Month: 
+                  <select 
+                    value={attendanceMonth} 
+                    onChange={e => setAttendanceMonth(e.target.value)}
+                    className="ml-1 bg-transparent text-white font-bold focus:outline-none cursor-pointer"
+                  >
+                    <option value="all" className="bg-slate-950">All Months</option>
+                    <option value="07" className="bg-slate-950">July 2026</option>
+                    <option value="06" className="bg-slate-950">June 2026</option>
+                    <option value="05" className="bg-slate-950">May 2026</option>
+                  </select>
+                </div>
+                <div className="px-4 py-2 bg-emerald-500/10 rounded-xl border border-emerald-500/20 text-xs font-extrabold text-emerald-400 flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4" /> Rate: {attendancePercentage}%
+                </div>
               </div>
             </div>
 
+            {/* Attendance Status Summary meters */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              <div className="bg-slate-950/40 p-4 rounded-2xl border border-slate-850 text-left">
+                <span className="text-[10px] text-slate-500 font-bold block uppercase tracking-wider">Total Days Recorded</span>
+                <strong className="text-2xl font-black text-white mt-1 block">{totalClasses}</strong>
+              </div>
+              <div className="bg-slate-950/40 p-4 rounded-2xl border border-slate-850 text-left">
+                <span className="text-[10px] text-emerald-500 font-bold block uppercase tracking-wider">Present Days</span>
+                <strong className="text-2xl font-black text-emerald-450 mt-1 block">{stats?.present || 0}</strong>
+              </div>
+              <div className="bg-slate-950/40 p-4 rounded-2xl border border-slate-850 text-left">
+                <span className="text-[10px] text-rose-500 font-bold block uppercase tracking-wider">Absent Days</span>
+                <strong className="text-2xl font-black text-rose-450 mt-1 block">{stats?.absent || 0}</strong>
+              </div>
+              <div className="bg-slate-950/40 p-4 rounded-2xl border border-slate-850 text-left">
+                <span className="text-[10px] text-amber-500 font-bold block uppercase tracking-wider">Late Days</span>
+                <strong className="text-2xl font-black text-amber-450 mt-1 block">{stats?.late || 0}</strong>
+              </div>
+            </div>
+
+            {/* Interactive Month Grid Visualizer */}
+            <div className="bg-slate-950/30 p-6 rounded-2xl border border-slate-850 text-left">
+              <h4 className="text-xs font-extrabold text-slate-350 uppercase tracking-widest mb-4">Roster Dot Tracker</h4>
+              <div className="flex flex-wrap gap-2.5">
+                {studentAttendance.length === 0 ? (
+                  <span className="text-xs text-slate-500">No logs listed.</span>
+                ) : (
+                  studentAttendance.map((log) => {
+                    const dt = new Date(log.date);
+                    const dayNum = dt.getDate();
+                    const monthText = dt.toLocaleString('en-US', { month: 'short' });
+                    const isPresent = log.status === 'present';
+                    const isAbsent = log.status === 'absent';
+                    const isLate = log.status === 'late';
+                    
+                    return (
+                      <div 
+                        key={log._id} 
+                        className={`w-10 h-10 rounded-xl border flex flex-col items-center justify-center font-bold text-[10px] ${
+                          isPresent 
+                            ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
+                            : isAbsent 
+                              ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' 
+                              : 'bg-amber-500/10 border-amber-500/20 text-amber-400'
+                        }`}
+                        title={`${log.status.toUpperCase()} on ${dt.toLocaleDateString()}`}
+                      >
+                        <span className="text-[8px] opacity-60 leading-none">{monthText}</span>
+                        <span className="text-xs font-black leading-none mt-0.5">{dayNum}</span>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+
+            {/* Detailed Table */}
             {loading ? (
               <div className="py-12 flex flex-col items-center justify-center space-y-2">
-                <Loader2 className="w-8 h-8 text-pink-500 animate-spin" />
-                <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Querying attendance list...</span>
+                <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Syncing database registers...</span>
               </div>
             ) : studentAttendance.length === 0 ? (
-              <div className="py-12 text-center text-xs text-slate-550">No attendance records found.</div>
+              <div className="py-12 text-center text-xs text-slate-550">No attendance ledger found.</div>
             ) : (
-              <div className="overflow-x-auto">
+              <div className="overflow-hidden rounded-2xl border border-slate-850 shadow-inner">
                 <table className="w-full border-collapse text-left text-xs text-slate-400 font-medium">
-                  <thead className="bg-[#121b33] border-b border-[#1e293b]/60 text-slate-350 font-bold uppercase text-[10px] tracking-wider">
+                  <thead className="bg-slate-950 border-b border-slate-800 text-slate-400 font-bold uppercase text-[9px] tracking-widest">
                     <tr>
-                      <th className="px-6 py-4">Date</th>
-                      <th className="px-6 py-4 text-center">Status</th>
-                      <th className="px-6 py-4">Verification Remarks</th>
+                      <th className="px-6 py-4">Session Date</th>
+                      <th className="px-6 py-4 text-center">Roster Code</th>
+                      <th className="px-6 py-4">Evaluation Remarks</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#1e293b]/30">
-                    {studentAttendance.map((log) => (
-                      <tr key={log._id} className="hover:bg-[#1a233a]/20">
-                        <td className="px-6 py-4 font-bold text-white">
-                          {new Date(log.date).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })}
-                        </td>
-                        <td className="px-6 py-4 text-center">
-                          <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold uppercase border ${
-                            log.status === 'present' 
-                              ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
-                              : log.status === 'absent' 
-                                ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' 
-                                : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-400'
-                          }`}>
-                            {log.status}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-slate-555 font-semibold italic text-left">Verified by Homeroom Teacher</td>
-                      </tr>
+                  <tbody className="divide-y divide-slate-850/60 bg-slate-900/15">
+                    {studentAttendance
+                      .filter(log => {
+                        if (attendanceMonth === 'all') return true;
+                        const logMonth = new Date(log.date).toISOString().split('-')[1];
+                        return logMonth === attendanceMonth;
+                      })
+                      .map((log) => (
+                        <tr key={log._id} className="hover:bg-slate-800/10 transition-colors">
+                          <td className="px-6 py-4 font-bold text-white">
+                            {new Date(log.date).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })}
+                          </td>
+                          <td className="px-6 py-4 text-center">
+                            <span className={`inline-flex px-3 py-0.5 rounded-full text-[9px] font-black uppercase border ${
+                              log.status === 'present' 
+                                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
+                                : log.status === 'absent' 
+                                  ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' 
+                                  : 'bg-amber-500/10 border-amber-500/20 text-amber-400'
+                            }`}>
+                              {log.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-slate-400 font-semibold italic text-left">Verified under general school roster rules.</td>
+                        </tr>
                     ))}
                   </tbody>
                 </table>
@@ -930,70 +1212,120 @@ const Home = () => {
         {/* ========================================================== */}
         {studentActiveTab === 'homework' && (
           <div className="space-y-6 text-left">
-            <div>
-              <h3 className="text-lg font-extrabold text-white">Homework & Assignments</h3>
-              <p className="text-xs text-slate-455 mt-1">Review assignments lists and submit answer writeups.</p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+              <div>
+                <h3 className="text-lg font-extrabold text-white">Homework & Assignments</h3>
+                <p className="text-xs text-slate-400 mt-1">Submit answer writeups and check evaluations.</p>
+              </div>
+              
+              {/* Search and Filters */}
+              <div className="flex items-center gap-3">
+                <input 
+                  type="text" 
+                  placeholder="Search subject..." 
+                  value={homeworkSearch}
+                  onChange={e => setHomeworkSearch(e.target.value)}
+                  className="px-3.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white focus:outline-none focus:border-primary max-w-xs transition-colors"
+                />
+              </div>
+            </div>
+
+            {/* Filter Tabs */}
+            <div className="flex gap-2 border-b border-slate-850 pb-2">
+              {['all', 'pending', 'submitted', 'graded'].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setHomeworkFilter(tab)}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold capitalize transition-all ${
+                    homeworkFilter === tab 
+                      ? 'bg-primary text-white shadow-md' 
+                      : 'text-slate-400 hover:bg-slate-900'
+                  }`}
+                >
+                  {tab} Tasks
+                </button>
+              ))}
             </div>
 
             {loading ? (
               <div className="py-12 flex flex-col items-center justify-center space-y-2">
-                <Loader2 className="w-8 h-8 text-pink-500 animate-spin" />
-                <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Loading syllabus homework...</span>
+                <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Syncing class homework...</span>
               </div>
             ) : studentAssignments.length === 0 ? (
-              <div className="bg-[#0d1527] border border-[#1e293b]/60 rounded-2xl p-8 text-center text-xs text-slate-550">
-                No homework assignments listed for your class scope.
+              <div className="bg-[#0b101f]/80 border border-slate-800/80 rounded-3xl p-12 text-center text-xs text-slate-550">
+                No active homework records found.
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {studentAssignments.map((asg) => (
-                  <div key={asg._id} className="bg-[#0d1527] border border-[#1e293b]/60 rounded-2xl p-5 flex flex-col justify-between space-y-4 hover:border-[#1e293b] transition-all shadow-lg">
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-pink-500/10 border border-pink-500/20 text-pink-400 uppercase tracking-wide">
-                          {asg.subject}
-                        </span>
-                        <span className="text-[9px] text-slate-555 font-bold">
-                          Due: {new Date(asg.dueDate).toLocaleDateString()}
-                        </span>
+                {studentAssignments
+                  .filter(asg => {
+                    if (homeworkFilter !== 'all' && asg.submissionStatus !== homeworkFilter) return false;
+                    if (homeworkSearch && !asg.subject.toLowerCase().includes(homeworkSearch.toLowerCase()) && !asg.title.toLowerCase().includes(homeworkSearch.toLowerCase())) return false;
+                    return true;
+                  })
+                  .map((asg) => {
+                    const isPending = asg.submissionStatus === 'pending';
+                    const isSubmitted = asg.submissionStatus === 'submitted';
+                    const isGraded = asg.submissionStatus === 'graded';
+                    
+                    return (
+                      <div key={asg._id} className="glass-card bg-[#0b101f]/80 border border-slate-850 rounded-3xl p-6 flex flex-col justify-between space-y-5 hover:border-slate-800 transition-all duration-300 shadow-xl group relative overflow-hidden">
+                        
+                        {/* Grade stamp overlay */}
+                        {isGraded && (
+                          <div className="absolute right-4 top-4 rotate-12 w-10 h-10 border-2 border-emerald-500/40 rounded-full flex items-center justify-center text-[10px] font-black text-emerald-400 uppercase tracking-widest bg-emerald-500/5 select-none pointer-events-none">
+                            {asg.grade || 'A'}
+                          </div>
+                        )}
+
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-center">
+                            <span className="px-2.5 py-0.5 rounded-full text-[9px] font-black bg-primary/10 border border-primary/20 text-primary uppercase tracking-wider">
+                              {asg.subject}
+                            </span>
+                            <span className="text-[10px] text-slate-500 font-bold">
+                              Due: {new Date(asg.dueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+                            </span>
+                          </div>
+                          <h4 className="font-extrabold text-sm text-white group-hover:text-primary transition-colors">{asg.title}</h4>
+                          <p className="text-xs text-slate-400 leading-relaxed font-medium line-clamp-2">{asg.description}</p>
+                        </div>
+
+                        <div className="border-t border-slate-800/80 pt-4 flex items-center justify-between">
+                          <span className={`px-2.5 py-0.5 rounded text-[9px] font-extrabold uppercase border ${
+                            isGraded 
+                              ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
+                              : isSubmitted
+                                ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400'
+                                : 'bg-amber-500/10 border-amber-500/20 text-amber-400'
+                          }`}>
+                            {asg.submissionStatus}
+                          </span>
+
+                          {isPending ? (
+                            <button
+                              onClick={() => {
+                                setSubmitError('');
+                                setSubmitAnswerText('');
+                                setSubmitAssignmentModal(asg);
+                              }}
+                              className="px-4 py-2 bg-primary hover:bg-primary/95 text-white font-extrabold text-[10px] rounded-xl tracking-wider uppercase transition-all shadow-md active:scale-95"
+                            >
+                              Submit Homework
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => alert(`YOUR SUBMISSION WRITEUP:\n"${asg.answerText}"\n\nGRADE: ${asg.grade || 'Pending Grading'}\nFEEDBACK: ${asg.feedback || 'Evaluating soon.'}`)}
+                              className="px-4 py-2 bg-slate-900 border border-slate-800 hover:bg-slate-800/60 text-slate-300 font-bold text-[10px] rounded-xl tracking-wider uppercase transition-all"
+                            >
+                              View Submission
+                            </button>
+                          )}
+                        </div>
                       </div>
-                      <h4 className="font-extrabold text-sm text-white">{asg.title}</h4>
-                      <p className="text-[11px] text-slate-400 leading-relaxed truncate">{asg.description}</p>
-                    </div>
-
-                    <div className="border-t border-[#1e293b]/40 pt-4 flex items-center justify-between">
-                      <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase border ${
-                        asg.submissionStatus === 'graded' 
-                          ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
-                          : asg.submissionStatus === 'submitted'
-                            ? 'bg-indigo-500/10 border-[#1e293b]/50 text-indigo-400'
-                            : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-400'
-                      }`}>
-                        {asg.submissionStatus}
-                      </span>
-
-                      {asg.submissionStatus === 'pending' ? (
-                        <button
-                          onClick={() => {
-                            setSubmitError('');
-                            setSubmitAnswerText('');
-                            setSubmitAssignmentModal(asg);
-                          }}
-                          className="px-3.5 py-1.5 bg-pink-600 hover:bg-pink-550 text-white font-extrabold text-[10px] rounded-lg tracking-wide uppercase transition-all shadow"
-                        >
-                          Submit Work
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => alert(`Your submission answer was:\n"${asg.answerText}"\n\nGrade: ${asg.grade || 'Ungraded'}\nFeedback: ${asg.feedback || 'Pending evaluation.'}`)}
-                          className="px-3.5 py-1.5 bg-[#1a233a] border border-[#1e293b]/85 hover:bg-[#1a233a]/80 text-slate-200 font-bold text-[10px] rounded-lg tracking-wide uppercase transition-all"
-                        >
-                          View Evaluation
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                    );
+                  })}
               </div>
             )}
           </div>
@@ -1005,48 +1337,75 @@ const Home = () => {
         {studentActiveTab === 'fees' && (
           <div className="space-y-6 text-left">
             <div>
-              <h3 className="text-lg font-extrabold text-white">Fee Invoices & Payments</h3>
-              <p className="text-xs text-slate-455 mt-1">Clear pending academic board fees and sports charges.</p>
+              <h3 className="text-lg font-extrabold text-white">Fee Statements & Invoices</h3>
+              <p className="text-xs text-slate-400 mt-1">Manage outstanding fee dues or review payment transactions.</p>
+            </div>
+
+            {/* Financial summary blocks */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="glass-card bg-[#0b101f]/80 p-5 rounded-2xl border border-slate-850 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] text-slate-500 font-bold block uppercase tracking-wider">Unpaid Dues</span>
+                  <strong className="text-2xl font-black text-white mt-1 block">₹{totalUnpaidAmount.toLocaleString()}</strong>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center font-bold">₹</div>
+              </div>
+              <div className="glass-card bg-[#0b101f]/80 p-5 rounded-2xl border border-slate-850 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] text-slate-500 font-bold block uppercase tracking-wider">Cleared Dues</span>
+                  <strong className="text-2xl font-black text-emerald-450 mt-1 block">
+                    ₹{studentFees.filter(f => f.status === 'paid').reduce((acc, curr) => acc + curr.amount, 0).toLocaleString()}
+                  </strong>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center"><CheckCircle className="w-5 h-5" /></div>
+              </div>
+              <div className="glass-card bg-[#0b101f]/80 p-5 rounded-2xl border border-slate-850 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] text-slate-500 font-bold block uppercase tracking-wider">Invoice Count</span>
+                  <strong className="text-2xl font-black text-primary mt-1 block">{studentFees.length} Bills</strong>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center"><FileText className="w-5 h-5" /></div>
+              </div>
             </div>
 
             {loading ? (
               <div className="py-12 flex flex-col items-center justify-center space-y-2">
-                <Loader2 className="w-8 h-8 text-pink-500 animate-spin" />
-                <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Checking billing ledger...</span>
+                <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Syncing billing ledgers...</span>
               </div>
             ) : studentFees.length === 0 ? (
-              <div className="bg-[#0d1527] border border-[#1e293b]/60 rounded-2xl p-8 text-center text-xs text-slate-550">
+              <div className="bg-[#0b101f]/80 border border-slate-800/80 rounded-3xl p-8 text-center text-xs text-slate-550">
                 No billing statements found.
               </div>
             ) : (
-              <div className="bg-[#0d1527] border border-[#1e293b]/60 rounded-2xl shadow-lg overflow-hidden">
+              <div className="bg-[#0b101f]/80 border border-slate-800/80 rounded-3xl shadow-xl overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse text-left text-xs text-slate-400 font-medium">
-                    <thead className="bg-[#121b33] border-b border-[#1e293b]/60 text-slate-355 font-bold uppercase text-[10px] tracking-wider">
+                    <thead className="bg-slate-950 border-b border-slate-800 text-slate-400 font-bold uppercase text-[9px] tracking-widest">
                       <tr>
-                        <th className="px-6 py-4">Fee Statement</th>
-                        <th className="px-6 py-4">Due Date</th>
+                        <th className="px-6 py-4">Billing Item / Invoice No</th>
+                        <th className="px-6 py-4">Deadline Date</th>
                         <th className="px-6 py-4">Amount</th>
                         <th className="px-6 py-4 text-center">Status</th>
-                        <th className="px-6 py-4 text-center">Checkout</th>
+                        <th className="px-6 py-4 text-center">Action</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#1e293b]/30">
+                    <tbody className="divide-y divide-slate-850 bg-slate-900/10">
                       {studentFees.map((fee) => (
-                        <tr key={fee._id} className="hover:bg-[#1a233a]/20">
+                        <tr key={fee._id} className="hover:bg-slate-800/10 transition-colors">
                           <td className="px-6 py-4">
-                            <div>
-                              <strong className="text-white font-extrabold block text-[13px]">{fee.title}</strong>
-                              <span className="text-[9px] text-slate-550 block mt-0.5">TXN: {fee.transactionId || 'Unpaid Invoice'}</span>
+                            <div className="space-y-0.5">
+                              <strong className="text-white font-extrabold block text-sm">{fee.title}</strong>
+                              <span className="text-[9px] text-slate-500 block font-mono">TXN: {fee.transactionId || 'Awaiting Payment Clearance'}</span>
                             </div>
                           </td>
-                          <td className="px-6 py-4 font-bold">{new Date(fee.dueDate).toLocaleDateString()}</td>
-                          <td className="px-6 py-4 font-extrabold text-white text-[13px]">₹{fee.amount.toLocaleString()}</td>
+                          <td className="px-6 py-4 font-semibold text-slate-300">{new Date(fee.dueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                          <td className="px-6 py-4 font-black text-white text-sm">₹{fee.amount.toLocaleString()}</td>
                           <td className="px-6 py-4 text-center">
-                            <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold uppercase border ${
+                            <span className={`inline-flex px-3 py-0.5 rounded-full text-[9px] font-black uppercase border ${
                               fee.status === 'paid' 
                                 ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
-                                : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-400'
+                                : 'bg-amber-500/10 border-amber-500/20 text-amber-450'
                             }`}>
                               {fee.status}
                             </span>
@@ -1057,14 +1416,15 @@ const Home = () => {
                                 onClick={() => {
                                   setPaymentSuccessMsg('');
                                   setCardName(user?.name || '');
+                                  setPaymentStep('form');
                                   setCheckoutFeeModal(fee);
                                 }}
-                                className="px-4 py-2 bg-pink-600 hover:bg-pink-550 active:scale-95 text-white font-extrabold text-[10px] rounded-lg tracking-wide uppercase transition-all shadow"
+                                className="px-4 py-2 bg-primary hover:bg-primary/95 text-white font-extrabold text-[10px] rounded-xl tracking-wider uppercase transition-all shadow active:scale-95"
                               >
                                 Checkout
                               </button>
                             ) : (
-                              <span className="text-[10px] text-slate-555 font-bold uppercase tracking-wider block">Cleared</span>
+                              <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-widest block">Settled</span>
                             )}
                           </td>
                         </tr>
@@ -1078,69 +1438,341 @@ const Home = () => {
         )}
 
         {/* ========================================================== */}
-        {/* TAB MOCKS: EXAMS, TIMETABLE, ANNOUNCEMENTS, MESSAGES, DOCUMENTS */}
+        {/* TAB: EXAMS MODULE */}
         {/* ========================================================== */}
-        {['exams', 'timetable', 'announcements', 'messages', 'documents'].includes(studentActiveTab) && (
-          <div className="bg-[#0d1527] border border-[#1e293b]/60 rounded-2xl p-12 shadow-lg max-w-xl mx-auto space-y-6 text-center">
-            <div className="w-16 h-16 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto text-2xl shadow animate-pulse">
-              <AlertTriangle className="w-6 h-6" />
+        {studentActiveTab === 'exams' && (
+          <div className="bg-[#0b101f]/80 border border-slate-800/80 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-8 text-left">
+            <div>
+              <h3 className="text-lg font-extrabold text-white">Upcoming Examinations</h3>
+              <p className="text-xs text-slate-400 mt-1">Review scheduled tests, seat numbers, and curriculum files.</p>
             </div>
-            
-            <div className="space-y-2">
-              <h3 className="text-lg font-black text-white capitalize">{studentActiveTab} Module</h3>
-              <p className="text-xs text-slate-400 leading-relaxed max-w-xs mx-auto">
-                This page is not available. Please contact your school administrator if you believe this is in error.
-              </p>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Left Column schedule list */}
+              <div className="lg:col-span-2 space-y-6">
+                <div className="overflow-hidden rounded-2xl border border-slate-850">
+                  <table className="w-full border-collapse text-left text-xs text-slate-400">
+                    <thead className="bg-slate-950 border-b border-slate-800 text-[9px] uppercase font-black tracking-widest text-slate-400">
+                      <tr>
+                        <th className="px-5 py-4">Subject</th>
+                        <th className="px-5 py-4">Schedule</th>
+                        <th className="px-5 py-4 text-center">Room/Seat</th>
+                        <th className="px-5 py-4 text-center">Max Marks</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-850/60 bg-slate-900/10">
+                      {mockExams.map((ex) => (
+                        <tr key={ex.id} className="hover:bg-slate-800/10 transition-colors">
+                          <td className="px-5 py-4 space-y-0.5">
+                            <strong className="text-white font-extrabold text-sm block">{ex.subject}</strong>
+                            <span className="text-[9px] text-slate-500 block font-mono">{ex.code}</span>
+                          </td>
+                          <td className="px-5 py-4 space-y-0.5 font-medium">
+                            <span className="text-slate-200 block font-bold">{new Date(ex.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                            <span className="text-[9px] text-slate-500 block">{ex.time}</span>
+                          </td>
+                          <td className="px-5 py-4 text-center font-semibold text-slate-350">
+                            <span className="block">{ex.room}</span>
+                            <span className="text-[8px] text-slate-500 font-bold block uppercase">{ex.invigilator}</span>
+                          </td>
+                          <td className="px-5 py-4 text-center text-sm font-black text-white">{ex.maxMarks}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Right Column Hall Ticket & Tips */}
+              <div className="space-y-6">
+                <div className="bg-slate-950/40 p-5 rounded-2xl border border-slate-850 space-y-4">
+                  <h4 className="text-xs font-black uppercase text-white tracking-widest border-b border-slate-850 pb-2">Academic Seat Ticket</h4>
+                  <div className="space-y-3 text-[11px] text-slate-400 font-semibold">
+                    <p className="flex justify-between"><span>Admission Roster:</span> <strong className="text-white font-mono">{profile?.admissionNo || 'ADM-2026-2153'}</strong></p>
+                    <p className="flex justify-between"><span>Testing Center:</span> <strong className="text-white">Main School Block</strong></p>
+                    <p className="flex justify-between"><span>Class Allocation:</span> <strong className="text-white">{classSection}</strong></p>
+                    <p className="flex justify-between"><span>Verification Status:</span> <strong className="text-emerald-450 uppercase">PASSED</strong></p>
+                  </div>
+                  <button 
+                    onClick={() => alert('Downloading admit ticket PDF... Done.')}
+                    className="w-full py-2.5 bg-primary hover:bg-primary/95 text-white font-extrabold text-[10px] rounded-xl uppercase tracking-wider shadow-md transition-all active:scale-95"
+                  >
+                    Download Admit Pass
+                  </button>
+                </div>
+
+                <div className="bg-slate-950/40 p-5 rounded-2xl border border-slate-850 space-y-2.5">
+                  <h5 className="text-[10px] font-black uppercase text-amber-500 tracking-wider flex items-center gap-1.5">
+                    <AlertTriangle className="w-3.5 h-3.5" /> Exam Regulations
+                  </h5>
+                  <ul className="text-[10px] text-slate-450 space-y-1.5 list-disc pl-4 font-semibold leading-relaxed">
+                    <li>Arrive at the testing room 15 minutes before slot timing.</li>
+                    <li>Possession of smart devices in examination desk is prohibited.</li>
+                    <li>Keep your printed Digital Admit Card on desk for verification.</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         )}
 
+        {/* ========================================================== */}
+        {/* TAB: TIMETABLE MODULE */}
+        {/* ========================================================== */}
+        {studentActiveTab === 'timetable' && (
+          <div className="bg-[#0b101f]/80 border border-slate-800/80 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-8 text-left">
+            <div className="border-b border-slate-800 pb-4">
+              <h3 className="text-lg font-extrabold text-white">Weekly Class Schedule</h3>
+              <p className="text-xs text-slate-400 mt-1">Browse weekly academic timelines and classroom details.</p>
+            </div>
+
+            {/* Day Selector Tabs */}
+            <div className="flex flex-wrap gap-2 border-b border-slate-850 pb-2">
+              {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].map((day) => (
+                <button
+                  key={day}
+                  onClick={() => setTimetableDay(day)}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all ${
+                    timetableDay === day 
+                      ? 'bg-primary text-white shadow-md' 
+                      : 'text-slate-400 hover:bg-slate-900'
+                  }`}
+                >
+                  {day}
+                </button>
+              ))}
+            </div>
+
+            {/* Schedule Slot Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {mockTimetable[timetableDay]?.map((slot) => (
+                <div key={slot.period} className="bg-slate-950/40 p-5 rounded-2xl border border-slate-850 hover:border-slate-800 transition-all flex flex-col justify-between space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="px-2 py-0.5 rounded bg-slate-900 text-slate-500 border border-slate-800 text-[8px] font-black uppercase tracking-wider">
+                        Period {slot.period}
+                      </span>
+                      <span className="text-[10px] text-slate-450 font-bold flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-slate-500" /> {slot.time.split(' - ')[0]}
+                      </span>
+                    </div>
+                    <h4 className="font-extrabold text-sm text-white">{slot.subject}</h4>
+                  </div>
+                  <div className="flex justify-between items-center text-[10px] text-slate-450 border-t border-slate-900 pt-3.5 font-bold">
+                    <span>Room: <strong className="text-slate-200">{slot.room}</strong></span>
+                    <span>Teacher: <strong className="text-slate-200">{slot.teacher}</strong></span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================== */}
+        {/* TAB: ANNOUNCEMENTS MODULE */}
+        {/* ========================================================== */}
+        {studentActiveTab === 'announcements' && (
+          <div className="bg-[#0b101f]/80 border border-slate-800/80 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-8 text-left max-w-4xl mx-auto">
+            <div className="border-b border-slate-800 pb-4">
+              <h3 className="text-lg font-extrabold text-white">School Announcement Bulletin</h3>
+              <p className="text-xs text-slate-400 mt-1">Official circular updates issued under student notifications.</p>
+            </div>
+
+            <div className="space-y-6">
+              {announcementsList.map((ann) => (
+                <div key={ann.id} className="bg-slate-950/40 p-5 rounded-2xl border border-slate-850 space-y-3 relative overflow-hidden group">
+                  <div className="flex justify-between items-center">
+                    <span className="px-2.5 py-0.5 rounded text-[8px] font-black bg-primary/10 border border-primary/20 text-primary uppercase tracking-widest font-mono">
+                      {ann.tag}
+                    </span>
+                    <span className="text-[9px] text-slate-550 font-bold">{ann.time}</span>
+                  </div>
+                  <h4 className="font-extrabold text-sm text-white group-hover:text-primary transition-colors">{ann.title}</h4>
+                  <p className="text-xs text-slate-400 leading-relaxed font-medium">{ann.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================== */}
+        {/* TAB: MESSAGES CHAT MODULE */}
+        {/* ========================================================== */}
+        {studentActiveTab === 'messages' && (
+          <div className="bg-[#0b101f]/80 border border-slate-800/80 rounded-3xl shadow-2xl overflow-hidden h-[550px] flex flex-col md:flex-row text-left">
+            
+            {/* Sidebar list of teachers */}
+            <div className="w-full md:w-64 border-r border-slate-850 flex flex-col shrink-0">
+              <div className="p-4 border-b border-slate-850 bg-slate-950/30">
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest block">Instructor Directory</span>
+              </div>
+              <div className="flex-1 overflow-y-auto divide-y divide-slate-850/50 p-2 space-y-1">
+                {mockTeachers.map((tc) => {
+                  const isActive = chatTeacher === tc.name;
+                  const initials = tc.name.split(' ').slice(1, 3).map(n => n[0]).join('');
+                  return (
+                    <button
+                      key={tc.name}
+                      onClick={() => setChatTeacher(tc.name)}
+                      className={`w-full p-3 rounded-xl flex items-center gap-3 transition-all ${
+                        isActive ? 'bg-slate-900 border border-slate-800 text-white' : 'text-slate-400 hover:bg-slate-900/40'
+                      }`}
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 text-primary flex items-center justify-center font-extrabold text-[10px] uppercase">
+                        {initials}
+                      </div>
+                      <div className="min-w-0 text-left space-y-0.5">
+                        <h5 className="text-[11px] font-bold truncate leading-none">{tc.name.split(' ')[0]} {tc.name.split(' ')[1]}</h5>
+                        <span className={`text-[8px] font-bold block ${tc.status === 'Online' ? 'text-emerald-450' : 'text-slate-500'}`}>{tc.status}</span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Chat conversation area */}
+            <div className="flex-1 flex flex-col justify-between bg-slate-950/20">
+              {/* Chat header */}
+              <div className="p-4 border-b border-slate-850 bg-slate-950/40 flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <h4 className="text-[12px] font-black text-white">{chatTeacher}</h4>
+                  <span className="text-[8px] text-emerald-400 font-bold block">Secure School Tunnel</span>
+                </div>
+              </div>
+
+              {/* Message balloons list */}
+              <div className="flex-1 p-6 overflow-y-auto space-y-4">
+                {chatMessages.map((msg, index) => {
+                  const isTeacher = msg.sender === 'teacher';
+                  return (
+                    <div key={index} className={`flex ${isTeacher ? 'justify-start' : 'justify-end'}`}>
+                      <div className={`max-w-xs p-3.5 rounded-2xl text-xs space-y-1 font-medium ${
+                        isTeacher 
+                          ? 'bg-[#121b33] border border-slate-850 text-slate-200 rounded-tl-none' 
+                          : 'bg-primary text-white rounded-tr-none'
+                      }`}>
+                        <p className="leading-relaxed">{msg.text}</p>
+                        <span className="text-[8px] opacity-50 block text-right font-semibold">{msg.time}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Chat Input form */}
+              <form onSubmit={handleSendMessage} className="p-4 border-t border-slate-850 bg-slate-950/45 flex items-center gap-3">
+                <input
+                  type="text"
+                  placeholder="Enter message for your class teacher..."
+                  value={newMsgText}
+                  onChange={e => setNewMsgText(e.target.value)}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white focus:outline-none focus:border-primary transition-all font-sans"
+                />
+                <button
+                  type="submit"
+                  className="p-2.5 bg-primary hover:bg-primary/95 text-white rounded-xl shadow-md transition-all active:scale-95"
+                >
+                  <Send className="w-4.5 h-4.5" />
+                </button>
+              </form>
+
+            </div>
+
+          </div>
+        )}
+
+        {/* ========================================================== */}
+        {/* TAB: DOCUMENTS FILE MANAGER MODULE */}
+        {/* ========================================================== */}
+        {studentActiveTab === 'documents' && (
+          <div className="bg-[#0b101f]/80 border border-slate-800/80 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-8 text-left max-w-4xl mx-auto">
+            <div>
+              <h3 className="text-lg font-extrabold text-white">Student Locker Files</h3>
+              <p className="text-xs text-slate-400 mt-1">Review official downloads, term cards, and bus itineraries.</p>
+            </div>
+
+            <div className="space-y-4">
+              {mockDocuments.map((doc) => (
+                <div key={doc.id} className="bg-slate-950/40 p-4 rounded-2xl border border-slate-850 flex items-center justify-between hover:border-slate-850 transition-colors">
+                  <div className="flex items-center gap-4 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center shrink-0">
+                      <FileText className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0 text-left space-y-0.5">
+                      <h4 className="text-[12px] font-black text-white truncate">{doc.name}</h4>
+                      <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">{doc.category} • {doc.size} • {doc.date}</p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => alert(`Initiating download for ${doc.name}...`)}
+                    className="px-4 py-2 border border-slate-800 bg-slate-950 hover:bg-slate-900 rounded-xl text-[10px] text-slate-300 font-bold uppercase tracking-wider transition-all"
+                  >
+                    Download
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================== */}
+        {/* MODAL OVERLAYS */}
+        {/* ========================================================== */}
+
         {/* MODAL: Submit assignment */}
         {submitAssignmentModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-            <div className="w-full max-w-md bg-[#0d1527] border border-[#1e293b]/80 rounded-2xl p-6 shadow-2xl relative text-left">
-              <h3 className="text-base font-extrabold text-white mb-1 flex items-center gap-1.5">
-                <BookOpen className="w-4.5 h-4.5 text-pink-500" /> Submit Homework Work
-              </h3>
-              <p className="text-[10px] text-slate-550 uppercase tracking-wider mb-4">Assignment: {submitAssignmentModal.title}</p>
+            <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl relative text-left">
+              <div className="flex justify-between items-start mb-4">
+                <div className="space-y-1">
+                  <h3 className="text-base font-extrabold text-white flex items-center gap-1.5">
+                    <BookOpen className="w-4.5 h-4.5 text-primary animate-pulse" /> Submit Homework
+                  </h3>
+                  <p className="text-[9px] text-slate-500 uppercase tracking-widest font-bold">Topic: {submitAssignmentModal.title}</p>
+                </div>
+                <button onClick={() => setSubmitAssignmentModal(null)} className="p-1 rounded-lg text-slate-400 hover:bg-slate-800 transition-colors">
+                  <X className="w-4.5 h-4.5" />
+                </button>
+              </div>
 
               {submitError && (
-                <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-lg text-xs font-semibold mb-4 flex items-center gap-1.5">
+                <div className="p-3.5 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-2xl text-xs font-semibold mb-4 flex items-center gap-1.5">
                   <AlertTriangle className="w-4 h-4" /> {submitError}
                 </div>
               )}
 
               <form onSubmit={handleAssignmentSubmit} className="space-y-4 text-xs">
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-555 uppercase tracking-wider mb-1">Answer Response Text</label>
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Answer Writeup Response</label>
                   <textarea
-                    rows={4}
-                    placeholder="Write your homework answers or submission remarks..."
+                    rows={5}
+                    placeholder="Enter writeup response notes, questions solved, or links to cloud documents..."
                     value={submitAnswerText}
                     onChange={e => setSubmitAnswerText(e.target.value)}
                     required
-                    className="w-full px-3 py-2.5 rounded-lg border border-[#1e293b] bg-[#121b33]/40 text-white placeholder-slate-550 focus:outline-none focus:border-pink-500 transition-all font-sans"
+                    className="w-full px-4 py-3 rounded-2xl border border-slate-800 bg-slate-950/40 text-white placeholder-slate-600 focus:outline-none focus:border-primary transition-all font-sans leading-relaxed"
                   />
                 </div>
 
-                <div className="flex justify-end gap-3 pt-4 border-t border-[#1e293b]/40">
+                <div className="flex justify-end gap-3 pt-4 border-t border-slate-800/80">
                   <button
                     type="button"
                     onClick={() => setSubmitAssignmentModal(null)}
-                    className="px-4 py-2 border border-[#1e293b] hover:bg-[#1a233a] rounded-lg text-slate-300 font-semibold"
+                    className="px-4 py-2 bg-slate-900 border border-slate-800 hover:bg-slate-800/60 rounded-xl text-slate-300 font-semibold transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={submittingAssignment}
-                    className="px-5 py-2 bg-pink-650 hover:bg-pink-550 active:scale-95 text-white rounded-lg font-bold flex items-center gap-1.5 shadow"
+                    className="px-5 py-2 bg-primary hover:bg-primary/95 active:scale-95 text-white rounded-xl font-bold flex items-center gap-1.5 shadow-lg transition-all"
                   >
                     {submittingAssignment ? (
                       <Loader2 className="w-3.5 h-3.5 animate-spin" />
                     ) : (
                       <>
-                        <Send className="w-3.5 h-3.5" /> Submit Homework
+                        <Send className="w-3.5 h-3.5" /> Post Submission
                       </>
                     )}
                   </button>
@@ -1150,103 +1782,171 @@ const Home = () => {
           </div>
         )}
 
-        {/* MODAL: Checkout payments */}
+        {/* MODAL: Checkout payment gateway mock */}
         {checkoutFeeModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm">
-            <div className="w-full max-w-md bg-[#0d1527] border border-[#1e293b]/80 rounded-2xl p-6 shadow-2xl relative text-left">
-              <h3 className="text-base font-extrabold text-white mb-1 flex items-center gap-1.5">
-                <Receipt className="w-4.5 h-4.5 text-pink-500" /> Payment Portal Checkout
-              </h3>
-              <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-4">Billed Fee: {checkoutFeeModal.title}</p>
+            <div className="w-full max-w-lg bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative text-left">
+              
+              {/* Header */}
+              <div className="flex justify-between items-start border-b border-slate-850 pb-4 mb-6">
+                <div>
+                  <h3 className="text-base font-black text-white flex items-center gap-2">
+                    <Lock className="w-4 h-4 text-emerald-450" /> Secure Payment Checkout
+                  </h3>
+                  <span className="text-[9px] text-slate-500 uppercase tracking-widest font-bold">Billing ID: {checkoutFeeModal._id}</span>
+                </div>
+                <button onClick={() => setCheckoutFeeModal(null)} className="p-1 rounded-lg text-slate-400 hover:bg-slate-800 transition-colors">
+                  <X className="w-4.5 h-4.5" />
+                </button>
+              </div>
 
-              {paymentSuccessMsg ? (
-                <div className="text-center py-6 space-y-4">
-                  <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 mx-auto flex items-center justify-center">
-                    <Check className="w-6 h-6" />
+              {paymentStep === 'success' ? (
+                <div className="text-center py-6 space-y-6">
+                  <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 mx-auto flex items-center justify-center shadow-lg">
+                    <Check className="w-7 h-7" />
                   </div>
-                  <div>
-                    <h4 className="text-base font-black text-white">Payment Authorized</h4>
-                    <p className="text-[10.5px] text-slate-400 mt-1 leading-relaxed">
-                      Your payment has been successfully recorded in the school portal billing ledger database.
+                  <div className="space-y-1.5">
+                    <h4 className="text-lg font-black text-white">Ledger Clearance Authorized</h4>
+                    <p className="text-xs text-slate-400 leading-relaxed max-w-sm mx-auto">
+                      Your fee clearance has been processed and saved under school database billing accounts ledger logs.
                     </p>
                   </div>
-                  <button
-                    onClick={() => setCheckoutFeeModal(null)}
-                    className="px-5 py-2 bg-emerald-600 hover:bg-emerald-555 text-white font-extrabold text-xs rounded-xl shadow transition-all active:scale-95 tracking-wide"
-                  >
-                    Close Invoice
-                  </button>
+                  <div className="bg-slate-950/50 p-4 rounded-2xl border border-slate-850 max-w-xs mx-auto text-xs space-y-1.5 text-left font-semibold">
+                    <p className="flex justify-between"><span>Amount Billed:</span> <strong className="text-white">₹{checkoutFeeModal.amount}</strong></p>
+                    <p className="flex justify-between"><span>Status:</span> <strong className="text-emerald-400">Settled</strong></p>
+                    <p className="flex justify-between"><span className="truncate">Transaction Ref:</span> <strong className="text-white font-mono break-all text-[10px]">{paymentSuccessMsg.split('ID: ')[1] || 'TXN-MOCK'}</strong></p>
+                  </div>
+                  <div className="flex gap-3 justify-center pt-2">
+                    <button 
+                      onClick={() => window.print()}
+                      className="px-5 py-2.5 bg-slate-850 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all"
+                    >
+                      Print Receipt
+                    </button>
+                    <button
+                      onClick={() => setCheckoutFeeModal(null)}
+                      className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-550 active:scale-95 text-white font-bold text-xs rounded-xl shadow transition-all"
+                    >
+                      Close Portal
+                    </button>
+                  </div>
+                </div>
+              ) : paymentStep === 'processing' ? (
+                <div className="py-12 text-center space-y-4">
+                  <Loader2 className="w-10 h-10 text-primary animate-spin mx-auto" />
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-extrabold text-white">Processing payment transaction...</h4>
+                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{processingStatus}</p>
+                  </div>
                 </div>
               ) : (
-                <form onSubmit={handlePayFeeSubmit} className="space-y-4 text-xs">
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Card Holder Name</label>
-                    <input
-                      type="text"
-                      value={cardName}
-                      onChange={e => setCardName(e.target.value)}
-                      required
-                      className="w-full px-3 py-2 rounded-lg border border-[#1e293b] bg-[#121b33]/40 text-white focus:outline-none focus:border-pink-500 transition-all"
-                    />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                  
+                  {/* Interactive Credit Card Mockup */}
+                  <div className="w-full space-y-6">
+                    <div className="w-full h-44 rounded-2xl p-5 bg-gradient-to-br from-[#1e3a8a] to-[#0f172a] border border-white/10 shadow-2xl relative flex flex-col justify-between text-white overflow-hidden">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-[40px]"></div>
+                      <div className="flex justify-between items-start border-b border-white/5 pb-2">
+                        <span className="text-[9px] font-black tracking-widest uppercase">Apex Payment Gateway</span>
+                        {cardNumber.startsWith('4') ? (
+                          <span className="text-xs font-black italic text-sky-400">VISA</span>
+                        ) : (
+                          <span className="text-xs font-black italic text-amber-500">MasterCard</span>
+                        )}
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-[8px] text-white/45 block tracking-wider font-semibold">CARD NUMBER</span>
+                        <p className="font-mono text-base tracking-widest text-white truncate">{cardNumber || '•••• •••• •••• ••••'}</p>
+                      </div>
+                      <div className="flex justify-between text-[9px] border-t border-white/5 pt-2">
+                        <div>
+                          <span className="text-white/45 block font-bold">CARD HOLDER</span>
+                          <strong className="text-white uppercase truncate max-w-[120px] block">{cardName || 'STUDENT NAME'}</strong>
+                        </div>
+                        <div>
+                          <span className="text-white/45 block font-bold">EXPIRES</span>
+                          <strong className="text-white font-mono">{cardExpiry || 'MM/YY'}</strong>
+                        </div>
+                        <div>
+                          <span className="text-white/45 block font-bold">CVV</span>
+                          <strong className="text-white font-mono">•••</strong>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-[10px] text-slate-500 font-semibold bg-slate-950/30 p-3 rounded-xl border border-slate-850 flex items-center gap-1.5">
+                      <Lock className="w-3.5 h-3.5 text-primary shrink-0" /> SSL 256-Bit Encrypted Secure Sandbox Checkout Tunnel.
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Card Number</label>
-                    <input
-                      type="text"
-                      value={cardNumber}
-                      onChange={e => setCardNumber(e.target.value)}
-                      required
-                      className="w-full px-3 py-2 rounded-lg border border-[#1e293b] bg-[#121b33]/40 text-white focus:outline-none focus:border-pink-500 transition-all font-mono"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Expiry Date</label>
+                  {/* Form fields */}
+                  <form onSubmit={handlePaymentCheckoutSubmit} className="space-y-4 text-xs font-semibold">
+                    <div className="space-y-1">
+                      <label className="block text-[10px] text-slate-500 uppercase tracking-wider">Card Holder Name</label>
                       <input
                         type="text"
-                        value={cardExpiry}
-                        onChange={e => setCardExpiry(e.target.value)}
+                        value={cardName}
+                        onChange={e => setCardName(e.target.value)}
                         required
-                        className="w-full px-3 py-2 rounded-lg border border-[#1e293b] bg-[#121b33]/40 text-white focus:outline-none focus:border-pink-500 transition-all font-mono"
+                        placeholder="Holder full name"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-800 bg-slate-950/40 text-white focus:outline-none focus:border-primary transition-all placeholder-slate-700"
                       />
                     </div>
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Security Code (CVC)</label>
-                      <input
-                        type="password"
-                        value={cardCvc}
-                        onChange={e => setCardCvc(e.target.value)}
-                        required
-                        className="w-full px-3 py-2 rounded-lg border border-[#1e293b] bg-[#121b33]/40 text-white focus:outline-none focus:border-pink-500 transition-all font-mono"
-                      />
-                    </div>
-                  </div>
 
-                  <div className="flex justify-end gap-3 pt-4 border-t border-[#1e293b]/40">
-                    <button
-                      type="button"
-                      onClick={() => setCheckoutFeeModal(null)}
-                      className="px-4 py-2 border border-[#1e293b] hover:bg-[#1a233a] rounded-lg text-slate-355 font-semibold"
-                    >
-                      Cancel Checkout
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={processingPayment}
-                      className="px-5 py-2 bg-emerald-600 hover:bg-emerald-555 active:scale-95 text-white rounded-lg font-bold flex items-center gap-1.5 shadow"
-                    >
-                      {processingPayment ? (
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      ) : (
-                        <>
-                          <Lock className="w-3.5 h-3.5" /> Authorize ₹{checkoutFeeModal.amount}
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </form>
+                    <div className="space-y-1">
+                      <label className="block text-[10px] text-slate-500 uppercase tracking-wider">Card Number</label>
+                      <input
+                        type="text"
+                        value={cardNumber}
+                        onChange={e => setCardNumber(e.target.value)}
+                        required
+                        placeholder="4111 2222 3333 4444"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-800 bg-slate-950/40 text-white focus:outline-none focus:border-primary transition-all font-mono placeholder-slate-700"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="block text-[10px] text-slate-500 uppercase tracking-wider">Expiry Date</label>
+                        <input
+                          type="text"
+                          value={cardExpiry}
+                          placeholder="12/28"
+                          onChange={e => setCardExpiry(e.target.value)}
+                          required
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-800 bg-slate-950/40 text-white focus:outline-none focus:border-primary transition-all font-mono placeholder-slate-700"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="block text-[10px] text-slate-500 uppercase tracking-wider">CVV (CVC)</label>
+                        <input
+                          type="password"
+                          value={cardCvc}
+                          placeholder="•••"
+                          onChange={e => setCardCvc(e.target.value)}
+                          required
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-800 bg-slate-950/40 text-white focus:outline-none focus:border-primary transition-all font-mono placeholder-slate-700"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end gap-3 pt-4 border-t border-slate-850">
+                      <button
+                        type="button"
+                        onClick={() => setCheckoutFeeModal(null)}
+                        className="px-4 py-2 bg-slate-900 border border-slate-800 hover:bg-slate-800/60 rounded-xl text-slate-400"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-5 py-2 bg-emerald-600 hover:bg-emerald-550 active:scale-95 text-white rounded-xl font-bold flex items-center gap-1.5 shadow-lg shadow-emerald-950/30 transition-all"
+                      >
+                        Authorize ₹{checkoutFeeModal.amount}
+                      </button>
+                    </div>
+                  </form>
+                  
+                </div>
               )}
             </div>
           </div>
