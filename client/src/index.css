@@ -8,13 +8,15 @@
 
 :root {
   /* Default placeholder theme colors before DB resolution */
-  --tenant-primary: #1e3a8a;   /* default blue */
-  --tenant-secondary: #d97706; /* default amber */
-  
+  --tenant-primary: #1e3a8a;
+  /* default blue */
+  --tenant-secondary: #d97706;
+  /* default amber */
+
   --bg-app-dark: #0f172a;
   --bg-card-dark: #1e293b;
   --border-dark: #334155;
-  
+
   --bg-app-light: #f8fafc;
   --bg-card-light: #ffffff;
   --border-light: #e2e8f0;
@@ -56,6 +58,7 @@ body {
 .hover-scale {
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
 .hover-scale:hover {
   transform: scale(1.02);
 }

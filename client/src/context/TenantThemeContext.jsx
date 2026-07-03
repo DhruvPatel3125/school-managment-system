@@ -64,7 +64,7 @@ export const TenantThemeProvider = ({ children }) => {
 
         // Update browser page title and favicon
         document.title = `${tenantData.schoolName} - EduCore ERP`;
-        
+
         let favicon = document.querySelector("link[rel~='icon']");
         if (!favicon) {
           favicon = document.createElement('link');

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 import { useTenantTheme } from '../context/TenantThemeContext';
@@ -38,7 +38,7 @@ const Home = () => {
   const { tenant } = useTenantTheme();
   const { user } = useAuth();
   const location = useLocation();
-  
+
   // COMMON STATE
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -431,9 +431,9 @@ const Home = () => {
     const totalClasses = studentAttendance.length;
     const presentClasses = studentAttendance.filter(a => a.status === 'present' || a.status === 'late').length;
     const attendancePercentage = stats?.percentage || "0.0";
-    
+
     const pendingHomeworkCount = studentDashData?.pendingAssignmentsCount || 0;
-    
+
     const pendingFees = studentFees.filter(f => f.status === 'pending');
     const totalUnpaidAmount = pendingFees.reduce((sum, f) => sum + f.amount, 0);
     const pendingFeesCount = studentDashData?.pendingFeesCount || 0;
@@ -441,10 +441,10 @@ const Home = () => {
     const classSection = localStorage.getItem('studentClassSection') || 'Class 3 - Section A';
 
     // Dynamic Exams count based on assignments with "exam" or "test" in description/title
-    const examCount = studentAssignments.filter(a => 
-      a.title.toLowerCase().includes('exam') || 
+    const examCount = studentAssignments.filter(a =>
+      a.title.toLowerCase().includes('exam') ||
       a.title.toLowerCase().includes('test') ||
-      a.description.toLowerCase().includes('exam') || 
+      a.description.toLowerCase().includes('exam') ||
       a.description.toLowerCase().includes('test')
     ).length;
 
@@ -457,7 +457,7 @@ const Home = () => {
     // Dynamic Announcements List
     const getAnnouncements = () => {
       const list = [];
-      
+
       // Dynamic homework announcements
       studentAssignments.slice(0, 2).forEach(asg => {
         list.push({
@@ -648,24 +648,23 @@ const Home = () => {
     };
 
     return (
-      <div className="space-y-8 bg-[#070a13] text-slate-100 min-h-screen pb-12 antialiased">
-        
+      <div className="space-y-8 pb-12 antialiased">
+
         {/* Welcome Section */}
         {studentActiveTab === 'overview' && (
-          <div className="relative overflow-hidden rounded-3xl border border-slate-800/80 bg-gradient-to-r from-slate-900 to-[#0e172a] p-6 sm:p-8 shadow-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div className="relative overflow-hidden rounded-3xl border border-blue-100 bg-gradient-to-r from-blue-600 to-violet-700 p-6 sm:p-8 shadow-xl shadow-blue-500/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div className="text-left relative z-10 space-y-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black text-primary border border-primary/20 bg-primary/10 tracking-widest uppercase">
-                <Sparkles className="w-3.5 h-3.5 animate-pulse text-primary" /> Active Session
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black text-white border border-white/30 bg-white/15 tracking-widest uppercase">
+                <Sparkles className="w-3.5 h-3.5 animate-pulse" /> Active Session
               </span>
-              <h2 className="text-3xl font-extrabold text-white tracking-tight flex items-center gap-2.5">
+              <h2 className="text-3xl font-extrabold text-white tracking-tight">
                 Welcome back, {user.name.split(' ')[0]}! 👋
               </h2>
-              <p className="text-sm text-slate-400 font-medium max-w-md">
+              <p className="text-sm text-blue-100 font-medium max-w-md">
                 Here's a comprehensive review of your educational status, schedules, and active tasks.
               </p>
             </div>
-            {/* Ambient glows */}
-            <div className="absolute right-0 top-0 w-64 h-64 bg-primary/10 rounded-full blur-[80px]"></div>
+            <div className="absolute right-0 top-0 w-64 h-64 bg-white/10 rounded-full blur-[80px]"></div>
           </div>
         )}
 
@@ -674,62 +673,62 @@ const Home = () => {
         {/* ========================================================== */}
         {studentActiveTab === 'overview' && (
           <div className="space-y-8">
-            
+
             {/* Metrics cards grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              
+
               {/* Card 1: Attendance */}
-              <div className="glass-card bg-[#0b101f]/80 border border-slate-800/60 rounded-3xl p-6 shadow-xl flex items-center justify-between hover:border-primary/40 hover:-translate-y-1 transition-all duration-300 group">
-                <div className="space-y-2 text-left">
+              <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex items-center justify-between hover:shadow-md hover:border-emerald-200 hover:-translate-y-0.5 transition-all duration-300 group">
+                <div className="space-y-1.5 text-left">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Attendance Rate</span>
-                  <strong className="text-3xl font-black text-white block tracking-tight">{attendancePercentage}%</strong>
-                  <span className="text-xs text-emerald-400 font-semibold block flex items-center gap-1.5">
+                  <strong className="text-3xl font-black text-slate-900 block tracking-tight">{attendancePercentage}%</strong>
+                  <span className="text-xs text-emerald-600 font-semibold flex items-center gap-1.5">
                     <Check className="w-3 h-3" /> {stats?.present || 0} / {totalClasses} classes
                   </span>
                 </div>
-                <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform shadow-inner">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform shadow-sm">
                   <Calendar className="w-6 h-6" />
                 </div>
               </div>
 
               {/* Card 2: Homework */}
-              <div className="glass-card bg-[#0b101f]/80 border border-slate-800/60 rounded-3xl p-6 shadow-xl flex items-center justify-between hover:border-primary/40 hover:-translate-y-1 transition-all duration-300 group">
-                <div className="space-y-2 text-left">
+              <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex items-center justify-between hover:shadow-md hover:border-amber-200 hover:-translate-y-0.5 transition-all duration-300 group">
+                <div className="space-y-1.5 text-left">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Pending Tasks</span>
-                  <strong className="text-3xl font-black text-white block tracking-tight">{pendingHomeworkCount}</strong>
-                  <span className="text-xs text-amber-500 font-semibold block flex items-center gap-1.5">
+                  <strong className="text-3xl font-black text-slate-900 block tracking-tight">{pendingHomeworkCount}</strong>
+                  <span className="text-xs text-amber-600 font-semibold flex items-center gap-1.5">
                     <Clock className="w-3 h-3 animate-pulse" /> Submissions Due
                   </span>
                 </div>
-                <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 group-hover:scale-110 transition-transform shadow-inner">
+                <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 group-hover:scale-110 transition-transform shadow-sm">
                   <BookOpen className="w-6 h-6" />
                 </div>
               </div>
 
               {/* Card 3: Unpaid Fees */}
-              <div className="glass-card bg-[#0b101f]/80 border border-slate-800/60 rounded-3xl p-6 shadow-xl flex items-center justify-between hover:border-primary/40 hover:-translate-y-1 transition-all duration-300 group">
-                <div className="space-y-2 text-left">
+              <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex items-center justify-between hover:shadow-md hover:border-rose-200 hover:-translate-y-0.5 transition-all duration-300 group">
+                <div className="space-y-1.5 text-left">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Outstanding Fees</span>
-                  <strong className="text-3xl font-black text-white block tracking-tight">₹{totalUnpaidAmount.toLocaleString()}</strong>
-                  <span className="text-xs text-rose-500 font-semibold block flex items-center gap-1.5">
+                  <strong className="text-3xl font-black text-slate-900 block tracking-tight">₹{totalUnpaidAmount.toLocaleString()}</strong>
+                  <span className="text-xs text-rose-600 font-semibold flex items-center gap-1.5">
                     <AlertTriangle className="w-3 h-3" /> {pendingFeesCount} invoices unpaid
                   </span>
                 </div>
-                <div className="w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 group-hover:scale-110 transition-transform shadow-inner">
+                <div className="w-14 h-14 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-600 group-hover:scale-110 transition-transform shadow-sm">
                   <CreditCard className="w-6 h-6" />
                 </div>
               </div>
 
               {/* Card 4: Upcoming Exams */}
-              <div className="glass-card bg-[#0b101f]/80 border border-slate-800/60 rounded-3xl p-6 shadow-xl flex items-center justify-between hover:border-primary/40 hover:-translate-y-1 transition-all duration-300 group">
-                <div className="space-y-2 text-left">
+              <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex items-center justify-between hover:shadow-md hover:border-blue-200 hover:-translate-y-0.5 transition-all duration-300 group">
+                <div className="space-y-1.5 text-left">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Upcoming Exams</span>
-                  <strong className="text-3xl font-black text-white block tracking-tight">{examCount}</strong>
-                  <span className="text-xs text-primary font-semibold block flex items-center gap-1.5">
+                  <strong className="text-3xl font-black text-slate-900 block tracking-tight">{examCount}</strong>
+                  <span className="text-xs text-blue-600 font-semibold flex items-center gap-1.5">
                     <Award className="w-3 h-3" /> In Next 30 Days
                   </span>
                 </div>
-                <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary group-hover:scale-110 transition-transform shadow-inner">
+                <div className="w-14 h-14 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform shadow-sm">
                   <GraduationCap className="w-6 h-6" />
                 </div>
               </div>
@@ -738,30 +737,30 @@ const Home = () => {
 
             {/* Main Interactive Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              
+
               {/* Left Column (ID card & timelines - takes 2 cols) */}
               <div className="lg:col-span-2 space-y-8">
-                
+
                 {/* 3D Student Card Widget */}
-                <div className="glass-card bg-slate-900/65 rounded-3xl p-6 border border-slate-800/80 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
+                <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
                   <div className="space-y-4 max-w-sm text-left relative z-10">
-                    <span className="px-2 py-0.5 rounded-md text-[9px] font-black bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 tracking-wider block w-fit">STUDENT CREDENTIAL</span>
-                    <h4 className="text-2xl font-black text-white leading-tight">Digital Identity Pass</h4>
-                    <p className="text-xs text-slate-400 leading-relaxed">
+                    <span className="px-2 py-0.5 rounded-md text-[9px] font-black bg-blue-50 border border-indigo-500/20 text-blue-500 tracking-wider block w-fit">STUDENT CREDENTIAL</span>
+                    <h4 className="text-2xl font-black text-slate-900 leading-tight">Digital Identity Pass</h4>
+                    <p className="text-xs text-slate-500 leading-relaxed">
                       Your certified digital ID. Use it to gain entry, verify identity, or print a hard-copy badge layout.
                     </p>
-                    <button 
+                    <button
                       onClick={() => setCardFlipped(!cardFlipped)}
-                      className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-extrabold text-[11px] rounded-xl shadow-md transition-all active:scale-95 tracking-wider uppercase flex items-center gap-2 border border-slate-700/60"
+                      className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold text-[11px] rounded-xl shadow-sm transition-all active:scale-95 tracking-wider uppercase flex items-center gap-2 border border-slate-200"
                     >
                       <UserCheck className="w-3.5 h-3.5 text-primary" /> Flip card View
                     </button>
                   </div>
-                  
+
                   {/* Flip Card Container */}
                   <div className="w-80 h-48 shrink-0 relative perspective cursor-pointer" onClick={() => setCardFlipped(!cardFlipped)}>
                     <div className={`w-full h-full duration-700 transform-style-3d relative ${cardFlipped ? 'rotate-y-180' : ''}`}>
-                      
+
                       {/* FRONT OF ID CARD */}
                       <div className="absolute inset-0 w-full h-full rounded-2xl p-5 backface-hidden flex flex-col justify-between shadow-2xl bg-gradient-to-br from-primary to-[#2e1065] border border-white/10">
                         {/* School header */}
@@ -796,11 +795,11 @@ const Home = () => {
                       {/* BACK OF ID CARD */}
                       <div className="absolute inset-0 w-full h-full rounded-2xl p-5 backface-hidden rotate-y-180 flex flex-col justify-between shadow-2xl bg-gradient-to-br from-[#121320] to-[#1b1c30] border border-slate-800">
                         <div className="text-left space-y-3">
-                          <h5 className="text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-850 pb-1">Emergency Contacts & Info</h5>
+                          <h5 className="text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-200 pb-1">Emergency Contacts & Info</h5>
                           <div className="grid grid-cols-2 gap-3 text-[9px]">
                             <div>
                               <span className="text-slate-500 block">Parent / Guardian:</span>
-                              <strong className="text-slate-300 font-bold block">{profile?.parentName || 'N/A'}</strong>
+                              <strong className="text-slate-700 font-bold block">{profile?.parentName || 'N/A'}</strong>
                             </div>
                             <div>
                               <span className="text-slate-500 block">Emergency Call:</span>
@@ -812,11 +811,11 @@ const Home = () => {
                             </div>
                             <div>
                               <span className="text-slate-500 block">Blood Group:</span>
-                              <strong className="text-slate-300 font-bold block">O+ Positive</strong>
+                              <strong className="text-slate-700 font-bold block">O+ Positive</strong>
                             </div>
                           </div>
                         </div>
-                        <div className="text-center text-[7px] text-slate-500 font-semibold border-t border-slate-850 pt-2 flex justify-between items-center">
+                        <div className="text-center text-[7px] text-slate-500 font-semibold border-t border-slate-200 pt-2 flex justify-between items-center">
                           <span>EDUCORE ECOSYSTEM SECURITY</span>
                           <span className="text-primary font-bold">SCAN PASS</span>
                         </div>
@@ -827,28 +826,28 @@ const Home = () => {
                 </div>
 
                 {/* Subject Performance & Goals progress */}
-                <div className="glass-card bg-[#0b101f]/80 border border-slate-850 rounded-3xl p-6 shadow-xl text-left">
-                  <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-6">
-                    <h4 className="text-base font-extrabold text-white">Subject Assessment Report</h4>
+                <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 shadow-xl text-left">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-6">
+                    <h4 className="text-base font-extrabold text-slate-900">Subject Assessment Report</h4>
                     <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Dynamic Stats</span>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     {subjectPerformanceList.map((sub, idx) => {
                       const colors = [
-                        { text: 'text-indigo-400', progress: 'bg-indigo-500', bg: 'bg-indigo-500/10' },
+                        { text: 'text-blue-500', progress: 'bg-indigo-500', bg: 'bg-blue-50' },
                         { text: 'text-emerald-400', progress: 'bg-emerald-500', bg: 'bg-emerald-500/10' },
                         { text: 'text-amber-500', progress: 'bg-amber-500', bg: 'bg-amber-500/10' },
                         { text: 'text-rose-500', progress: 'bg-rose-500', bg: 'bg-rose-500/10' }
                       ];
                       const color = colors[idx % colors.length];
                       return (
-                        <div key={sub.name} className="bg-slate-950/40 p-4 rounded-2xl border border-slate-850 hover:border-slate-800 transition-colors space-y-2">
+                        <div key={sub.name} className="bg-slate-50 p-4 rounded-2xl border border-slate-200 hover:border-slate-800 transition-colors space-y-2">
                           <div className="flex justify-between items-center text-xs font-bold">
-                            <span className="text-slate-300 truncate">{sub.name}</span>
+                            <span className="text-slate-700 truncate">{sub.name}</span>
                             <span className={`${color.text} px-2 py-0.5 rounded-lg ${color.bg} text-[10px]`}>{sub.percentage}%</span>
                           </div>
-                          <div className="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
+                          <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
                             <div className={`${color.progress} h-full rounded-full transition-all duration-1000`} style={{ width: `${sub.percentage}%` }}></div>
                           </div>
                         </div>
@@ -861,11 +860,11 @@ const Home = () => {
 
               {/* Right Column (Upcoming Deadlines & Short Timelines) */}
               <div className="space-y-8">
-                
+
                 {/* Upcoming Deadlines */}
-                <div className="glass-card bg-[#0b101f]/80 border border-slate-850 rounded-3xl p-6 shadow-xl flex flex-col space-y-4 text-left">
-                  <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <h4 className="text-sm font-extrabold text-white">Task Deadlines</h4>
+                <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 shadow-xl flex flex-col space-y-4 text-left">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <h4 className="text-sm font-extrabold text-slate-900">Task Deadlines</h4>
                     <span className="flex h-2 w-2 relative shrink-0">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
@@ -874,12 +873,12 @@ const Home = () => {
 
                   <div className="space-y-4">
                     {upcomingDeadlines.length === 0 ? (
-                      <div className="text-center py-8 text-xs text-slate-550 bg-slate-950/40 p-3 rounded-2xl border border-slate-850">
+                      <div className="text-center py-8 text-xs text-slate-500 bg-slate-50 p-3 rounded-2xl border border-slate-200">
                         🎉 No homework assignments pending.
                       </div>
                     ) : (
                       upcomingDeadlines.map((dead) => (
-                        <div key={dead._id} className="flex gap-4 items-center bg-slate-950/45 p-3.5 rounded-2xl border border-slate-850 hover:border-slate-800 transition-colors">
+                        <div key={dead._id} className="flex gap-4 items-center bg-slate-950/45 p-3.5 rounded-2xl border border-slate-200 hover:border-slate-800 transition-colors">
                           <div className="w-12 h-12 bg-white text-slate-950 rounded-xl flex flex-col items-center justify-center font-black uppercase text-center shadow shrink-0">
                             <span className="text-[9px] text-rose-500 leading-none">
                               {new Date(dead.dueDate).toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}
@@ -899,24 +898,24 @@ const Home = () => {
                 </div>
 
                 {/* Recent Announcements bulletin */}
-                <div className="glass-card bg-[#0b101f]/80 border border-slate-850 rounded-3xl p-6 shadow-xl flex flex-col space-y-4 text-left">
-                  <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <h4 className="text-sm font-extrabold text-white">Notice Bulletin</h4>
+                <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 shadow-xl flex flex-col space-y-4 text-left">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <h4 className="text-sm font-extrabold text-slate-900">Notice Bulletin</h4>
                     <Link to="/announcements" className="text-[10px] text-primary font-bold hover:underline">See All</Link>
                   </div>
 
                   <div className="space-y-4">
                     {announcementsList.slice(0, 3).map((ann) => {
                       return (
-                        <div key={ann.id} className="bg-slate-950/40 p-3.5 rounded-2xl border border-slate-850 space-y-1.5">
+                        <div key={ann.id} className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-1.5">
                           <div className="flex justify-between items-start gap-4">
                             <h5 className="font-extrabold text-[11px] text-white truncate">{ann.title}</h5>
-                            <span className="px-1.5 py-0.5 rounded text-[7px] font-black bg-primary/10 border border-primary/20 text-primary uppercase shrink-0 tracking-wider">{ann.tag}</span>
+                            <span className="px-1.5 py-0.5 rounded text-[7px] font-black bg-primary/10 border border-blue-100 shadow-blue-500/20 shadow-xl text-primary uppercase shrink-0 tracking-wider">{ann.tag}</span>
                           </div>
                           <p className="text-[10px] text-slate-400 leading-relaxed truncate">
                             {ann.description}
                           </p>
-                          <span className="text-[8px] text-slate-550 block font-semibold">{ann.time}</span>
+                          <span className="text-[8px] text-slate-500 block font-semibold">{ann.time}</span>
                         </div>
                       );
                     })}
@@ -935,17 +934,17 @@ const Home = () => {
         {/* ========================================================== */}
         {studentActiveTab === 'profile' && (
           <div className="max-w-4xl mx-auto space-y-8 text-left">
-            <div className="glass-card bg-slate-900/65 border border-slate-800/80 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm relative overflow-hidden">
               <div className="absolute top-0 right-0 w-48 h-48 bg-primary/10 rounded-full blur-[60px] pointer-events-none"></div>
-              
-              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 border-b border-slate-800/80 pb-8">
+
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 border-b border-slate-200 pb-8">
                 <div className="w-24 h-24 rounded-3xl bg-gradient-to-tr from-primary to-purple-650 text-white flex items-center justify-center font-black text-4xl uppercase shadow-2xl border-2 border-white/10 shrink-0">
                   {user?.name?.split(' ').map(n => n[0]).slice(0, 2).join('')}
                 </div>
                 <div className="text-center sm:text-left space-y-2.5">
                   <h3 className="text-2xl font-black text-white tracking-tight">{user?.name}</h3>
                   <div className="flex flex-wrap justify-center sm:justify-start gap-3">
-                    <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-slate-950 border border-slate-850 text-primary">
+                    <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-slate-50 border border-slate-200 text-primary">
                       ADM: {profile?.admissionNo || 'ADM-2026-2153'}
                     </span>
                     <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 uppercase tracking-wider font-extrabold">
@@ -957,10 +956,10 @@ const Home = () => {
 
               {/* Info Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 text-xs">
-                
+
                 {/* Academic info */}
-                <div className="space-y-4 bg-slate-950/40 p-5 rounded-2xl border border-slate-850">
-                  <h4 className="text-sm font-extrabold text-white border-b border-slate-850 pb-2 flex items-center gap-2">
+                <div className="space-y-4 bg-slate-50 p-5 rounded-2xl border border-slate-100">
+                  <h4 className="text-sm font-extrabold text-white border-b border-slate-200 pb-2 flex items-center gap-2">
                     <GraduationCap className="w-4 h-4 text-primary" /> Academic Information
                   </h4>
                   <div className="grid grid-cols-2 gap-4 text-left">
@@ -986,8 +985,8 @@ const Home = () => {
                 </div>
 
                 {/* Family details */}
-                <div className="space-y-4 bg-slate-950/40 p-5 rounded-2xl border border-slate-850">
-                  <h4 className="text-sm font-extrabold text-white border-b border-slate-850 pb-2 flex items-center gap-2">
+                <div className="space-y-4 bg-slate-50 p-5 rounded-2xl border border-slate-100">
+                  <h4 className="text-sm font-extrabold text-white border-b border-slate-200 pb-2 flex items-center gap-2">
                     <Users className="w-4 h-4 text-primary" /> Parent / Guardian Details
                   </h4>
                   <div className="grid grid-cols-2 gap-4 text-left">
@@ -1021,8 +1020,8 @@ const Home = () => {
                 </h4>
                 <p className="text-xs text-slate-400 max-w-sm mx-auto">Generate a high-resolution printable ID badge for student verifications on site.</p>
               </div>
-              
-              <div className="border border-slate-800/80 rounded-2xl p-6 bg-slate-950/40 w-fit mx-auto shadow-inner" id="printable-id-card-area">
+
+              <div className="border border-slate-800/80 rounded-2xl p-6 bg-slate-50 w-fit mx-auto shadow-inner" id="printable-id-card-area">
                 <div className="w-72 bg-gradient-to-br from-primary to-[#2e1065] rounded-2xl border border-white/10 p-5 shadow-2xl flex flex-col space-y-5 text-left text-white">
                   <div className="flex items-center gap-3 border-b border-white/10 pb-3">
                     <div className="w-6 h-6 rounded-md bg-white/15 flex items-center justify-center text-white text-xs font-black shrink-0">A</div>
@@ -1031,7 +1030,7 @@ const Home = () => {
                       <span className="text-[6px] text-white/50 font-extrabold tracking-widest block mt-0.5">STUDENT IDENTITY BADGE</span>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-4">
                     <div className="w-14 h-14 rounded-xl bg-gradient-to-tr from-pink-500 to-indigo-500 text-white flex items-center justify-center font-black text-lg uppercase shadow-lg border border-white/20 shrink-0">
                       {user?.name?.split(' ').map(n => n[0]).slice(0, 2).join('')}
@@ -1058,7 +1057,7 @@ const Home = () => {
                 </div>
               </div>
 
-              <button 
+              <button
                 onClick={() => window.print()}
                 className="px-6 py-3 bg-primary hover:bg-primary/95 text-white font-extrabold text-xs rounded-xl shadow-lg active:scale-95 transition-all flex items-center gap-2 mx-auto uppercase tracking-wider"
               >
@@ -1072,26 +1071,26 @@ const Home = () => {
         {/* TAB: ATTENDANCE VIEW */}
         {/* ========================================================== */}
         {studentActiveTab === 'attendance' && (
-          <div className="bg-[#0b101f]/80 border border-slate-800/80 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-8">
-            
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8 shadow-2xl space-y-8">
+
             {/* Header statistics section */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-800 pb-6 gap-6 text-left">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-200 pb-6 gap-6 text-left">
               <div>
-                <h3 className="text-lg font-extrabold text-white">Daily Attendance Ledger</h3>
+                <h3 className="text-lg font-extrabold text-slate-900">Daily Attendance Ledger</h3>
                 <p className="text-xs text-slate-400 mt-1">Check verified daily roster logs and overall present rates.</p>
               </div>
               <div className="flex items-center gap-4">
-                <div className="text-xs font-semibold text-slate-350 bg-slate-950/40 px-3.5 py-2 rounded-xl border border-slate-850">
-                  Month: 
-                  <select 
-                    value={attendanceMonth} 
+                <div className="text-xs font-semibold text-slate-600 bg-white px-3.5 py-2 rounded-xl border border-slate-200 shadow-sm">
+                  Month:
+                  <select
+                    value={attendanceMonth}
                     onChange={e => setAttendanceMonth(e.target.value)}
-                    className="ml-1 bg-transparent text-white font-bold focus:outline-none cursor-pointer"
+                    className="ml-1 bg-transparent text-slate-900 font-bold focus:outline-none cursor-pointer"
                   >
-                    <option value="all" className="bg-slate-950">All Months</option>
-                    <option value="07" className="bg-slate-950">July 2026</option>
-                    <option value="06" className="bg-slate-950">June 2026</option>
-                    <option value="05" className="bg-slate-950">May 2026</option>
+                    <option value="all" className="bg-white">All Months</option>
+                    <option value="07" className="bg-white">July 2026</option>
+                    <option value="06" className="bg-white">June 2026</option>
+                    <option value="05" className="bg-white">May 2026</option>
                   </select>
                 </div>
                 <div className="px-4 py-2 bg-emerald-500/10 rounded-xl border border-emerald-500/20 text-xs font-extrabold text-emerald-400 flex items-center gap-2">
@@ -1102,26 +1101,26 @@ const Home = () => {
 
             {/* Attendance Status Summary meters */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <div className="bg-slate-950/40 p-4 rounded-2xl border border-slate-850 text-left">
+              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-left">
                 <span className="text-[10px] text-slate-500 font-bold block uppercase tracking-wider">Total Days Recorded</span>
                 <strong className="text-2xl font-black text-white mt-1 block">{totalClasses}</strong>
               </div>
-              <div className="bg-slate-950/40 p-4 rounded-2xl border border-slate-850 text-left">
+              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-left">
                 <span className="text-[10px] text-emerald-500 font-bold block uppercase tracking-wider">Present Days</span>
                 <strong className="text-2xl font-black text-emerald-450 mt-1 block">{stats?.present || 0}</strong>
               </div>
-              <div className="bg-slate-950/40 p-4 rounded-2xl border border-slate-850 text-left">
+              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-left">
                 <span className="text-[10px] text-rose-500 font-bold block uppercase tracking-wider">Absent Days</span>
                 <strong className="text-2xl font-black text-rose-450 mt-1 block">{stats?.absent || 0}</strong>
               </div>
-              <div className="bg-slate-950/40 p-4 rounded-2xl border border-slate-850 text-left">
+              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-left">
                 <span className="text-[10px] text-amber-500 font-bold block uppercase tracking-wider">Late Days</span>
                 <strong className="text-2xl font-black text-amber-450 mt-1 block">{stats?.late || 0}</strong>
               </div>
             </div>
 
             {/* Interactive Month Grid Visualizer */}
-            <div className="bg-slate-950/30 p-6 rounded-2xl border border-slate-850 text-left">
+            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 text-left">
               <h4 className="text-xs font-extrabold text-slate-350 uppercase tracking-widest mb-4">Roster Dot Tracker</h4>
               <div className="flex flex-wrap gap-2.5">
                 {studentAttendance.length === 0 ? (
@@ -1134,17 +1133,16 @@ const Home = () => {
                     const isPresent = log.status === 'present';
                     const isAbsent = log.status === 'absent';
                     const isLate = log.status === 'late';
-                    
+
                     return (
-                      <div 
-                        key={log._id} 
-                        className={`w-10 h-10 rounded-xl border flex flex-col items-center justify-center font-bold text-[10px] ${
-                          isPresent 
-                            ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
-                            : isAbsent 
-                              ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' 
+                      <div
+                        key={log._id}
+                        className={`w-10 h-10 rounded-xl border flex flex-col items-center justify-center font-bold text-[10px] ${isPresent
+                            ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                            : isAbsent
+                              ? 'bg-rose-500/10 border-rose-500/20 text-rose-400'
                               : 'bg-amber-500/10 border-amber-500/20 text-amber-400'
-                        }`}
+                          }`}
                         title={`${log.status.toUpperCase()} on ${dt.toLocaleDateString()}`}
                       >
                         <span className="text-[8px] opacity-60 leading-none">{monthText}</span>
@@ -1163,11 +1161,11 @@ const Home = () => {
                 <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Syncing database registers...</span>
               </div>
             ) : studentAttendance.length === 0 ? (
-              <div className="py-12 text-center text-xs text-slate-550">No attendance ledger found.</div>
+              <div className="py-12 text-center text-xs text-slate-500">No attendance ledger found.</div>
             ) : (
-              <div className="overflow-hidden rounded-2xl border border-slate-850 shadow-inner">
+              <div className="overflow-hidden rounded-2xl border border-slate-200 shadow-inner">
                 <table className="w-full border-collapse text-left text-xs text-slate-400 font-medium">
-                  <thead className="bg-slate-950 border-b border-slate-800 text-slate-400 font-bold uppercase text-[9px] tracking-widest">
+                  <thead className="bg-slate-950 border-b border-slate-200 text-slate-400 font-bold uppercase text-[9px] tracking-widest">
                     <tr>
                       <th className="px-6 py-4">Session Date</th>
                       <th className="px-6 py-4 text-center">Roster Code</th>
@@ -1182,24 +1180,23 @@ const Home = () => {
                         return logMonth === attendanceMonth;
                       })
                       .map((log) => (
-                        <tr key={log._id} className="hover:bg-slate-800/10 transition-colors">
-                          <td className="px-6 py-4 font-bold text-white">
+                        <tr key={log._id} className="hover:bg-slate-50 transition-colors">
+                          <td className="px-6 py-4 font-bold text-slate-900">
                             {new Date(log.date).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })}
                           </td>
                           <td className="px-6 py-4 text-center">
-                            <span className={`inline-flex px-3 py-0.5 rounded-full text-[9px] font-black uppercase border ${
-                              log.status === 'present' 
-                                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
-                                : log.status === 'absent' 
-                                  ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' 
-                                  : 'bg-amber-500/10 border-amber-500/20 text-amber-400'
-                            }`}>
+                            <span className={`inline-flex px-3 py-0.5 rounded-full text-[9px] font-black uppercase border ${log.status === 'present'
+                                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600'
+                                : log.status === 'absent'
+                                  ? 'bg-rose-500/10 border-rose-500/20 text-rose-600'
+                                  : 'bg-amber-500/10 border-amber-500/20 text-amber-600'
+                              }`}>
                               {log.status}
                             </span>
                           </td>
-                          <td className="px-6 py-4 text-slate-400 font-semibold italic text-left">Verified under general school roster rules.</td>
+                          <td className="px-6 py-4 text-slate-600 font-semibold italic text-left">Verified under general school roster rules.</td>
                         </tr>
-                    ))}
+                      ))}
                   </tbody>
                 </table>
               </div>
@@ -1212,35 +1209,34 @@ const Home = () => {
         {/* ========================================================== */}
         {studentActiveTab === 'homework' && (
           <div className="space-y-6 text-left">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
               <div>
-                <h3 className="text-lg font-extrabold text-white">Homework & Assignments</h3>
+                <h3 className="text-lg font-extrabold text-slate-900">Homework & Assignments</h3>
                 <p className="text-xs text-slate-400 mt-1">Submit answer writeups and check evaluations.</p>
               </div>
-              
+
               {/* Search and Filters */}
               <div className="flex items-center gap-3">
-                <input 
-                  type="text" 
-                  placeholder="Search subject..." 
+                <input
+                  type="text"
+                  placeholder="Search subject..."
                   value={homeworkSearch}
                   onChange={e => setHomeworkSearch(e.target.value)}
-                  className="px-3.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white focus:outline-none focus:border-primary max-w-xs transition-colors"
+                  className="px-3.5 py-1.5 rounded-xl bg-white border border-slate-200 text-xs text-slate-800 focus:outline-none focus:border-blue-400 max-w-xs shadow-sm transition-colors"
                 />
               </div>
             </div>
 
             {/* Filter Tabs */}
-            <div className="flex gap-2 border-b border-slate-850 pb-2">
+            <div className="flex gap-2 border-b border-slate-200 pb-2">
               {['all', 'pending', 'submitted', 'graded'].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setHomeworkFilter(tab)}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold capitalize transition-all ${
-                    homeworkFilter === tab 
-                      ? 'bg-primary text-white shadow-md' 
-                      : 'text-slate-400 hover:bg-slate-900'
-                  }`}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold capitalize transition-all ${homeworkFilter === tab
+                      ? 'bg-primary text-white shadow-md'
+                      : 'text-slate-500 hover:bg-slate-100'
+                    }`}
                 >
                   {tab} Tasks
                 </button>
@@ -1253,7 +1249,7 @@ const Home = () => {
                 <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Syncing class homework...</span>
               </div>
             ) : studentAssignments.length === 0 ? (
-              <div className="bg-[#0b101f]/80 border border-slate-800/80 rounded-3xl p-12 text-center text-xs text-slate-550">
+              <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-12 text-center text-xs text-slate-500">
                 No active homework records found.
               </div>
             ) : (
@@ -1268,38 +1264,37 @@ const Home = () => {
                     const isPending = asg.submissionStatus === 'pending';
                     const isSubmitted = asg.submissionStatus === 'submitted';
                     const isGraded = asg.submissionStatus === 'graded';
-                    
+
                     return (
-                      <div key={asg._id} className="glass-card bg-[#0b101f]/80 border border-slate-850 rounded-3xl p-6 flex flex-col justify-between space-y-5 hover:border-slate-800 transition-all duration-300 shadow-xl group relative overflow-hidden">
-                        
+                      <div key={asg._id} className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 flex flex-col justify-between space-y-5 hover:border-slate-800 transition-all duration-300 shadow-xl group relative overflow-hidden">
+
                         {/* Grade stamp overlay */}
                         {isGraded && (
-                          <div className="absolute right-4 top-4 rotate-12 w-10 h-10 border-2 border-emerald-500/40 rounded-full flex items-center justify-center text-[10px] font-black text-emerald-400 uppercase tracking-widest bg-emerald-500/5 select-none pointer-events-none">
+                          <div className="absolute right-4 top-4 rotate-12 w-10 h-10 border-2 border-emerald-500/40 rounded-full flex items-center justify-center text-[10px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-500/5 select-none pointer-events-none">
                             {asg.grade || 'A'}
                           </div>
                         )}
 
                         <div className="space-y-3">
                           <div className="flex justify-between items-center">
-                            <span className="px-2.5 py-0.5 rounded-full text-[9px] font-black bg-primary/10 border border-primary/20 text-primary uppercase tracking-wider">
+                            <span className="px-2.5 py-0.5 rounded-full text-[9px] font-black bg-primary/10 border border-blue-100 shadow-blue-500/20 shadow-xl text-primary uppercase tracking-wider">
                               {asg.subject}
                             </span>
                             <span className="text-[10px] text-slate-500 font-bold">
                               Due: {new Date(asg.dueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
                             </span>
                           </div>
-                          <h4 className="font-extrabold text-sm text-white group-hover:text-primary transition-colors">{asg.title}</h4>
+                          <h4 className="font-extrabold text-sm text-slate-900 group-hover:text-primary transition-colors">{asg.title}</h4>
                           <p className="text-xs text-slate-400 leading-relaxed font-medium line-clamp-2">{asg.description}</p>
                         </div>
 
-                        <div className="border-t border-slate-800/80 pt-4 flex items-center justify-between">
-                          <span className={`px-2.5 py-0.5 rounded text-[9px] font-extrabold uppercase border ${
-                            isGraded 
-                              ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
+                        <div className="border-t border-slate-100 pt-4 flex items-center justify-between">
+                          <span className={`px-2.5 py-0.5 rounded text-[9px] font-extrabold uppercase border ${isGraded
+                              ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600'
                               : isSubmitted
-                                ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400'
-                                : 'bg-amber-500/10 border-amber-500/20 text-amber-400'
-                          }`}>
+                                ? 'bg-blue-50 border-indigo-500/20 text-indigo-600'
+                                : 'bg-amber-500/10 border-amber-500/20 text-amber-600'
+                            }`}>
                             {asg.submissionStatus}
                           </span>
 
@@ -1317,7 +1312,7 @@ const Home = () => {
                           ) : (
                             <button
                               onClick={() => alert(`YOUR SUBMISSION WRITEUP:\n"${asg.answerText}"\n\nGRADE: ${asg.grade || 'Pending Grading'}\nFEEDBACK: ${asg.feedback || 'Evaluating soon.'}`)}
-                              className="px-4 py-2 bg-slate-900 border border-slate-800 hover:bg-slate-800/60 text-slate-300 font-bold text-[10px] rounded-xl tracking-wider uppercase transition-all"
+                              className="px-4 py-2 bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-600 font-bold text-[10px] rounded-xl tracking-wider uppercase transition-all"
                             >
                               View Submission
                             </button>
@@ -1337,34 +1332,34 @@ const Home = () => {
         {studentActiveTab === 'fees' && (
           <div className="space-y-6 text-left">
             <div>
-              <h3 className="text-lg font-extrabold text-white">Fee Statements & Invoices</h3>
+              <h3 className="text-lg font-extrabold text-slate-900">Fee Statements & Invoices</h3>
               <p className="text-xs text-slate-400 mt-1">Manage outstanding fee dues or review payment transactions.</p>
             </div>
 
             {/* Financial summary blocks */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="glass-card bg-[#0b101f]/80 p-5 rounded-2xl border border-slate-850 flex items-center justify-between">
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all">
                 <div>
-                  <span className="text-[10px] text-slate-500 font-bold block uppercase tracking-wider">Unpaid Dues</span>
-                  <strong className="text-2xl font-black text-white mt-1 block">₹{totalUnpaidAmount.toLocaleString()}</strong>
+                  <span className="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">Unpaid Dues</span>
+                  <strong className="text-2xl font-black text-slate-900 mt-1 block">₹{totalUnpaidAmount.toLocaleString()}</strong>
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center font-bold">₹</div>
+                <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center font-bold text-lg border border-rose-100">₹</div>
               </div>
-              <div className="glass-card bg-[#0b101f]/80 p-5 rounded-2xl border border-slate-850 flex items-center justify-between">
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all">
                 <div>
-                  <span className="text-[10px] text-slate-500 font-bold block uppercase tracking-wider">Cleared Dues</span>
-                  <strong className="text-2xl font-black text-emerald-450 mt-1 block">
+                  <span className="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">Cleared Dues</span>
+                  <strong className="text-2xl font-black text-emerald-600 mt-1 block">
                     ₹{studentFees.filter(f => f.status === 'paid').reduce((acc, curr) => acc + curr.amount, 0).toLocaleString()}
                   </strong>
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center"><CheckCircle className="w-5 h-5" /></div>
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center border border-emerald-100"><CheckCircle className="w-5 h-5" /></div>
               </div>
-              <div className="glass-card bg-[#0b101f]/80 p-5 rounded-2xl border border-slate-850 flex items-center justify-between">
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all">
                 <div>
-                  <span className="text-[10px] text-slate-500 font-bold block uppercase tracking-wider">Invoice Count</span>
-                  <strong className="text-2xl font-black text-primary mt-1 block">{studentFees.length} Bills</strong>
+                  <span className="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">Invoice Count</span>
+                  <strong className="text-2xl font-black text-blue-600 mt-1 block">{studentFees.length} Bills</strong>
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center"><FileText className="w-5 h-5" /></div>
+                <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center border border-blue-100"><FileText className="w-5 h-5" /></div>
               </div>
             </div>
 
@@ -1374,14 +1369,14 @@ const Home = () => {
                 <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Syncing billing ledgers...</span>
               </div>
             ) : studentFees.length === 0 ? (
-              <div className="bg-[#0b101f]/80 border border-slate-800/80 rounded-3xl p-8 text-center text-xs text-slate-550">
+              <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-8 text-center text-xs text-slate-500">
                 No billing statements found.
               </div>
             ) : (
-              <div className="bg-[#0b101f]/80 border border-slate-800/80 rounded-3xl shadow-xl overflow-hidden">
+              <div className="bg-white border border-slate-200 rounded-2xl shadow-sm shadow-xl overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse text-left text-xs text-slate-400 font-medium">
-                    <thead className="bg-slate-950 border-b border-slate-800 text-slate-400 font-bold uppercase text-[9px] tracking-widest">
+                    <thead className="bg-slate-50 border-b border-slate-200 text-slate-900 font-bold uppercase text-[9px] tracking-widest">
                       <tr>
                         <th className="px-6 py-4">Billing Item / Invoice No</th>
                         <th className="px-6 py-4">Deadline Date</th>
@@ -1390,23 +1385,22 @@ const Home = () => {
                         <th className="px-6 py-4 text-center">Action</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-850 bg-slate-900/10">
+                    <tbody className="divide-y divide-slate-200 bg-white">
                       {studentFees.map((fee) => (
-                        <tr key={fee._id} className="hover:bg-slate-800/10 transition-colors">
+                        <tr key={fee._id} className="hover:bg-slate-50 transition-colors">
                           <td className="px-6 py-4">
                             <div className="space-y-0.5">
-                              <strong className="text-white font-extrabold block text-sm">{fee.title}</strong>
+                              <strong className="text-slate-900 font-extrabold block text-sm">{fee.title}</strong>
                               <span className="text-[9px] text-slate-500 block font-mono">TXN: {fee.transactionId || 'Awaiting Payment Clearance'}</span>
                             </div>
                           </td>
-                          <td className="px-6 py-4 font-semibold text-slate-300">{new Date(fee.dueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
-                          <td className="px-6 py-4 font-black text-white text-sm">₹{fee.amount.toLocaleString()}</td>
+                          <td className="px-6 py-4 font-semibold text-slate-700">{new Date(fee.dueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                          <td className="px-6 py-4 font-black text-slate-900 text-sm">₹{fee.amount.toLocaleString()}</td>
                           <td className="px-6 py-4 text-center">
-                            <span className={`inline-flex px-3 py-0.5 rounded-full text-[9px] font-black uppercase border ${
-                              fee.status === 'paid' 
-                                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
-                                : 'bg-amber-500/10 border-amber-500/20 text-amber-450'
-                            }`}>
+                            <span className={`inline-flex px-3 py-0.5 rounded-full text-[9px] font-black uppercase border ${fee.status === 'paid'
+                                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600'
+                                : 'bg-amber-500/10 border-amber-500/20 text-amber-600'
+                              }`}>
                               {fee.status}
                             </span>
                           </td>
@@ -1441,18 +1435,18 @@ const Home = () => {
         {/* TAB: EXAMS MODULE */}
         {/* ========================================================== */}
         {studentActiveTab === 'exams' && (
-          <div className="bg-[#0b101f]/80 border border-slate-800/80 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-8 text-left">
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8 shadow-2xl space-y-8 text-left">
             <div>
-              <h3 className="text-lg font-extrabold text-white">Upcoming Examinations</h3>
+              <h3 className="text-lg font-extrabold text-slate-900">Upcoming Examinations</h3>
               <p className="text-xs text-slate-400 mt-1">Review scheduled tests, seat numbers, and curriculum files.</p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Left Column schedule list */}
               <div className="lg:col-span-2 space-y-6">
-                <div className="overflow-hidden rounded-2xl border border-slate-850">
+                <div className="overflow-hidden rounded-2xl border border-slate-200">
                   <table className="w-full border-collapse text-left text-xs text-slate-400">
-                    <thead className="bg-slate-950 border-b border-slate-800 text-[9px] uppercase font-black tracking-widest text-slate-400">
+                    <thead className="bg-slate-50 border-b border-slate-200 text-[9px] uppercase font-black tracking-widest text-slate-900">
                       <tr>
                         <th className="px-5 py-4">Subject</th>
                         <th className="px-5 py-4">Schedule</th>
@@ -1460,22 +1454,22 @@ const Home = () => {
                         <th className="px-5 py-4 text-center">Max Marks</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-850/60 bg-slate-900/10">
+                    <tbody className="divide-y divide-slate-200 bg-white">
                       {mockExams.map((ex) => (
-                        <tr key={ex.id} className="hover:bg-slate-800/10 transition-colors">
+                        <tr key={ex.id} className="hover:bg-slate-50 transition-colors">
                           <td className="px-5 py-4 space-y-0.5">
-                            <strong className="text-white font-extrabold text-sm block">{ex.subject}</strong>
+                            <strong className="text-slate-900 font-extrabold text-sm block">{ex.subject}</strong>
                             <span className="text-[9px] text-slate-500 block font-mono">{ex.code}</span>
                           </td>
                           <td className="px-5 py-4 space-y-0.5 font-medium">
-                            <span className="text-slate-200 block font-bold">{new Date(ex.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                            <span className="text-slate-700 block font-bold">{new Date(ex.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                             <span className="text-[9px] text-slate-500 block">{ex.time}</span>
                           </td>
-                          <td className="px-5 py-4 text-center font-semibold text-slate-350">
+                          <td className="px-5 py-4 text-center font-semibold text-slate-600">
                             <span className="block">{ex.room}</span>
                             <span className="text-[8px] text-slate-500 font-bold block uppercase">{ex.invigilator}</span>
                           </td>
-                          <td className="px-5 py-4 text-center text-sm font-black text-white">{ex.maxMarks}</td>
+                          <td className="px-5 py-4 text-center text-sm font-black text-slate-900">{ex.maxMarks}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -1485,15 +1479,15 @@ const Home = () => {
 
               {/* Right Column Hall Ticket & Tips */}
               <div className="space-y-6">
-                <div className="bg-slate-950/40 p-5 rounded-2xl border border-slate-850 space-y-4">
-                  <h4 className="text-xs font-black uppercase text-white tracking-widest border-b border-slate-850 pb-2">Academic Seat Ticket</h4>
-                  <div className="space-y-3 text-[11px] text-slate-400 font-semibold">
-                    <p className="flex justify-between"><span>Admission Roster:</span> <strong className="text-white font-mono">{profile?.admissionNo || 'ADM-2026-2153'}</strong></p>
-                    <p className="flex justify-between"><span>Testing Center:</span> <strong className="text-white">Main School Block</strong></p>
-                    <p className="flex justify-between"><span>Class Allocation:</span> <strong className="text-white">{classSection}</strong></p>
-                    <p className="flex justify-between"><span>Verification Status:</span> <strong className="text-emerald-450 uppercase">PASSED</strong></p>
+                <div className="bg-blue-50 p-5 rounded-2xl border border-blue-100 space-y-4">
+                  <h4 className="text-xs font-black uppercase text-blue-700 tracking-widest border-b border-blue-100 pb-2">Academic Seat Ticket</h4>
+                  <div className="space-y-3 text-[11px] text-slate-600 font-semibold">
+                    <p className="flex justify-between"><span>Admission Roster:</span> <strong className="text-slate-900 font-mono">{profile?.admissionNo || 'ADM-2026-2153'}</strong></p>
+                    <p className="flex justify-between"><span>Testing Center:</span> <strong className="text-slate-900">Main School Block</strong></p>
+                    <p className="flex justify-between"><span>Class Allocation:</span> <strong className="text-slate-900">{classSection}</strong></p>
+                    <p className="flex justify-between"><span>Verification Status:</span> <strong className="text-emerald-600 uppercase">PASSED</strong></p>
                   </div>
-                  <button 
+                  <button
                     onClick={() => alert('Downloading admit ticket PDF... Done.')}
                     className="w-full py-2.5 bg-primary hover:bg-primary/95 text-white font-extrabold text-[10px] rounded-xl uppercase tracking-wider shadow-md transition-all active:scale-95"
                   >
@@ -1501,7 +1495,7 @@ const Home = () => {
                   </button>
                 </div>
 
-                <div className="bg-slate-950/40 p-5 rounded-2xl border border-slate-850 space-y-2.5">
+                <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-2.5">
                   <h5 className="text-[10px] font-black uppercase text-amber-500 tracking-wider flex items-center gap-1.5">
                     <AlertTriangle className="w-3.5 h-3.5" /> Exam Regulations
                   </h5>
@@ -1520,23 +1514,22 @@ const Home = () => {
         {/* TAB: TIMETABLE MODULE */}
         {/* ========================================================== */}
         {studentActiveTab === 'timetable' && (
-          <div className="bg-[#0b101f]/80 border border-slate-800/80 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-8 text-left">
-            <div className="border-b border-slate-800 pb-4">
-              <h3 className="text-lg font-extrabold text-white">Weekly Class Schedule</h3>
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8 shadow-2xl space-y-8 text-left">
+            <div className="border-b border-slate-200 pb-4">
+              <h3 className="text-lg font-extrabold text-slate-900">Weekly Class Schedule</h3>
               <p className="text-xs text-slate-400 mt-1">Browse weekly academic timelines and classroom details.</p>
             </div>
 
             {/* Day Selector Tabs */}
-            <div className="flex flex-wrap gap-2 border-b border-slate-850 pb-2">
+            <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-2">
               {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].map((day) => (
                 <button
                   key={day}
                   onClick={() => setTimetableDay(day)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all ${
-                    timetableDay === day 
-                      ? 'bg-primary text-white shadow-md' 
-                      : 'text-slate-400 hover:bg-slate-900'
-                  }`}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all ${timetableDay === day
+                      ? 'bg-primary text-white shadow-md'
+                      : 'text-slate-500 hover:bg-slate-100'
+                    }`}
                 >
                   {day}
                 </button>
@@ -1546,17 +1539,17 @@ const Home = () => {
             {/* Schedule Slot Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {mockTimetable[timetableDay]?.map((slot) => (
-                <div key={slot.period} className="bg-slate-950/40 p-5 rounded-2xl border border-slate-850 hover:border-slate-800 transition-all flex flex-col justify-between space-y-4">
+                <div key={slot.period} className="bg-slate-50 p-5 rounded-2xl border border-slate-200 hover:border-slate-800 transition-all flex flex-col justify-between space-y-4">
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
-                      <span className="px-2 py-0.5 rounded bg-slate-900 text-slate-500 border border-slate-800 text-[8px] font-black uppercase tracking-wider">
+                      <span className="px-2 py-0.5 rounded bg-slate-900 text-slate-500 border border-slate-200 text-[8px] font-black uppercase tracking-wider">
                         Period {slot.period}
                       </span>
                       <span className="text-[10px] text-slate-450 font-bold flex items-center gap-1.5">
                         <Clock className="w-3.5 h-3.5 text-slate-500" /> {slot.time.split(' - ')[0]}
                       </span>
                     </div>
-                    <h4 className="font-extrabold text-sm text-white">{slot.subject}</h4>
+                    <h4 className="font-extrabold text-sm text-slate-900">{slot.subject}</h4>
                   </div>
                   <div className="flex justify-between items-center text-[10px] text-slate-450 border-t border-slate-900 pt-3.5 font-bold">
                     <span>Room: <strong className="text-slate-200">{slot.room}</strong></span>
@@ -1572,20 +1565,20 @@ const Home = () => {
         {/* TAB: ANNOUNCEMENTS MODULE */}
         {/* ========================================================== */}
         {studentActiveTab === 'announcements' && (
-          <div className="bg-[#0b101f]/80 border border-slate-800/80 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-8 text-left max-w-4xl mx-auto">
-            <div className="border-b border-slate-800 pb-4">
-              <h3 className="text-lg font-extrabold text-white">School Announcement Bulletin</h3>
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8 shadow-2xl space-y-8 text-left max-w-4xl mx-auto">
+            <div className="border-b border-slate-200 pb-4">
+              <h3 className="text-lg font-extrabold text-slate-900">School Announcement Bulletin</h3>
               <p className="text-xs text-slate-400 mt-1">Official circular updates issued under student notifications.</p>
             </div>
 
             <div className="space-y-6">
               {announcementsList.map((ann) => (
-                <div key={ann.id} className="bg-slate-950/40 p-5 rounded-2xl border border-slate-850 space-y-3 relative overflow-hidden group">
+                <div key={ann.id} className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3 relative overflow-hidden group">
                   <div className="flex justify-between items-center">
-                    <span className="px-2.5 py-0.5 rounded text-[8px] font-black bg-primary/10 border border-primary/20 text-primary uppercase tracking-widest font-mono">
+                    <span className="px-2.5 py-0.5 rounded text-[8px] font-black bg-primary/10 border border-blue-100 shadow-blue-500/20 shadow-xl text-primary uppercase tracking-widest font-mono">
                       {ann.tag}
                     </span>
-                    <span className="text-[9px] text-slate-550 font-bold">{ann.time}</span>
+                    <span className="text-[9px] text-slate-500 font-bold">{ann.time}</span>
                   </div>
                   <h4 className="font-extrabold text-sm text-white group-hover:text-primary transition-colors">{ann.title}</h4>
                   <p className="text-xs text-slate-400 leading-relaxed font-medium">{ann.description}</p>
@@ -1599,11 +1592,11 @@ const Home = () => {
         {/* TAB: MESSAGES CHAT MODULE */}
         {/* ========================================================== */}
         {studentActiveTab === 'messages' && (
-          <div className="bg-[#0b101f]/80 border border-slate-800/80 rounded-3xl shadow-2xl overflow-hidden h-[550px] flex flex-col md:flex-row text-left">
-            
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm shadow-2xl overflow-hidden h-[550px] flex flex-col md:flex-row text-left">
+
             {/* Sidebar list of teachers */}
-            <div className="w-full md:w-64 border-r border-slate-850 flex flex-col shrink-0">
-              <div className="p-4 border-b border-slate-850 bg-slate-950/30">
+            <div className="w-full md:w-64 border-r border-slate-200 flex flex-col shrink-0 bg-slate-50">
+              <div className="p-4 border-b border-slate-100 bg-slate-50">
                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest block">Instructor Directory</span>
               </div>
               <div className="flex-1 overflow-y-auto divide-y divide-slate-850/50 p-2 space-y-1">
@@ -1614,11 +1607,10 @@ const Home = () => {
                     <button
                       key={tc.name}
                       onClick={() => setChatTeacher(tc.name)}
-                      className={`w-full p-3 rounded-xl flex items-center gap-3 transition-all ${
-                        isActive ? 'bg-slate-900 border border-slate-800 text-white' : 'text-slate-400 hover:bg-slate-900/40'
-                      }`}
+                      className={`w-full p-3 rounded-xl flex items-center gap-3 transition-all ${isActive ? 'bg-blue-50 border border-blue-200 text-blue-700' : 'text-slate-400 hover:bg-slate-50'
+                        }`}
                     >
-                      <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 text-primary flex items-center justify-center font-extrabold text-[10px] uppercase">
+                      <div className="w-8 h-8 rounded-lg bg-primary/10 border border-blue-100 shadow-blue-500/20 shadow-xl text-primary flex items-center justify-center font-extrabold text-[10px] uppercase">
                         {initials}
                       </div>
                       <div className="min-w-0 text-left space-y-0.5">
@@ -1634,7 +1626,7 @@ const Home = () => {
             {/* Chat conversation area */}
             <div className="flex-1 flex flex-col justify-between bg-slate-950/20">
               {/* Chat header */}
-              <div className="p-4 border-b border-slate-850 bg-slate-950/40 flex items-center justify-between">
+              <div className="p-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
                 <div className="space-y-0.5">
                   <h4 className="text-[12px] font-black text-white">{chatTeacher}</h4>
                   <span className="text-[8px] text-emerald-400 font-bold block">Secure School Tunnel</span>
@@ -1647,11 +1639,10 @@ const Home = () => {
                   const isTeacher = msg.sender === 'teacher';
                   return (
                     <div key={index} className={`flex ${isTeacher ? 'justify-start' : 'justify-end'}`}>
-                      <div className={`max-w-xs p-3.5 rounded-2xl text-xs space-y-1 font-medium ${
-                        isTeacher 
-                          ? 'bg-[#121b33] border border-slate-850 text-slate-200 rounded-tl-none' 
+                      <div className={`max-w-xs p-3.5 rounded-2xl text-xs space-y-1 font-medium ${isTeacher
+                          ? 'bg-slate-100 border border-slate-200 text-slate-800 rounded-tl-none'
                           : 'bg-primary text-white rounded-tr-none'
-                      }`}>
+                        }`}>
                         <p className="leading-relaxed">{msg.text}</p>
                         <span className="text-[8px] opacity-50 block text-right font-semibold">{msg.time}</span>
                       </div>
@@ -1661,13 +1652,13 @@ const Home = () => {
               </div>
 
               {/* Chat Input form */}
-              <form onSubmit={handleSendMessage} className="p-4 border-t border-slate-850 bg-slate-950/45 flex items-center gap-3">
+              <form onSubmit={handleSendMessage} className="p-4 border-t border-slate-200 bg-slate-950/45 flex items-center gap-3">
                 <input
                   type="text"
                   placeholder="Enter message for your class teacher..."
                   value={newMsgText}
                   onChange={e => setNewMsgText(e.target.value)}
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white focus:outline-none focus:border-primary transition-all font-sans"
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-200 text-xs text-white focus:outline-none focus:border-primary transition-all font-sans"
                 />
                 <button
                   type="submit"
@@ -1686,17 +1677,17 @@ const Home = () => {
         {/* TAB: DOCUMENTS FILE MANAGER MODULE */}
         {/* ========================================================== */}
         {studentActiveTab === 'documents' && (
-          <div className="bg-[#0b101f]/80 border border-slate-800/80 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-8 text-left max-w-4xl mx-auto">
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8 shadow-2xl space-y-8 text-left max-w-4xl mx-auto">
             <div>
-              <h3 className="text-lg font-extrabold text-white">Student Locker Files</h3>
+              <h3 className="text-lg font-extrabold text-slate-900">Student Locker Files</h3>
               <p className="text-xs text-slate-400 mt-1">Review official downloads, term cards, and bus itineraries.</p>
             </div>
 
             <div className="space-y-4">
               {mockDocuments.map((doc) => (
-                <div key={doc.id} className="bg-slate-950/40 p-4 rounded-2xl border border-slate-850 flex items-center justify-between hover:border-slate-850 transition-colors">
+                <div key={doc.id} className="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex items-center justify-between hover:border-slate-200 transition-colors">
                   <div className="flex items-center gap-4 min-w-0">
-                    <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center shrink-0">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 border border-blue-100 shadow-blue-500/20 shadow-xl text-primary flex items-center justify-center shrink-0">
                       <FileText className="w-5 h-5" />
                     </div>
                     <div className="min-w-0 text-left space-y-0.5">
@@ -1704,9 +1695,9 @@ const Home = () => {
                       <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">{doc.category} • {doc.size} • {doc.date}</p>
                     </div>
                   </div>
-                  <button 
+                  <button
                     onClick={() => alert(`Initiating download for ${doc.name}...`)}
-                    className="px-4 py-2 border border-slate-800 bg-slate-950 hover:bg-slate-900 rounded-xl text-[10px] text-slate-300 font-bold uppercase tracking-wider transition-all"
+                    className="px-4 py-2 border border-slate-200 bg-white hover:bg-slate-50 rounded-xl text-[10px] text-slate-300 font-bold uppercase tracking-wider transition-all"
                   >
                     Download
                   </button>
@@ -1723,7 +1714,7 @@ const Home = () => {
         {/* MODAL: Submit assignment */}
         {submitAssignmentModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-            <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl relative text-left">
+            <div className="w-full max-w-md bg-slate-900 border border-slate-200 rounded-3xl p-6 shadow-2xl relative text-left">
               <div className="flex justify-between items-start mb-4">
                 <div className="space-y-1">
                   <h3 className="text-base font-extrabold text-white flex items-center gap-1.5">
@@ -1751,7 +1742,7 @@ const Home = () => {
                     value={submitAnswerText}
                     onChange={e => setSubmitAnswerText(e.target.value)}
                     required
-                    className="w-full px-4 py-3 rounded-2xl border border-slate-800 bg-slate-950/40 text-white placeholder-slate-600 focus:outline-none focus:border-primary transition-all font-sans leading-relaxed"
+                    className="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-slate-50 text-white placeholder-slate-600 focus:outline-none focus:border-primary transition-all font-sans leading-relaxed"
                   />
                 </div>
 
@@ -1759,7 +1750,7 @@ const Home = () => {
                   <button
                     type="button"
                     onClick={() => setSubmitAssignmentModal(null)}
-                    className="px-4 py-2 bg-slate-900 border border-slate-800 hover:bg-slate-800/60 rounded-xl text-slate-300 font-semibold transition-colors"
+                    className="px-4 py-2 bg-slate-900 border border-slate-200 hover:bg-slate-800/60 rounded-xl text-slate-300 font-semibold transition-colors"
                   >
                     Cancel
                   </button>
@@ -1785,10 +1776,10 @@ const Home = () => {
         {/* MODAL: Checkout payment gateway mock */}
         {checkoutFeeModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm">
-            <div className="w-full max-w-lg bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative text-left">
-              
+            <div className="w-full max-w-lg bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-2xl relative text-left">
+
               {/* Header */}
-              <div className="flex justify-between items-start border-b border-slate-850 pb-4 mb-6">
+              <div className="flex justify-between items-start border-b border-slate-200 pb-4 mb-6">
                 <div>
                   <h3 className="text-base font-black text-white flex items-center gap-2">
                     <Lock className="w-4 h-4 text-emerald-450" /> Secure Payment Checkout
@@ -1811,13 +1802,13 @@ const Home = () => {
                       Your fee clearance has been processed and saved under school database billing accounts ledger logs.
                     </p>
                   </div>
-                  <div className="bg-slate-950/50 p-4 rounded-2xl border border-slate-850 max-w-xs mx-auto text-xs space-y-1.5 text-left font-semibold">
+                  <div className="bg-slate-950/50 p-4 rounded-2xl border border-slate-200 max-w-xs mx-auto text-xs space-y-1.5 text-left font-semibold">
                     <p className="flex justify-between"><span>Amount Billed:</span> <strong className="text-white">₹{checkoutFeeModal.amount}</strong></p>
                     <p className="flex justify-between"><span>Status:</span> <strong className="text-emerald-400">Settled</strong></p>
                     <p className="flex justify-between"><span className="truncate">Transaction Ref:</span> <strong className="text-white font-mono break-all text-[10px]">{paymentSuccessMsg.split('ID: ')[1] || 'TXN-MOCK'}</strong></p>
                   </div>
                   <div className="flex gap-3 justify-center pt-2">
-                    <button 
+                    <button
                       onClick={() => window.print()}
                       className="px-5 py-2.5 bg-slate-850 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all"
                     >
@@ -1835,13 +1826,13 @@ const Home = () => {
                 <div className="py-12 text-center space-y-4">
                   <Loader2 className="w-10 h-10 text-primary animate-spin mx-auto" />
                   <div className="space-y-1">
-                    <h4 className="text-sm font-extrabold text-white">Processing payment transaction...</h4>
+                    <h4 className="text-sm font-extrabold text-slate-900">Processing payment transaction...</h4>
                     <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{processingStatus}</p>
                   </div>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-                  
+
                   {/* Interactive Credit Card Mockup */}
                   <div className="w-full space-y-6">
                     <div className="w-full h-44 rounded-2xl p-5 bg-gradient-to-br from-[#1e3a8a] to-[#0f172a] border border-white/10 shadow-2xl relative flex flex-col justify-between text-white overflow-hidden">
@@ -1873,7 +1864,7 @@ const Home = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="text-[10px] text-slate-500 font-semibold bg-slate-950/30 p-3 rounded-xl border border-slate-850 flex items-center gap-1.5">
+                    <div className="text-[10px] text-slate-500 font-semibold bg-slate-950/30 p-3 rounded-xl border border-slate-200 flex items-center gap-1.5">
                       <Lock className="w-3.5 h-3.5 text-primary shrink-0" /> SSL 256-Bit Encrypted Secure Sandbox Checkout Tunnel.
                     </div>
                   </div>
@@ -1888,7 +1879,7 @@ const Home = () => {
                         onChange={e => setCardName(e.target.value)}
                         required
                         placeholder="Holder full name"
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-800 bg-slate-950/40 text-white focus:outline-none focus:border-primary transition-all placeholder-slate-700"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-white focus:outline-none focus:border-primary transition-all placeholder-slate-700"
                       />
                     </div>
 
@@ -1900,7 +1891,7 @@ const Home = () => {
                         onChange={e => setCardNumber(e.target.value)}
                         required
                         placeholder="4111 2222 3333 4444"
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-800 bg-slate-950/40 text-white focus:outline-none focus:border-primary transition-all font-mono placeholder-slate-700"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-white focus:outline-none focus:border-primary transition-all font-mono placeholder-slate-700"
                       />
                     </div>
 
@@ -1913,7 +1904,7 @@ const Home = () => {
                           placeholder="12/28"
                           onChange={e => setCardExpiry(e.target.value)}
                           required
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-800 bg-slate-950/40 text-white focus:outline-none focus:border-primary transition-all font-mono placeholder-slate-700"
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-white focus:outline-none focus:border-primary transition-all font-mono placeholder-slate-700"
                         />
                       </div>
                       <div className="space-y-1">
@@ -1924,16 +1915,16 @@ const Home = () => {
                           placeholder="•••"
                           onChange={e => setCardCvc(e.target.value)}
                           required
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-800 bg-slate-950/40 text-white focus:outline-none focus:border-primary transition-all font-mono placeholder-slate-700"
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-white focus:outline-none focus:border-primary transition-all font-mono placeholder-slate-700"
                         />
                       </div>
                     </div>
 
-                    <div className="flex justify-end gap-3 pt-4 border-t border-slate-850">
+                    <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
                       <button
                         type="button"
                         onClick={() => setCheckoutFeeModal(null)}
-                        className="px-4 py-2 bg-slate-900 border border-slate-800 hover:bg-slate-800/60 rounded-xl text-slate-400"
+                        className="px-4 py-2 bg-slate-900 border border-slate-200 hover:bg-slate-800/60 rounded-xl text-slate-400"
                       >
                         Cancel
                       </button>
@@ -1945,7 +1936,7 @@ const Home = () => {
                       </button>
                     </div>
                   </form>
-                  
+
                 </div>
               )}
             </div>
@@ -1962,7 +1953,7 @@ const Home = () => {
     return (
       <div className="space-y-6">
         {/* Welcome banner */}
-        <div className="relative rounded-2xl overflow-hidden shadow-lg border border-primary/20 bg-gradient-to-r from-primary to-primary/80 text-white p-6 sm:p-8">
+        <div className="relative rounded-2xl overflow-hidden shadow-lg border border-blue-100 shadow-blue-500/20 shadow-xl bg-gradient-to-r from-blue-600 to-violet-700 text-white p-6 sm:p-8">
           <div className="relative z-10 max-w-2xl">
             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
               Welcome back, Educator {user.name}!
@@ -1974,35 +1965,32 @@ const Home = () => {
         </div>
 
         {/* Tab navigation headers */}
-        <div className="border-b border-slate-200 dark:border-slate-800">
+        <div className="border-b border-slate-200 ">
           <nav className="-mb-px flex space-x-6 text-sm font-semibold">
             <button
               onClick={() => setTeacherActiveTab('overview')}
-              className={`py-3 border-b-2 transition-all ${
-                teacherActiveTab === 'overview'
-                  ? 'border-primary text-primary dark:text-white'
+              className={`py-3 border-b-2 transition-all ${teacherActiveTab === 'overview'
+                  ? 'border-primary text-primary '
                   : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
-              }`}
+                }`}
             >
               Overview Dashboard
             </button>
             <button
               onClick={() => setTeacherActiveTab('attendance')}
-              className={`py-3 border-b-2 transition-all ${
-                teacherActiveTab === 'attendance'
-                  ? 'border-primary text-primary dark:text-white'
+              className={`py-3 border-b-2 transition-all ${teacherActiveTab === 'attendance'
+                  ? 'border-primary text-primary '
                   : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
-              }`}
+                }`}
             >
               Take Attendance
             </button>
             <button
               onClick={() => setTeacherActiveTab('assignments')}
-              className={`py-3 border-b-2 transition-all ${
-                teacherActiveTab === 'assignments'
-                  ? 'border-primary text-primary dark:text-white'
+              className={`py-3 border-b-2 transition-all ${teacherActiveTab === 'assignments'
+                  ? 'border-primary text-primary '
                   : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
-              }`}
+                }`}
             >
               Assignments & Homework
             </button>
@@ -2013,7 +2001,7 @@ const Home = () => {
         {loading && !teacherDashData ? (
           <div className="py-16 flex flex-col items-center justify-center space-y-3">
             <Loader2 className="w-8 h-8 text-primary animate-spin" />
-            <p className="text-xs text-slate-550">Loading educator panel dashboard...</p>
+            <p className="text-xs text-slate-500">Loading educator panel dashboard...</p>
           </div>
         ) : (
           <div>
@@ -2022,25 +2010,25 @@ const Home = () => {
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                   {/* Metric widgets */}
-                  <div className="glass-card p-5 rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm flex flex-col justify-between">
+                  <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-md hover:-translate-y-1 transition-all">
                     <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Assigned Classes</span>
-                    <strong className="text-3xl font-black text-slate-905 dark:text-white mt-2">{teacherDashData?.classesCount || 0}</strong>
+                    <strong className="text-3xl font-black text-slate-900  mt-2">{teacherDashData?.classesCount || 0}</strong>
                     <span className="text-[10px] text-slate-400 mt-1">Total school class groups</span>
                   </div>
 
-                  <div className="glass-card p-5 rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm flex flex-col justify-between">
+                  <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-md hover:-translate-y-1 transition-all">
                     <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Total Enrolled Students</span>
-                    <strong className="text-3xl font-black text-slate-905 dark:text-white mt-2">{teacherDashData?.studentsCount || 0}</strong>
+                    <strong className="text-3xl font-black text-slate-900  mt-2">{teacherDashData?.studentsCount || 0}</strong>
                     <span className="text-[10px] text-slate-400 mt-1">Multi-tenant scope roster</span>
                   </div>
 
-                  <div className="glass-card p-5 rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm flex flex-col justify-between">
+                  <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-md hover:-translate-y-1 transition-all">
                     <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Attendance Logs Today</span>
                     <strong className="text-3xl font-black text-emerald-500 mt-2">{teacherDashData?.attendanceTodayCount || 0}</strong>
                     <span className="text-[10px] text-slate-400 mt-1">Attendance logs created today</span>
                   </div>
 
-                  <div className="glass-card p-5 rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm flex flex-col justify-between">
+                  <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-md hover:-translate-y-1 transition-all">
                     <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Ungraded Homework</span>
                     <strong className="text-3xl font-black text-amber-500 mt-2">{teacherDashData?.ungradedCount || 0}</strong>
                     <span className="text-[10px] text-slate-400 mt-1">Student submissions pending grade</span>
@@ -2049,16 +2037,16 @@ const Home = () => {
 
                 {/* Quick tasks panel */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="glass-card p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between space-y-4 bg-white dark:bg-slate-900">
+                  <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-4 hover:shadow-md transition-all ">
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-slate-500 font-bold uppercase tracking-wide">Daily Register</span>
                       <span className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400"><UserCheck className="w-5 h-5" /></span>
                     </div>
                     <div>
-                      <h4 className="font-extrabold text-sm text-slate-900 dark:text-white">Class Attendance</h4>
+                      <h4 className="font-extrabold text-sm text-slate-900 ">Class Attendance</h4>
                       <p className="text-xs text-slate-500 mt-1">Submit the daily attendance roster for your assigned Grade section.</p>
                     </div>
-                    <button 
+                    <button
                       onClick={() => setTeacherActiveTab('attendance')}
                       className="w-full py-2 bg-primary text-white text-xs font-bold rounded-lg shadow active:scale-95 transition-all"
                     >
@@ -2066,16 +2054,16 @@ const Home = () => {
                     </button>
                   </div>
 
-                  <div className="glass-card p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between space-y-4 bg-white dark:bg-slate-900">
+                  <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-4 hover:shadow-md transition-all ">
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-slate-500 font-bold uppercase tracking-wide">Grading Panel</span>
-                      <span className="p-2 rounded-lg bg-indigo-500/10 text-primary"><Award className="w-5 h-5" /></span>
+                      <span className="p-2 rounded-lg bg-blue-50 text-primary"><Award className="w-5 h-5" /></span>
                     </div>
                     <div>
-                      <h4 className="font-extrabold text-sm text-slate-900 dark:text-white">Record Marks</h4>
+                      <h4 className="font-extrabold text-sm text-slate-900 ">Record Marks</h4>
                       <p className="text-xs text-slate-500 mt-1">Input grades, marks, and academic remarks for recent homework submissions.</p>
                     </div>
-                    <button 
+                    <button
                       onClick={() => setTeacherActiveTab('assignments')}
                       className="w-full py-2 bg-primary text-white text-xs font-bold rounded-lg shadow active:scale-95 transition-all"
                     >
@@ -2083,16 +2071,16 @@ const Home = () => {
                     </button>
                   </div>
 
-                  <div className="glass-card p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between space-y-4 bg-white dark:bg-slate-900">
+                  <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-4 hover:shadow-md transition-all ">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-slate-550 font-bold uppercase tracking-wide">Homework Dispatcher</span>
-                      <span className="p-2 rounded-lg bg-indigo-500/10 text-primary"><BookOpen className="w-5 h-5" /></span>
+                      <span className="text-xs text-slate-500 font-bold uppercase tracking-wide">Homework Dispatcher</span>
+                      <span className="p-2 rounded-lg bg-blue-50 text-primary"><BookOpen className="w-5 h-5" /></span>
                     </div>
                     <div>
-                      <h4 className="font-extrabold text-sm text-slate-900 dark:text-white">Curriculum Plan</h4>
+                      <h4 className="font-extrabold text-sm text-slate-900 ">Curriculum Plan</h4>
                       <p className="text-xs text-slate-500 mt-1">Upload syllabus guidelines and homework items for the student portal.</p>
                     </div>
-                    <button 
+                    <button
                       onClick={() => setTeacherActiveTab('assignments')}
                       className="w-full py-2 bg-primary text-white text-xs font-bold rounded-lg shadow active:scale-95 transition-all"
                     >
@@ -2105,8 +2093,8 @@ const Home = () => {
 
             {/* SUB-TAB: Take Attendance */}
             {teacherActiveTab === 'attendance' && (
-              <div className="glass-card p-6 rounded-2xl border border-slate-200 dark:border-slate-800/80 shadow-sm bg-white dark:bg-slate-900 space-y-6">
-                
+              <div className="glass-card p-6 rounded-2xl border border-slate-200  shadow-sm bg-white  space-y-6">
+
                 {/* Roster Controls */}
                 <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 text-xs font-semibold">
                   <div>
@@ -2114,7 +2102,7 @@ const Home = () => {
                     <select
                       value={attendanceClassId}
                       onChange={e => setAttendanceClassId(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white"
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300  bg-transparent text-slate-900 "
                     >
                       {teacherClasses.map(cls => (
                         <option key={cls._id} value={cls._id} className="dark:bg-slate-800">{cls.name}</option>
@@ -2127,7 +2115,7 @@ const Home = () => {
                     <select
                       value={attendanceSection}
                       onChange={e => setAttendanceSection(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white"
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300  bg-transparent text-slate-900 "
                     >
                       {teacherClasses.find(c => c._id === attendanceClassId)?.sections?.map(sec => (
                         <option key={sec} value={sec} className="dark:bg-slate-800">Section {sec}</option>
@@ -2141,17 +2129,16 @@ const Home = () => {
                       type="date"
                       value={attendanceDate}
                       onChange={e => setAttendanceDate(e.target.value)}
-                      className="w-full px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white"
+                      className="w-full px-3 py-1.5 rounded-lg border border-slate-300  bg-transparent text-slate-900 "
                     />
                   </div>
                 </div>
 
                 {attendanceMsg && (
-                  <div className={`p-3 border rounded-lg text-xs font-medium ${
-                    attendanceMsg.includes('successfully')
+                  <div className={`p-3 border rounded-lg text-xs font-medium ${attendanceMsg.includes('successfully')
                       ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
                       : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
-                  }`}>
+                    }`}>
                     {attendanceMsg}
                   </div>
                 )}
@@ -2169,42 +2156,39 @@ const Home = () => {
                         No active students found in the selected class and section.
                       </div>
                     ) : (
-                      <div className="border border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+                      <div className="border border-slate-100  rounded-xl overflow-hidden divide-y divide-slate-100 dark:divide-slate-800 text-xs">
                         {attendanceRoster.map((student) => (
                           <div key={student._id} className="p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                             <div>
-                              <strong className="text-slate-900 dark:text-white font-bold block text-sm">{student.name}</strong>
+                              <strong className="text-slate-900  font-bold block text-sm">{student.name}</strong>
                               <span className="text-[10px] text-slate-500 font-mono">Admission: {student.admissionNo}</span>
                             </div>
 
                             <div className="flex items-center gap-3">
                               <button
                                 onClick={() => handleAttendanceChange(student._id, 'present')}
-                                className={`px-4 py-1.5 rounded-lg font-bold transition-all ${
-                                  student.status === 'present'
+                                className={`px-4 py-1.5 rounded-lg font-bold transition-all ${student.status === 'present'
                                     ? 'bg-emerald-500 text-white shadow-md'
-                                    : 'border border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'
-                                }`}
+                                    : 'border border-slate-200  text-slate-500 hover:bg-slate-50 '
+                                  }`}
                               >
                                 Present
                               </button>
                               <button
                                 onClick={() => handleAttendanceChange(student._id, 'absent')}
-                                className={`px-4 py-1.5 rounded-lg font-bold transition-all ${
-                                  student.status === 'absent'
+                                className={`px-4 py-1.5 rounded-lg font-bold transition-all ${student.status === 'absent'
                                     ? 'bg-rose-500 text-white shadow-md'
-                                    : 'border border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'
-                                }`}
+                                    : 'border border-slate-200  text-slate-500 hover:bg-slate-50 '
+                                  }`}
                               >
                                 Absent
                               </button>
                               <button
                                 onClick={() => handleAttendanceChange(student._id, 'late')}
-                                className={`px-4 py-1.5 rounded-lg font-bold transition-all ${
-                                  student.status === 'late'
+                                className={`px-4 py-1.5 rounded-lg font-bold transition-all ${student.status === 'late'
                                     ? 'bg-amber-500 text-white shadow-md'
-                                    : 'border border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'
-                                }`}
+                                    : 'border border-slate-200  text-slate-500 hover:bg-slate-50 '
+                                  }`}
                               >
                                 Late
                               </button>
@@ -2239,9 +2223,9 @@ const Home = () => {
             {/* SUB-TAB: Assignments & Homework */}
             {teacherActiveTab === 'assignments' && (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
+
                 {/* Left side: Create Assignment Form */}
-                <div className="glass-card p-5 rounded-2xl border border-slate-200 dark:border-slate-800/80 shadow-sm bg-white dark:bg-slate-900 space-y-4 lg:col-span-1 h-fit">
+                <div className="glass-card p-5 rounded-2xl border border-slate-200  shadow-sm bg-white  space-y-4 lg:col-span-1 h-fit">
                   <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-2 flex items-center gap-1">
                     <Plus className="w-4 h-4" /> Create Homework Assignment
                   </h3>
@@ -2258,7 +2242,7 @@ const Home = () => {
                       <select
                         value={assignClassId}
                         onChange={e => setAssignClassId(e.target.value)}
-                        className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white"
+                        className="w-full px-3 py-2 rounded-lg border border-slate-300  bg-transparent text-slate-900 "
                       >
                         {teacherClasses.map(cls => (
                           <option key={cls._id} value={cls._id} className="dark:bg-slate-800">{cls.name}</option>
@@ -2271,7 +2255,7 @@ const Home = () => {
                       <select
                         value={assignSection}
                         onChange={e => setAssignSection(e.target.value)}
-                        className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white"
+                        className="w-full px-3 py-2 rounded-lg border border-slate-300  bg-transparent text-slate-900 "
                       >
                         {teacherClasses.find(c => c._id === assignClassId)?.sections?.map(sec => (
                           <option key={sec} value={sec} className="dark:bg-slate-800">Section {sec}</option>
@@ -2284,7 +2268,7 @@ const Home = () => {
                       <select
                         value={assignSubject}
                         onChange={e => setAssignSubject(e.target.value)}
-                        className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white"
+                        className="w-full px-3 py-2 rounded-lg border border-slate-300  bg-transparent text-slate-900 "
                       >
                         <option value="Mathematics" className="dark:bg-slate-800">Mathematics</option>
                         <option value="Physics" className="dark:bg-slate-800">Physics</option>
@@ -2302,7 +2286,7 @@ const Home = () => {
                         placeholder="e.g. Calculus Exercises"
                         value={assignTitle}
                         onChange={e => setAssignTitle(e.target.value)}
-                        className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white"
+                        className="w-full px-4 py-2 rounded-lg border border-slate-300  bg-transparent text-slate-900 "
                       />
                     </div>
 
@@ -2313,7 +2297,7 @@ const Home = () => {
                         placeholder="Detail homework instructions..."
                         value={assignDescription}
                         onChange={e => setAssignDescription(e.target.value)}
-                        className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white"
+                        className="w-full px-4 py-2 rounded-lg border border-slate-300  bg-transparent text-slate-900 "
                       ></textarea>
                     </div>
 
@@ -2323,7 +2307,7 @@ const Home = () => {
                         type="date"
                         value={assignDueDate}
                         onChange={e => setAssignDueDate(e.target.value)}
-                        className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white"
+                        className="w-full px-3 py-2 rounded-lg border border-slate-300  bg-transparent text-slate-900 "
                       />
                     </div>
 
@@ -2348,19 +2332,19 @@ const Home = () => {
                   <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-2">Assignments & Submissions</h3>
 
                   {teacherAssignments.length === 0 ? (
-                    <div className="glass-card p-12 text-center text-slate-400 text-xs rounded-xl border border-slate-200 dark:border-slate-800">
+                    <div className="glass-card p-12 text-center text-slate-400 text-xs rounded-xl border border-slate-200 ">
                       No assignments published yet. Use the dispatcher to create one.
                     </div>
                   ) : (
                     <div className="space-y-4">
                       {teacherAssignments.map((asg) => (
-                        <div key={asg._id} className="glass-card p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900 space-y-4">
+                        <div key={asg._id} className="glass-card p-5 rounded-2xl border border-slate-200  shadow-sm bg-white  space-y-4">
                           <div className="flex items-start justify-between">
                             <div>
-                              <span className="text-[9px] font-bold uppercase tracking-wider bg-indigo-500/10 text-primary px-2 py-0.5 rounded">
+                              <span className="text-[9px] font-bold uppercase tracking-wider bg-blue-50 text-primary px-2 py-0.5 rounded">
                                 {asg.classId?.name} ({asg.section}) - {asg.subject}
                               </span>
-                              <h4 className="font-extrabold text-sm text-slate-900 dark:text-white mt-1.5">{asg.title}</h4>
+                              <h4 className="font-extrabold text-sm text-slate-900  mt-1.5">{asg.title}</h4>
                               <p className="text-xs text-slate-450 mt-0.5">Due Date: {new Date(asg.dueDate).toLocaleDateString()}</p>
                             </div>
                             <span className="text-[10px] font-semibold text-slate-400">
@@ -2370,24 +2354,23 @@ const Home = () => {
 
                           {/* Student Submissions List */}
                           {asg.submissions && asg.submissions.length > 0 && (
-                            <div className="border-t border-slate-100 dark:border-slate-800 pt-3 space-y-2 text-xs">
+                            <div className="border-t border-slate-100  pt-3 space-y-2 text-xs">
                               <span className="text-[9px] text-slate-450 uppercase font-black tracking-wider block">Student Submissions:</span>
                               <div className="space-y-2.5">
                                 {asg.submissions.map((sub) => (
-                                  <div key={sub._id || sub.studentId?._id} className="bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-100 dark:border-slate-800/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                  <div key={sub._id || sub.studentId?._id} className="bg-slate-50 /50 p-3 rounded-lg border border-slate-100  flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                                     <div className="space-y-1">
                                       <div className="flex items-center gap-2">
                                         <strong className="text-slate-800 dark:text-slate-200 font-bold">{sub.studentId?.name}</strong>
                                         <span className="text-[10px] text-slate-500 font-mono">({sub.studentId?.admissionNo})</span>
-                                        <span className={`px-1.5 py-0.2 rounded text-[8px] font-black uppercase tracking-wider ${
-                                          sub.status === 'graded' 
-                                            ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400' 
+                                        <span className={`px-1.5 py-0.2 rounded text-[8px] font-black uppercase tracking-wider ${sub.status === 'graded'
+                                            ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/30 '
                                             : 'bg-blue-100 text-blue-800 dark:bg-blue-950/30 dark:text-blue-400'
-                                        }`}>
+                                          }`}>
                                           {sub.status}
                                         </span>
                                       </div>
-                                      <p className="text-[11px] text-slate-500 leading-relaxed font-sans mt-1 bg-white dark:bg-slate-950 p-2 rounded border border-slate-100 dark:border-slate-850">
+                                      <p className="text-[11px] text-slate-500 leading-relaxed font-sans mt-1 bg-white dark:bg-slate-950 p-2 rounded border border-slate-100 dark:border-slate-200">
                                         {sub.answerText}
                                       </p>
                                       {sub.status === 'graded' && (
@@ -2434,13 +2417,13 @@ const Home = () => {
         {/* MODAL: Evaluate Grade submission */}
         {gradeSubmissionModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-            <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-2xl relative">
-              <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1 flex items-center gap-1.5">
+            <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200  shadow-2xl relative">
+              <h3 className="text-base font-bold text-slate-900  mb-1 flex items-center gap-1.5">
                 <Award className="w-4 h-4 text-indigo-500" /> Grade Homework Submission
               </h3>
               <p className="text-[10px] text-slate-400 uppercase tracking-wider mb-3">Student: {gradeSubmissionModal.studentName}</p>
 
-              <div className="bg-slate-50 dark:bg-slate-900/60 p-3 rounded-lg border border-slate-100 dark:border-slate-800 text-xs space-y-1 mb-4">
+              <div className="bg-slate-50 /60 p-3 rounded-lg border border-slate-100  text-xs space-y-1 mb-4">
                 <span className="text-[9px] text-slate-450 uppercase font-black tracking-wider block">Submitted Answer Response:</span>
                 <p className="text-slate-700 dark:text-slate-300 font-sans italic leading-relaxed">
                   "{gradeSubmissionModal.answerText}"
@@ -2454,7 +2437,7 @@ const Home = () => {
                     <select
                       value={inputGrade}
                       onChange={e => setInputGrade(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white"
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300  bg-transparent text-slate-900 "
                     >
                       <option value="A+" className="dark:bg-slate-800">A+</option>
                       <option value="A" className="dark:bg-slate-800">A</option>
@@ -2473,16 +2456,16 @@ const Home = () => {
                       placeholder="e.g. Excellent thesis analysis..."
                       value={inputFeedback}
                       onChange={e => setInputFeedback(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white"
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300  bg-transparent text-slate-900 "
                     />
                   </div>
                 </div>
 
-                <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700/50">
+                <div className="flex justify-end gap-3 pt-4 border-t border-slate-100/50">
                   <button
                     type="button"
                     onClick={() => setGradeSubmissionModal(null)}
-                    className="px-4 py-2 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg text-slate-750 dark:text-slate-300 font-semibold"
+                    className="px-4 py-2 border border-slate-200  hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg text-slate-750 dark:text-slate-300 font-semibold"
                   >
                     Cancel
                   </button>
@@ -2513,16 +2496,16 @@ const Home = () => {
   // RENDER: School Admin Dashboard (Default)
   // ==========================================
   const stats = [
-    { name: 'Total Students', value: '1,248', change: '+4.75%', changeType: 'increase', icon: <GraduationCap className="w-5 h-5 text-indigo-400" /> },
-    { name: 'Active Teachers', value: '84', change: '+2.1%', changeType: 'increase', icon: <Users className="w-5 h-5 text-indigo-400" /> },
-    { name: 'Daily Attendance', value: '94.2%', change: '-0.4%', changeType: 'decrease', icon: <Calendar className="w-5 h-5 text-indigo-400" /> },
-    { name: 'Fees Collected (Mtd)', value: '₹14.2L', change: '+12.5%', changeType: 'increase', icon: <CreditCard className="w-5 h-5 text-indigo-400" /> }
+    { name: 'Total Students', value: '1,248', change: '+4.75%', changeType: 'increase', icon: <GraduationCap className="w-5 h-5 text-blue-500" /> },
+    { name: 'Active Teachers', value: '84', change: '+2.1%', changeType: 'increase', icon: <Users className="w-5 h-5 text-blue-500" /> },
+    { name: 'Daily Attendance', value: '94.2%', change: '-0.4%', changeType: 'decrease', icon: <Calendar className="w-5 h-5 text-blue-500" /> },
+    { name: 'Fees Collected (Mtd)', value: '₹14.2L', change: '+12.5%', changeType: 'increase', icon: <CreditCard className="w-5 h-5 text-blue-500" /> }
   ];
 
   return (
     <div className="space-y-6">
       {/* Welcome Banner */}
-      <div className="relative rounded-2xl overflow-hidden shadow-lg border border-primary/20 bg-gradient-to-r from-primary to-primary/80 text-white p-6 sm:p-8">
+      <div className="relative rounded-2xl overflow-hidden shadow-lg border border-blue-100 shadow-blue-500/20 shadow-xl bg-gradient-to-r from-blue-600 to-violet-700 text-white p-6 sm:p-8">
         <div className="relative z-10 max-w-2xl">
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
             Welcome to {tenant?.schoolName || 'EduCore School'}
@@ -2531,10 +2514,10 @@ const Home = () => {
             Managing academic programs, student lifecycle documents, attendance lists, and fee receipts for your school in a unified portal.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <button className="px-4 py-2 bg-white text-primary font-semibold text-sm rounded-lg shadow hover:bg-slate-50 active:scale-95 transition-all flex items-center gap-1.5">
+            <button className="px-4 py-2 bg-white text-blue-700 font-semibold text-sm rounded-lg shadow hover:bg-slate-50 active:scale-95 transition-all flex items-center gap-1.5">
               <Plus className="w-4 h-4" /> Add Admission
             </button>
-            <button className="px-4 py-2 bg-primary-dark/30 border border-white/20 text-white font-semibold text-sm rounded-lg hover:bg-white/10 active:scale-95 transition-all flex items-center gap-1.5">
+            <button className="px-4 py-2 bg-white/15 border border-white/20 text-white font-semibold text-sm rounded-lg hover:bg-white/10 active:scale-95 transition-all flex items-center gap-1.5">
               <FileText className="w-4 h-4" /> Manage Exams
             </button>
           </div>
@@ -2547,23 +2530,22 @@ const Home = () => {
       {/* Grid of widgets */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((item) => (
-          <div 
-            key={item.name} 
-            className="glass-card hover-scale p-5 rounded-xl border border-slate-200 dark:border-slate-700/80 shadow-sm flex items-center justify-between"
+          <div
+            key={item.name}
+            className="bg-white hover:-translate-y-1 transition-transform p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md flex items-center justify-between"
           >
             <div>
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 truncate">{item.name}</p>
-              <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">{item.value}</p>
+              <p className="text-sm font-medium text-slate-500  truncate">{item.name}</p>
+              <p className="mt-1 text-2xl font-bold text-slate-900 ">{item.value}</p>
               <div className="mt-1 flex items-center space-x-1.5">
-                <span className={`text-xs font-semibold ${
-                  item.changeType === 'increase' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-455'
-                }`}>
+                <span className={`text-xs font-semibold ${item.changeType === 'increase' ? 'text-emerald-600 ' : 'text-rose-600 '
+                  }`}>
                   {item.change}
                 </span>
                 <span className="text-xs text-slate-450">vs last month</span>
               </div>
             </div>
-            <div className="w-12 h-12 rounded-lg bg-indigo-500/10 flex items-center justify-center shadow-inner shrink-0">
+            <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center shadow-inner shrink-0">
               {item.icon}
             </div>
           </div>
@@ -2571,50 +2553,48 @@ const Home = () => {
       </div>
 
       {/* Demonstration dynamic switching section */}
-      <div className="glass-card p-6 rounded-xl border border-slate-200 dark:border-slate-700/80 shadow-sm">
-        <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-          <Sparkles className="w-5 h-5 text-indigo-400" /> Multi-Tenancy Demonstration
+      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <h3 className="text-lg font-bold text-slate-900  flex items-center gap-1.5">
+          <Sparkles className="w-5 h-5 text-blue-500" /> Multi-Tenancy Demonstration
         </h3>
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-          This single React codebase automatically adapts to the sub-domain config mapping. You can toggle between different school subdomains to view how the application logo, dynamic styling variables (<span className="text-primary font-semibold">Primary Color</span>, <span className="text-secondary font-semibold">Secondary Color</span>), and portal page titles immediately adapt!
+        <p className="mt-2 text-sm text-slate-600  leading-relaxed">
+          This single React codebase automatically adapts to the sub-domain config mapping. You can toggle between different school subdomains to view how the application logo, dynamic styling variables (<span className="text-blue-600 font-semibold">Primary Color</span>, <span className="text-violet-600 font-semibold">Secondary Color</span>), and portal page titles immediately adapt!
         </p>
 
-        <div className="mt-6 border-t border-slate-100 dark:border-slate-700 pt-6">
+        <div className="mt-6 border-t border-slate-100 pt-6">
           <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
             Choose School Tenant Profile
           </h4>
           <div className="flex flex-wrap gap-4">
-            <button 
+            <button
               onClick={() => window.location.search = '?tenant=schoola'}
-              className={`flex-1 min-w-[200px] flex items-center justify-between p-4 rounded-xl border text-left transition-all ${
-                tenant?.subdomain === 'schoola' 
-                  ? 'border-blue-500 bg-blue-500/5 shadow-md shadow-blue-500/5' 
-                  : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800'
-              }`}
+              className={`flex-1 min-w-[200px] flex items-center justify-between p-4 rounded-xl border text-left transition-all ${tenant?.subdomain === 'schoola'
+                  ? 'border-blue-500 bg-blue-500/5 shadow-md shadow-blue-500/5'
+                  : 'border-slate-200 hover:bg-slate-50'
+                }`}
             >
               <div className="flex items-center space-x-3">
                 <span className="w-8 h-8 rounded-full bg-blue-800 flex items-center justify-center text-white text-xs">A</span>
                 <div>
-                  <div className="font-bold text-slate-900 dark:text-white text-sm">Delhi Public School</div>
-                  <div className="text-xs text-slate-550">subdomain: schoola</div>
+                  <div className="font-bold text-slate-900  text-sm">Delhi Public School</div>
+                  <div className="text-xs text-slate-500">subdomain: schoola</div>
                 </div>
               </div>
               <span className="text-blue-500 text-xs font-semibold">#1E3A8A</span>
             </button>
 
-            <button 
+            <button
               onClick={() => window.location.search = '?tenant=schoolb'}
-              className={`flex-1 min-w-[200px] flex items-center justify-between p-4 rounded-xl border text-left transition-all ${
-                tenant?.subdomain === 'schoolb' 
-                  ? 'border-emerald-500 bg-emerald-500/5 shadow-md shadow-emerald-500/5' 
-                  : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800'
-              }`}
+              className={`flex-1 min-w-[200px] flex items-center justify-between p-4 rounded-xl border text-left transition-all ${tenant?.subdomain === 'schoolb'
+                  ? 'border-emerald-500 bg-emerald-500/5 shadow-md shadow-emerald-500/5'
+                  : 'border-slate-200 hover:bg-slate-50'
+                }`}
             >
               <div className="flex items-center space-x-3">
                 <span className="w-8 h-8 rounded-full bg-emerald-800 flex items-center justify-center text-white text-xs">B</span>
                 <div>
-                  <div className="font-bold text-slate-900 dark:text-white text-sm">St. Mary School</div>
-                  <div className="text-xs text-slate-550">subdomain: schoolb</div>
+                  <div className="font-bold text-slate-900  text-sm">St. Mary School</div>
+                  <div className="text-xs text-slate-500">subdomain: schoolb</div>
                 </div>
               </div>
               <span className="text-emerald-500 text-xs font-semibold">#065F46</span>
@@ -2627,3 +2607,11 @@ const Home = () => {
 };
 
 export default Home;
+
+
+
+
+
+
+
+
