@@ -103,8 +103,8 @@ const Classes = () => {
       {/* Header section */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Classes & Sections</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400">Configure academic class categories and sections for your school tenant.</p>
+          <h2 className="text-2xl font-bold text-slate-900 ">Classes & Sections</h2>
+          <p className="text-sm text-slate-500 ">Configure academic class categories and sections for your school tenant.</p>
         </div>
         <button
           onClick={openAddModal}
@@ -126,10 +126,10 @@ const Classes = () => {
           <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider animate-pulse">Loading Classes...</p>
         </div>
       ) : classes.length === 0 ? (
-        <div className="glass-card text-center p-12 border border-slate-200 dark:border-slate-800 rounded-xl">
+        <div className="glass-card text-center p-12 border border-slate-200  rounded-xl">
           <BookOpen className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">No Classes Configured</h3>
-          <p className="text-slate-500 dark:text-slate-400 text-sm max-w-sm mx-auto mb-6">Create classes like "Class 10" or "Grade 6" to begin admitting students under them.</p>
+          <h3 className="text-lg font-bold text-slate-900  mb-1">No Classes Configured</h3>
+          <p className="text-slate-500  text-sm max-w-sm mx-auto mb-6">Create classes like "Class 10" or "Grade 6" to begin admitting students under them.</p>
           <button
             onClick={openAddModal}
             className="px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary font-semibold text-sm rounded-lg transition-all flex items-center gap-1.5 mx-auto"
@@ -142,21 +142,21 @@ const Classes = () => {
           {classes.map((cls) => (
             <div 
               key={cls._id} 
-              className="glass-card hover-scale p-6 rounded-xl border border-slate-200 dark:border-slate-700/80 shadow-sm relative flex flex-col justify-between"
+              className="glass-card hover-scale p-6 rounded-xl border border-slate-200  shadow-sm relative flex flex-col justify-between"
             >
               <div>
                 <div className="flex justify-between items-start">
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">{cls.name}</h3>
+                  <h3 className="text-lg font-bold text-slate-900 ">{cls.name}</h3>
                   <div className="flex gap-2">
                     <button 
                       onClick={() => openEditModal(cls)}
-                      className="p-1.5 text-slate-400 hover:text-primary dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-all"
+                      className="p-1.5 text-slate-400 hover:text-primary :text-white hover:bg-slate-100 :bg-slate-700 rounded transition-all"
                     >
                       <Edit2 className="w-4 h-4" />
                     </button>
                     <button 
                       onClick={() => handleDelete(cls._id)}
-                      className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded transition-all"
+                      className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 :bg-rose-950/20 rounded transition-all"
                     >
                       <Trash2 className="w-4 h-4 text-rose-500" />
                     </button>
@@ -178,7 +178,7 @@ const Classes = () => {
                 </div>
               </div>
 
-              <div className="mt-6 border-t border-slate-100 dark:border-slate-700/50 pt-4 flex justify-between items-center text-xs text-slate-400">
+              <div className="mt-6 border-t border-slate-100  pt-4 flex justify-between items-center text-xs text-slate-400">
                 <span>Configured Academic Portal</span>
                 <span>ID: {cls._id.slice(-6).toUpperCase()}</span>
               </div>
@@ -190,8 +190,8 @@ const Classes = () => {
       {/* Elegant Slide-over / Modal Form */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm transition-opacity duration-300">
-          <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-2xl relative">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+          <div className="w-full max-w-md bg-white  rounded-2xl p-6 border border-slate-200  shadow-2xl relative">
+            <h3 className="text-lg font-bold text-slate-900  mb-4 flex items-center gap-2">
               {editingClass ? <Edit2 className="w-5 h-5 text-indigo-500" /> : <BookOpen className="w-5 h-5 text-indigo-500" />}
               {editingClass ? 'Edit Class Configuration' : 'Add New Class'}
             </h3>
@@ -204,7 +204,7 @@ const Classes = () => {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-semibold text-slate-400  uppercase tracking-wider mb-1">
                   Class Name
                 </label>
                 <input
@@ -212,12 +212,12 @@ const Classes = () => {
                   placeholder="e.g. Class 10, Grade 6"
                   value={className}
                   onChange={(e) => setClassName(e.target.value)}
-                  className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                  className="w-full px-4 py-2 rounded-lg border border-slate-300  bg-transparent text-slate-900  placeholder-slate-400 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-semibold text-slate-400  uppercase tracking-wider mb-1">
                   Sections (Comma Separated)
                 </label>
                 <input
@@ -225,16 +225,16 @@ const Classes = () => {
                   placeholder="e.g. A, B, C"
                   value={sectionsInput}
                   onChange={(e) => setSectionsInput(e.target.value)}
-                  className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                  className="w-full px-4 py-2 rounded-lg border border-slate-300  bg-transparent text-slate-900  placeholder-slate-400 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                 />
                 <span className="text-[10px] text-slate-400 mt-1 block">Specify multiple sections separated by a comma (e.g. A, B, C).</span>
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700/50">
+              <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 ">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg text-slate-700 dark:text-slate-300 font-semibold text-xs transition-all"
+                  className="px-4 py-2 border border-slate-200  hover:bg-slate-50 :bg-slate-700 rounded-lg text-slate-700  font-semibold text-xs transition-all"
                 >
                   Cancel
                 </button>

@@ -132,8 +132,8 @@ const Staff = () => {
       {/* Header details */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Staff Directory</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400">View and manage profile cards for teachers, principals, and administrative staff.</p>
+          <h2 className="text-2xl font-bold text-slate-900 ">Staff Directory</h2>
+          <p className="text-sm text-slate-500 ">View and manage profile cards for teachers, principals, and administrative staff.</p>
         </div>
         {isPrincipal && (
           <button
@@ -157,10 +157,10 @@ const Staff = () => {
           <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider animate-pulse">Loading Staff...</p>
         </div>
       ) : staffList.length === 0 ? (
-        <div className="glass-card text-center p-12 border border-slate-200 dark:border-slate-800 rounded-xl">
+        <div className="glass-card text-center p-12 border border-slate-200  rounded-xl">
           <Users2 className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">No Staff Registered</h3>
-          <p className="text-slate-500 dark:text-slate-400 text-sm max-w-sm mx-auto mb-6">Onboard teachers or administrators to set up your school department roster.</p>
+          <h3 className="text-lg font-bold text-slate-900  mb-1">No Staff Registered</h3>
+          <p className="text-slate-500  text-sm max-w-sm mx-auto mb-6">Onboard teachers or administrators to set up your school department roster.</p>
           {isPrincipal && (
             <button
               onClick={openAddModal}
@@ -175,7 +175,7 @@ const Staff = () => {
           {staffList.map((staff) => (
             <div 
               key={staff._id} 
-              className="glass-card hover-scale p-6 rounded-xl border border-slate-200 dark:border-slate-700/80 shadow-sm relative flex flex-col justify-between"
+              className="glass-card hover-scale p-6 rounded-xl border border-slate-200  shadow-sm relative flex flex-col justify-between"
             >
               <div>
                 <div className="flex justify-between items-start">
@@ -184,7 +184,7 @@ const Staff = () => {
                       {staff.name.split(' ').map(n => n[0]).slice(0, 2).join('')}
                     </div>
                     <div>
-                      <h3 className="font-bold text-slate-900 dark:text-white leading-tight">{staff.name}</h3>
+                      <h3 className="font-bold text-slate-900  leading-tight">{staff.name}</h3>
                       <span className="text-xs text-slate-400 font-semibold uppercase tracking-wide">{staff.designation}</span>
                     </div>
                   </div>
@@ -193,13 +193,13 @@ const Staff = () => {
                     <div className="flex gap-1">
                       <button 
                         onClick={() => openEditModal(staff)}
-                        className="p-1 text-slate-400 hover:text-primary dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-all"
+                        className="p-1 text-slate-400 hover:text-primary :text-white hover:bg-slate-100 :bg-slate-700 rounded transition-all"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button 
                         onClick={() => handleDelete(staff._id)}
-                        className="p-1 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded transition-all"
+                        className="p-1 text-slate-400 hover:text-rose-500 hover:bg-rose-50 :bg-rose-950/20 rounded transition-all"
                       >
                         <Trash2 className="w-4 h-4 text-rose-500" />
                       </button>
@@ -207,18 +207,18 @@ const Staff = () => {
                   )}
                 </div>
 
-                <div className="mt-5 space-y-2.5 text-xs text-slate-500 dark:text-slate-400">
+                <div className="mt-5 space-y-2.5 text-xs text-slate-500 ">
                   <div className="flex justify-between items-center">
                     <span className="text-slate-400">Employee ID:</span>
-                    <span className="font-bold text-slate-950 dark:text-slate-200">{staff.employeeId}</span>
+                    <span className="font-bold text-slate-950 ">{staff.employeeId}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-slate-400 flex items-center gap-1"><Briefcase className="w-3.5 h-3.5 text-slate-450" /> Department:</span>
-                    <span className="font-semibold text-slate-950 dark:text-slate-200">{staff.department}</span>
+                    <span className="font-semibold text-slate-950 ">{staff.department}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-slate-400 flex items-center gap-1"><Mail className="w-3.5 h-3.5 text-slate-450" /> Email Address:</span>
-                    <span className="text-slate-800 dark:text-slate-350">{staff.email}</span>
+                    <span className="text-slate-800 ">{staff.email}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-slate-400 flex items-center gap-1"><Calendar className="w-3.5 h-3.5 text-slate-450" /> Joining Date:</span>
@@ -227,8 +227,8 @@ const Staff = () => {
                 </div>
               </div>
 
-              <div className="mt-6 border-t border-slate-100 dark:border-slate-700/50 pt-4 flex justify-between items-center text-xs text-slate-400">
-                <span className="inline-flex items-center gap-1.5 font-semibold text-emerald-600 dark:text-emerald-400">
+              <div className="mt-6 border-t border-slate-100  pt-4 flex justify-between items-center text-xs text-slate-400">
+                <span className="inline-flex items-center gap-1.5 font-semibold text-emerald-600 ">
                   <span className="w-2 h-2 rounded-full bg-emerald-500"></span> Active Duty
                 </span>
                 <span>ID: {staff._id.slice(-6).toUpperCase()}</span>
@@ -241,24 +241,24 @@ const Staff = () => {
       {/* Onboard / Edit Staff Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm transition-opacity duration-300">
-          <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-2xl relative">
+          <div className="w-full max-w-md bg-white  rounded-2xl p-6 border border-slate-200  shadow-2xl relative">
             {onboardedCredentials ? (
               <div className="text-center py-4 space-y-4">
                 <div className="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-500 mx-auto flex items-center justify-center">
                   <CheckCircle className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">Onboarding Successful</h3>
+                  <h3 className="text-lg font-bold text-slate-900 ">Onboarding Successful</h3>
                   <p className="text-xs text-slate-500 mt-1">Employee portal login credentials have been generated automatically.</p>
                 </div>
-                <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-xl p-4 text-left text-sm space-y-2">
+                <div className="bg-slate-50  border border-slate-100  rounded-xl p-4 text-left text-sm space-y-2">
                   <div>
                     <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Portal Username (Email)</span>
-                    <strong className="text-slate-800 dark:text-slate-200 select-all font-mono">{onboardedCredentials.email}</strong>
+                    <strong className="text-slate-800  select-all font-mono">{onboardedCredentials.email}</strong>
                   </div>
                   <div>
                     <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Temporary Password</span>
-                    <strong className="text-slate-800 dark:text-slate-200 select-all font-mono">{onboardedCredentials.password}</strong>
+                    <strong className="text-slate-800  select-all font-mono">{onboardedCredentials.password}</strong>
                   </div>
                 </div>
                 <div className="flex justify-center pt-2">
@@ -275,7 +275,7 @@ const Staff = () => {
               </div>
             ) : (
               <>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                <h3 className="text-lg font-bold text-slate-900  mb-4 flex items-center gap-2">
                   {editingStaff ? <Edit2 className="w-5 h-5 text-indigo-500" /> : <Users2 className="w-5 h-5 text-indigo-500" />}
                   {editingStaff ? 'Edit Staff Record' : 'Onboard New Employee'}
                 </h3>
@@ -288,7 +288,7 @@ const Staff = () => {
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+                    <label className="block text-xs font-semibold text-slate-400  uppercase tracking-wider mb-1">
                       Employee ID
                     </label>
                     <input
@@ -296,12 +296,12 @@ const Staff = () => {
                       value={employeeId}
                       disabled={!!editingStaff}
                       onChange={(e) => setEmployeeId(e.target.value)}
-                      className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all disabled:opacity-55"
+                      className="w-full px-4 py-2 rounded-lg border border-slate-300  bg-transparent text-slate-900  text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all disabled:opacity-55"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+                    <label className="block text-xs font-semibold text-slate-400  uppercase tracking-wider mb-1">
                       Full Name
                     </label>
                     <input
@@ -309,12 +309,12 @@ const Staff = () => {
                       placeholder="e.g. Dr. Anil Mehta"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                      className="w-full px-4 py-2 rounded-lg border border-slate-300  bg-transparent text-slate-900  text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+                    <label className="block text-xs font-semibold text-slate-400  uppercase tracking-wider mb-1">
                       Email Address
                     </label>
                     <input
@@ -322,50 +322,50 @@ const Staff = () => {
                       placeholder="e.g. anil@schoola.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                      className="w-full px-4 py-2 rounded-lg border border-slate-300  bg-transparent text-slate-900  text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+                      <label className="block text-xs font-semibold text-slate-400  uppercase tracking-wider mb-1">
                         Designation
                       </label>
                       <select
                         value={designation}
                         onChange={(e) => setDesignation(e.target.value)}
-                        className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                        className="w-full px-3 py-2 rounded-lg border border-slate-300  bg-transparent text-slate-900  text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                       >
-                        <option value="Teacher" className="dark:bg-slate-800">Teacher</option>
-                        <option value="Principal" className="dark:bg-slate-800">Principal</option>
-                        <option value="Accountant" className="dark:bg-slate-800">Accountant</option>
-                        <option value="Registrar" className="dark:bg-slate-800">Registrar</option>
+                        <option value="Teacher" className="">Teacher</option>
+                        <option value="Principal" className="">Principal</option>
+                        <option value="Accountant" className="">Accountant</option>
+                        <option value="Registrar" className="">Registrar</option>
                       </select>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+                      <label className="block text-xs font-semibold text-slate-400  uppercase tracking-wider mb-1">
                         Department
                       </label>
                       <select
                         value={department}
                         onChange={(e) => setDepartment(e.target.value)}
-                        className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                        className="w-full px-3 py-2 rounded-lg border border-slate-300  bg-transparent text-slate-900  text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                       >
-                        <option value="Mathematics" className="dark:bg-slate-800">Mathematics</option>
-                        <option value="Science" className="dark:bg-slate-800">Science</option>
-                        <option value="English Lit." className="dark:bg-slate-800">English Lit.</option>
-                        <option value="Administration" className="dark:bg-slate-800">Administration</option>
-                        <option value="Finance" className="dark:bg-slate-800">Finance</option>
+                        <option value="Mathematics" className="">Mathematics</option>
+                        <option value="Science" className="">Science</option>
+                        <option value="English Lit." className="">English Lit.</option>
+                        <option value="Administration" className="">Administration</option>
+                        <option value="Finance" className="">Finance</option>
                       </select>
                     </div>
                   </div>
 
-                  <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700/50">
+                  <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 ">
                     <button
                       type="button"
                       onClick={() => setShowModal(false)}
-                      className="px-4 py-2 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg text-slate-700 dark:text-slate-300 font-semibold text-xs transition-all"
+                      className="px-4 py-2 border border-slate-200  hover:bg-slate-50 :bg-slate-700 rounded-lg text-slate-700  font-semibold text-xs transition-all"
                     >
                       Cancel
                     </button>

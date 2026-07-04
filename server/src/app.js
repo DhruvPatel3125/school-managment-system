@@ -10,6 +10,7 @@ const classesRouter = require('./routes/classes');
 const studentsRouter = require('./routes/students');
 const staffRouter = require('./routes/staff');
 const teachersRouter = require('./routes/teachers');
+const adminRouter = require('./routes/admin');
 const uploadRouter = require('./routes/upload');
 const errorHandler = require('./middlewares/errorHandler');
 
@@ -48,6 +49,7 @@ app.use('/api/v1/classes', classesRouter);
 app.use('/api/v1/students', studentsRouter);
 app.use('/api/v1/staff', staffRouter);
 app.use('/api/v1/teachers', teachersRouter);
+app.use('/api/v1/admin', adminRouter);
 app.use('/api/v1/upload', uploadRouter);
 
 // Fallback for unhandled endpoints

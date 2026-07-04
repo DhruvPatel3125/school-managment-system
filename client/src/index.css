@@ -32,12 +32,7 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-@media (prefers-color-scheme: dark) {
-  body {
-    background-color: var(--bg-app-dark);
-    color: #f1f5f9;
-  }
-}
+/* Removed dark mode media query to enforce light theme globally */
 
 /* Custom Glassmorphism styles */
 .glass-card {
@@ -45,13 +40,6 @@ body {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-@media (prefers-color-scheme: dark) {
-  .glass-card {
-    background: rgba(30, 41, 59, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-  }
 }
 
 /* Micro-animations */

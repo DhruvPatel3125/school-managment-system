@@ -40,6 +40,10 @@ const StudentSchema = new mongoose.Schema({
     enum: ['active', 'suspended', 'inactive'],
     default: 'active'
   },
+  profileImage: {
+    type: String,
+    default: ''
+  },
   tenantId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Tenant',

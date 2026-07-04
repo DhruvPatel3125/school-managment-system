@@ -268,7 +268,7 @@ router.get('/', isAuthorizedStaff, async (req, res, next) => {
 // 2. POST /api/v1/students - Admit a new student
 router.post('/', isAuthorizedStaff, async (req, res, next) => {
   try {
-    const { admissionNo, name, email, dob, classId, section, parentName, parentPhone } = req.body;
+    const { admissionNo, name, email, dob, classId, section, parentName, parentPhone, profileImage } = req.body;
 
     if (!admissionNo || !name || !email || !classId || !section || !parentName || !parentPhone) {
       return res.status(400).json({ success: false, error: 'Please fill in all required fields.' });
@@ -305,6 +305,7 @@ router.post('/', isAuthorizedStaff, async (req, res, next) => {
       section,
       parentName,
       parentPhone,
+      profileImage,
       tenantId: req.tenantId
     });
 
