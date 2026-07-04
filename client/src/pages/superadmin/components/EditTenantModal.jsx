@@ -107,40 +107,40 @@ const EditTenantModal = ({ school, onClose, onSuccess }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-4 overflow-y-auto transition-all duration-300">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl space-y-5 my-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 overflow-y-auto transition-all duration-300">
+      <div className="bg-white border border-slate-200 rounded-2xl w-full max-w-lg p-6 shadow-2xl shadow-slate-200/50 space-y-5 my-8">
         
-        <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+        <div className="flex justify-between items-center border-b border-slate-200 pb-3">
           <div>
-            <h3 className="text-lg font-black flex items-center gap-2">
-              <Settings className="w-5 h-5 text-indigo-500" /> Edit School Configurations
+            <h3 className="text-lg font-black flex items-center gap-2 text-slate-900">
+              <Settings className="w-5 h-5 text-indigo-600" /> Edit School Configurations
             </h3>
             <p className="text-[10px] text-slate-500 uppercase font-semibold tracking-wider mt-0.5">Modify branding & subscription plans</p>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-white text-lg">×</button>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-800 text-lg transition-colors">×</button>
         </div>
 
         {/* Stepped progress indicators for Edit */}
-        <div className="flex items-center justify-between bg-slate-950 p-2.5 rounded-lg border border-slate-850">
-          <div className={`flex items-center space-x-1.5 text-xs font-bold ${editModalStep === 1 ? 'text-indigo-400' : 'text-slate-500'}`}>
-            <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${editModalStep === 1 ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-400'}`}>1</span>
+        <div className="flex items-center justify-between bg-slate-50 p-2.5 rounded-lg border border-slate-200 shadow-sm">
+          <div className={`flex items-center space-x-1.5 text-xs font-bold ${editModalStep === 1 ? 'text-indigo-600' : 'text-slate-500'}`}>
+            <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shadow-sm ${editModalStep === 1 ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-500'}`}>1</span>
             <span>Profile & Branding</span>
           </div>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-700" />
-          <div className={`flex items-center space-x-1.5 text-xs font-bold ${editModalStep === 2 ? 'text-indigo-400' : 'text-slate-500'}`}>
-            <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${editModalStep === 2 ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-400'}`}>2</span>
+          <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
+          <div className={`flex items-center space-x-1.5 text-xs font-bold ${editModalStep === 2 ? 'text-indigo-600' : 'text-slate-500'}`}>
+            <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shadow-sm ${editModalStep === 2 ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-500'}`}>2</span>
             <span>Plan & Access Status</span>
           </div>
         </div>
 
         {submitError && (
-          <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-450 rounded-xl text-xs font-medium flex items-center gap-1.5">
+          <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs font-medium flex items-center gap-1.5 shadow-sm">
             <AlertTriangle className="w-4 h-4" /> {submitError}
           </div>
         )}
         
         {submitSuccess && (
-          <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-450 rounded-xl text-xs font-medium">
+          <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl text-xs font-medium shadow-sm">
             ✅ {submitSuccess}
           </div>
         )}
@@ -151,28 +151,28 @@ const EditTenantModal = ({ school, onClose, onSuccess }) => {
           {editModalStep === 1 && (
             <div className="space-y-4">
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">School Name</label>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">School Name</label>
                 <input 
                   type="text" 
                   value={editSchoolName}
                   onChange={(e) => setEditSchoolName(e.target.value)}
                   required
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-slate-800 bg-slate-950 text-white text-xs focus:outline-none focus:border-indigo-650 transition-all font-semibold"
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all font-semibold shadow-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">School Logo Branding</label>
-                <div className="flex items-center space-x-4 bg-slate-950 border border-slate-800 p-3.5 rounded-xl">
+                <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">School Logo Branding</label>
+                <div className="flex items-center space-x-4 bg-slate-50 border border-slate-200 p-3.5 rounded-xl shadow-sm">
                   {editLogoUrl ? (
-                    <img src={editLogoUrl} alt="Logo preview" className="w-12 h-12 rounded-xl object-cover border border-slate-800 bg-slate-900 shadow-lg" />
+                    <img src={editLogoUrl} alt="Logo preview" className="w-12 h-12 rounded-xl object-cover border border-slate-200 bg-white shadow-sm" />
                   ) : (
-                    <div className="w-12 h-12 rounded-xl bg-slate-800/50 flex items-center justify-center border border-slate-700/60 shadow-inner">
-                      <School className="w-5 h-5 text-slate-500" />
+                    <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center border border-slate-200 shadow-sm">
+                      <School className="w-5 h-5 text-slate-400" />
                     </div>
                   )}
                   <div className="flex-1">
-                    <label className="cursor-pointer inline-flex items-center px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold text-xs rounded-lg transition-all gap-1.5 shadow-md">
+                    <label className="cursor-pointer inline-flex items-center px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-xs rounded-lg transition-all gap-1.5 shadow-md">
                       {uploadingLogo ? (
                         <>
                           <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -198,36 +198,36 @@ const EditTenantModal = ({ school, onClose, onSuccess }) => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Primary Color Scheme</label>
+                  <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Primary Color Scheme</label>
                   <div className="flex items-center space-x-2">
                     <input 
                       type="color" 
                       value={editPrimaryColor}
                       onChange={(e) => setEditPrimaryColor(e.target.value)}
-                      className="w-9 h-9 rounded-lg border border-slate-800 bg-transparent cursor-pointer shrink-0"
+                      className="w-9 h-9 rounded-lg border border-slate-300 bg-transparent cursor-pointer shrink-0 shadow-sm"
                     />
                     <input 
                       type="text" 
                       value={editPrimaryColor}
                       onChange={(e) => setEditPrimaryColor(e.target.value)}
-                      className="flex-1 px-3 py-2 rounded-lg border border-slate-800 bg-slate-950 text-white text-xs focus:outline-none text-center font-mono font-bold"
+                      className="flex-1 px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-center font-mono font-bold shadow-sm transition-all"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Secondary Color Scheme</label>
+                  <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Secondary Color Scheme</label>
                   <div className="flex items-center space-x-2">
                     <input 
                       type="color" 
                       value={editSecondaryColor}
                       onChange={(e) => setEditSecondaryColor(e.target.value)}
-                      className="w-9 h-9 rounded-lg border border-slate-800 bg-transparent cursor-pointer shrink-0"
+                      className="w-9 h-9 rounded-lg border border-slate-300 bg-transparent cursor-pointer shrink-0 shadow-sm"
                     />
                     <input 
                       type="text" 
                       value={editSecondaryColor}
                       onChange={(e) => setEditSecondaryColor(e.target.value)}
-                      className="flex-1 px-3 py-2 rounded-lg border border-slate-800 bg-slate-950 text-white text-xs focus:outline-none text-center font-mono font-bold"
+                      className="flex-1 px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-center font-mono font-bold shadow-sm transition-all"
                     />
                   </div>
                 </div>
@@ -239,34 +239,34 @@ const EditTenantModal = ({ school, onClose, onSuccess }) => {
           {editModalStep === 2 && (
             <div className="space-y-4">
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Portal Access Control</label>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Portal Access Control</label>
                 <select 
                   value={editStatus}
                   onChange={(e) => setEditStatus(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-slate-800 bg-slate-950 text-white text-xs focus:outline-none font-semibold focus:border-indigo-600 transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 font-semibold transition-all shadow-sm"
                 >
                   <option value="active">Active (Access Allowed)</option>
                   <option value="suspended">Suspended (Access Blocked)</option>
                 </select>
               </div>
 
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Modify Subscription Tier</label>
+              <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Modify Subscription Tier</label>
               <div className="grid grid-cols-1 gap-3">
                 {plansConfig.map(p => (
                   <div 
                     key={p.id}
                     onClick={() => handlePlanChange(p.id)}
-                    className={`p-4 rounded-xl border text-left cursor-pointer transition-all flex items-center justify-between gap-4 ${editPlan === p.id ? 'border-indigo-500 bg-indigo-950/20 shadow-md' : 'border-slate-800/80 bg-slate-950/50 hover:bg-slate-900/50'}`}
+                    className={`p-4 rounded-xl border text-left cursor-pointer transition-all flex items-center justify-between gap-4 shadow-sm ${editPlan === p.id ? 'border-indigo-500 bg-indigo-50 shadow-md shadow-indigo-100/50' : 'border-slate-200 bg-white hover:bg-slate-50'}`}
                   >
                     <div className="space-y-1">
-                      <h5 className="font-bold text-sm text-slate-200 flex items-center gap-1.5">
+                      <h5 className="font-bold text-sm text-slate-900 flex items-center gap-1.5">
                         {p.name}
-                        {editPlan === p.id && <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>}
+                        {editPlan === p.id && <span className="w-1.5 h-1.5 rounded-full bg-indigo-600"></span>}
                       </h5>
-                      <p className="text-[10px] text-slate-450 leading-relaxed font-medium">{p.desc}</p>
+                      <p className="text-[10px] text-slate-500 leading-relaxed font-medium">{p.desc}</p>
                     </div>
                     <div className="text-right shrink-0">
-                      <span className="text-xs font-extrabold text-indigo-400 block">{p.limit} Pupils limit</span>
+                      <span className="text-xs font-extrabold text-indigo-600 block">{p.limit} Pupils limit</span>
                       <span className="text-slate-500 font-bold text-[10px] block mt-0.5">{p.price} / monthly</span>
                     </div>
                   </div>
@@ -274,25 +274,25 @@ const EditTenantModal = ({ school, onClose, onSuccess }) => {
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Custom Student Registration Cap</label>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Custom Student Registration Cap</label>
                 <input 
                   type="number" 
                   value={editMaxStudents}
                   onChange={(e) => setEditMaxStudents(e.target.value)}
                   required
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-slate-800 bg-slate-950 text-white text-xs focus:outline-none focus:border-indigo-600 transition-all font-semibold"
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all font-semibold shadow-sm"
                 />
               </div>
             </div>
           )}
 
           {/* Edit Modal Footer Controls */}
-          <div className="flex space-x-3 pt-4 border-t border-slate-800 mt-2">
+          <div className="flex space-x-3 pt-4 border-t border-slate-200 mt-2">
             {editModalStep > 1 && (
               <button 
                 type="button"
                 onClick={() => setEditModalStep(prev => prev - 1)}
-                className="px-4 py-2.5 text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-700 rounded-lg transition-all flex items-center gap-1.5"
+                className="px-4 py-2.5 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-300 rounded-lg transition-all flex items-center gap-1.5 shadow-sm"
               >
                 <ChevronLeft className="w-3.5 h-3.5" /> Back
               </button>
@@ -301,7 +301,7 @@ const EditTenantModal = ({ school, onClose, onSuccess }) => {
             <button 
               type="button"
               onClick={onClose}
-              className="flex-1 py-2.5 text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-700 rounded-lg transition-all"
+              className="flex-1 py-2.5 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-300 rounded-lg transition-all shadow-sm"
             >
               Cancel
             </button>
@@ -309,7 +309,7 @@ const EditTenantModal = ({ school, onClose, onSuccess }) => {
             <button 
               type="submit"
               disabled={submitLoading || uploadingLogo}
-              className="flex-1 py-2.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 rounded-lg transition-all shadow-md flex items-center justify-center gap-1.5"
+              className="flex-1 py-2.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 rounded-lg transition-all shadow-md flex items-center justify-center gap-1.5"
             >
               {submitLoading ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
