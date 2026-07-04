@@ -1,3 +1,4 @@
+const logger = require('./utils/logger');
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -36,7 +37,7 @@ app.use(express.urlencoded({ extended: true }));
 // Log requests in development
 if (process.env.NODE_ENV === 'development') {
   app.use((req, res, next) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url} - Host: ${req.headers.host}`);
+    logger.info(`[${new Date().toISOString()}] ${req.method} ${req.url} - Host: ${req.headers.host}`);
     next();
   });
 }

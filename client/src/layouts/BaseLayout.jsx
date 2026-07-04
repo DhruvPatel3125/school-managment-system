@@ -21,6 +21,7 @@ import {
   FileText,
   HelpCircle
 } from 'lucide-react';
+import logo from '../assets/logo.svg';
 
 const BaseLayout = () => {
   const { tenant } = useTenantTheme();
@@ -90,21 +91,25 @@ const BaseLayout = () => {
         {/* Brand Header */}
         <div className="p-5 border-b border-slate-100 flex items-center gap-3">
           {tenant?.logoUrl ? (
-            <img src={tenant.logoUrl} alt="Logo" className="w-10 h-10 rounded-xl object-cover shadow-md shadow-blue-500/25 shrink-0 border border-slate-100" />
+            <>
+              <img src={tenant.logoUrl} alt="Logo" className="w-10 h-10 rounded-xl object-cover shadow-md shadow-blue-500/25 shrink-0 border border-slate-100" />
+              <div className="min-w-0 text-left">
+                <h2 className="font-black text-[14px] text-slate-900 tracking-tight leading-tight truncate">
+                  {tenant?.schoolName}
+                </h2>
+                <span className="text-[10px] text-blue-600 font-bold uppercase tracking-wider block mt-0.5">
+                  {user?.role === 'student' ? 'Student Portal' : user?.role === 'teacher' ? 'Teacher Portal' : 'Admin Portal'}
+                </span>
+              </div>
+            </>
           ) : (
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-violet-600 flex items-center justify-center text-white shadow-md shadow-blue-500/25 shrink-0">
-              <School className="w-5 h-5 text-white" />
+            <div className="flex flex-col items-start gap-1">
+              <img src={logo} alt="EduCore Logo" className="h-8 object-contain shrink-0" />
+              <span className="text-[10px] text-blue-600 font-bold uppercase tracking-wider block">
+                {user?.role === 'student' ? 'Student Portal' : user?.role === 'teacher' ? 'Teacher Portal' : 'Admin Portal'}
+              </span>
             </div>
           )}
-          
-          <div className="min-w-0 text-left">
-            <h2 className="font-black text-[14px] text-slate-900 tracking-tight leading-tight truncate">
-              {tenant?.schoolName || 'EduCore'}
-            </h2>
-            <span className="text-[10px] text-blue-600 font-bold uppercase tracking-wider block mt-0.5">
-              {user?.role === 'student' ? 'Student Portal' : user?.role === 'teacher' ? 'Teacher Portal' : 'Admin Portal'}
-            </span>
-          </div>
         </div>
 
         {/* Navigation */}

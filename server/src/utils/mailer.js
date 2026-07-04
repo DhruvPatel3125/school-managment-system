@@ -1,3 +1,4 @@
+const logger = require('./logger');
 const nodemailer = require('nodemailer');
 
 // 1. Generate a secure random temporary password (10 characters: letters, numbers, symbols)
@@ -32,7 +33,7 @@ const createTransporter = async () => {
   const pass = process.env.SMTP_PASS;
 
   if (host && user && pass) {
-    console.log(`✉️ Mailer configured using SMTP: ${host}:${port} (${user})`);
+    logger.info(`✉️ Mailer configured using SMTP: ${host}:${port} (${user})`);
     return nodemailer.createTransport({
       host,
       port,
@@ -45,10 +46,10 @@ const createTransporter = async () => {
   }
 
   // Fallback: Create Ethereal test account dynamically for local dev testing
-  console.log('✉️ No SMTP credentials specified in .env. Attempting Ethereal test mail fallback...');
+  logger.info('✉️ No SMTP credentials specified in .env. Attempting Ethereal test mail fallback...');
   try {
     const testAccount = await nodemailer.createTestAccount();
-    console.log(`✉️ Generated Ethereal Test Account: User: ${testAccount.user}, Pass: ${testAccount.pass}`);
+    logger.info(`✉️ Generated Ethereal Test Account: User: ${testAccount.user}, Pass: ${testAccount.pass}`);
     return nodemailer.createTransport({
       host: 'smtp.ethereal.email',
       port: 587,
@@ -59,15 +60,15 @@ const createTransporter = async () => {
       }
     });
   } catch (err) {
-    console.error('❌ Failed to establish Ethereal test email client:', err);
+    logger.error('❌ Failed to establish Ethereal test email client:', err);
     // Return dummy transporter that logs to console
     return {
       sendMail: async (mailOptions) => {
-        console.log('=== DUMMY MAIL OUTBOX ===');
-        console.log(`To: ${mailOptions.to}`);
-        console.log(`Subject: ${mailOptions.subject}`);
-        console.log(`Body:\n${mailOptions.text}`);
-        console.log('=========================');
+        logger.info('=== DUMMY MAIL OUTBOX ===');
+        logger.info(`To: ${mailOptions.to}`);
+        logger.info(`Subject: ${mailOptions.subject}`);
+        logger.info(`Body:\n${mailOptions.text}`);
+        logger.info('=========================');
         return { messageId: 'dummy-id', previewUrl: 'Console Output' };
       }
     };
@@ -91,17 +92,17 @@ const sendEmail = async ({ to, subject, text, html }) => {
       html
     });
 
-    console.log(`✉️ Email successfully dispatched to ${to}. Message ID: ${info.messageId}`);
+    logger.info(`✉️ Email successfully dispatched to ${to}. Message ID: ${info.messageId}`);
     
     // Log Ethereal preview link if testing
     const previewUrl = nodemailer.getTestMessageUrl(info);
     if (previewUrl) {
-      console.log(`✉️ Preview Ethereal email at: ${previewUrl}`);
+      logger.info(`✉️ Preview Ethereal email at: ${previewUrl}`);
     }
     
     return info;
   } catch (err) {
-    console.error(`❌ Mailer failed to send email to ${to}:`, err.stack || err);
+    logger.error(`❌ Mailer failed to send email to ${to}:`, err.stack || err);
     throw err;
   }
 };

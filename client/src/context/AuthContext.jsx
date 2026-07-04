@@ -1,6 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
+const API_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5001`;
+
+
 const AuthContext = createContext(null);
 
 // Configure baseline Axios requests to allow cookies (credentials)
@@ -29,7 +32,7 @@ export const AuthProvider = ({ children }) => {
     const requestInterceptor = axios.interceptors.request.use(
       (config) => {
         // Rewrite localhost:5001 to the current hostname:5001 to prevent CORS/subdomain issues
-        if (config.url && config.url.includes('localhost:5001')) {
+        if (config.url && config.url.includes('localhost:5001') && !import.meta.env.VITE_API_URL) {
           config.url = config.url.replace('localhost:5001', `${window.location.hostname}:5001`);
         }
 
@@ -83,29 +86,25 @@ export const AuthProvider = ({ children }) => {
             isTokenRefreshing = true;
             try {
               console.log('🔄 Access token expired. Attempting token rotation...');
-              const storedRefreshToken = localStorage.getItem('refreshToken');
-              const res = await axios.post(`http://${window.location.hostname}:5001/api/v1/auth/refresh`, {
-                refreshToken: storedRefreshToken
-              });
+              const res = await axios.post(`${API_URL}/api/v1/auth/refresh`, {});
               const newToken = res.data.accessToken;
-              const newRefreshToken = res.data.refreshToken;
               
               setAccessToken(newToken);
               localStorage.setItem('accessToken', newToken);
-              if (newRefreshToken) {
-                localStorage.setItem('refreshToken', newRefreshToken);
-              }
               
               isTokenRefreshing = false;
               onTokenRefreshed(newToken);
             } catch (refreshErr) {
-              console.warn('❌ Session refresh failed. Logging out user.');
+              console.warn('❌ Session refresh failed.');
               isTokenRefreshing = false;
-              setUser(null);
-              setAccessToken(null);
-              localStorage.removeItem('user');
-              localStorage.removeItem('accessToken');
-              localStorage.removeItem('refreshToken');
+              // Only log out the user if the server explicitly rejected the refresh token (401)
+              if (refreshErr.response?.status === 401) {
+                console.warn('Refresh token invalid. Logging out.');
+                setUser(null);
+                setAccessToken(null);
+                localStorage.removeItem('user');
+                localStorage.removeItem('accessToken');
+              }
               return Promise.reject(refreshErr);
             }
           }
@@ -137,7 +136,7 @@ export const AuthProvider = ({ children }) => {
         // Restore from localStorage first
         const storedUser = localStorage.getItem('user');
         const storedToken = localStorage.getItem('accessToken');
-        const storedRefreshToken = localStorage.getItem('refreshToken');
+        
 
         if (storedUser && storedToken) {
           setUser(JSON.parse(storedUser));
@@ -148,62 +147,41 @@ export const AuthProvider = ({ children }) => {
         const activeToken = storedToken;
         if (activeToken) {
           try {
-            const meRes = await axios.get(`http://${window.location.hostname}:5001/api/v1/auth/me`, {
+            const meRes = await axios.get(`${API_URL}/api/v1/auth/me`, {
               headers: { Authorization: `Bearer ${activeToken}` }
             });
             setUser(meRes.data.user);
             localStorage.setItem('user', JSON.stringify(meRes.data.user));
           } catch (meErr) {
-            // If token invalid/expired, try refresh
-            if (storedRefreshToken) {
-              console.log('🔄 Session profile verify failed. Attempting refresh token...');
-              const res = await axios.post(`http://${window.location.hostname}:5001/api/v1/auth/refresh`, {
-                refreshToken: storedRefreshToken
-              });
-              const newToken = res.data.accessToken;
-              const newRefreshToken = res.data.refreshToken;
-              
-              setAccessToken(newToken);
-              localStorage.setItem('accessToken', newToken);
-              if (newRefreshToken) {
-                localStorage.setItem('refreshToken', newRefreshToken);
-              }
-              
-              const meRes = await axios.get(`http://${window.location.hostname}:5001/api/v1/auth/me`, {
-                headers: { Authorization: `Bearer ${newToken}` }
-              });
-              setUser(meRes.data.user);
-              localStorage.setItem('user', JSON.stringify(meRes.data.user));
-            } else {
-              throw meErr;
-            }
+            // The interceptor automatically handles 401 token refreshes.
+            // If we reach here, either the refresh failed, or it's a network/server error.
+            console.log('🔄 Session profile verify failed:', meErr.message);
+            throw meErr; // Let the outer catch handle it
           }
-        } else if (storedRefreshToken) {
-          // No active access token but we have refresh token
-          const res = await axios.post(`http://${window.location.hostname}:5001/api/v1/auth/refresh`, {
-            refreshToken: storedRefreshToken
-          });
+        } else {
+          // No active access token but we might have a refresh token in cookie
+          const res = await axios.post(`${API_URL}/api/v1/auth/refresh`, {});
           const newToken = res.data.accessToken;
-          const newRefreshToken = res.data.refreshToken;
           
           setAccessToken(newToken);
           localStorage.setItem('accessToken', newToken);
-          if (newRefreshToken) {
-            localStorage.setItem('refreshToken', newRefreshToken);
-          }
           
-          const meRes = await axios.get(`http://${window.location.hostname}:5001/api/v1/auth/me`, {
+          const meRes = await axios.get(`${API_URL}/api/v1/auth/me`, {
             headers: { Authorization: `Bearer ${newToken}` }
           });
           setUser(meRes.data.user);
           localStorage.setItem('user', JSON.stringify(meRes.data.user));
         }
       } catch (err) {
-        console.log('No active session found on initialization (guest access).');
-        // Clear stale local storage
-        localStorage.removeItem('user');
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
+        console.log('Auth initialization error:', err?.message);
+        // Only clear the session if the server explicitly tells us the session is invalid (401)
+        if (err.response?.status === 401) {
+          console.log('No active session found (guest access).');
+          localStorage.removeItem('user');
+          localStorage.removeItem('accessToken');
+        } else {
+          console.log('Network/Server error during auth init. Preserving session state for retry.');
+        }
       } finally {
         setLoading(false);
       }
@@ -218,18 +196,17 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       setLoading(true);
 
-      const res = await axios.post(`http://${window.location.hostname}:5001/api/v1/auth/login`, 
+      const res = await axios.post(`${API_URL}/api/v1/auth/login`, 
         { email, password },
         { headers: { 'x-tenant-subdomain': subdomainScope } }
       );
 
-      const { accessToken: token, refreshToken: rToken, user: userData } = res.data;
+      const { accessToken: token, user: userData } = res.data;
       setAccessToken(token);
       setUser(userData);
 
       // Persist in localStorage
       localStorage.setItem('accessToken', token);
-      localStorage.setItem('refreshToken', rToken);
       localStorage.setItem('user', JSON.stringify(userData));
 
       return userData;
@@ -245,10 +222,7 @@ export const AuthProvider = ({ children }) => {
   // Logout handler
   const logout = async () => {
     try {
-      const storedRefreshToken = localStorage.getItem('refreshToken');
-      await axios.post(`http://${window.location.hostname}:5001/api/v1/auth/logout`, {
-        refreshToken: storedRefreshToken
-      });
+      await axios.post(`${API_URL}/api/v1/auth/logout`, {});
     } catch (err) {
       console.error('Logout error on server:', err);
     } finally {
@@ -257,7 +231,6 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       localStorage.removeItem('user');
       localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
     }
   };
 

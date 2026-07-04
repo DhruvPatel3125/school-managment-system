@@ -6,6 +6,7 @@ import {
   GraduationCap, Eye, EyeOff, ArrowRight, Shield,
   CheckCircle, Info, Mail, Lock, Sparkles
 } from 'lucide-react';
+import logo from '../assets/logo.svg';
 
 const Login = () => {
   const { login, error: authError } = useAuth();
@@ -60,24 +61,25 @@ const Login = () => {
         <div className="relative z-10 flex flex-col h-full p-12">
           {/* Logo / Brand */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg">
-              {tenant?.logoUrl && !logoError ? (
-                <img
-                  src={tenant.logoUrl}
-                  alt={schoolName}
-                  className="w-8 h-8 rounded-lg object-cover"
-                  onError={() => setLogoError(true)}
-                />
-              ) : (
-                <GraduationCap className="w-6 h-6 text-white" />
-              )}
-            </div>
-            <div>
-              <span className="text-white font-black text-lg tracking-tight block leading-none">
-                {tenant ? schoolName : <span>Edu<span className="text-blue-200">Core</span></span>}
-              </span>
-              {!tenant && <span className="text-blue-200 text-[10px] font-semibold uppercase tracking-widest">School ERP Platform</span>}
-            </div>
+            {tenant?.logoUrl && !logoError ? (
+              <>
+                <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg">
+                  <img
+                    src={tenant.logoUrl}
+                    alt={schoolName}
+                    className="w-8 h-8 rounded-lg object-cover"
+                    onError={() => setLogoError(true)}
+                  />
+                </div>
+                <div>
+                  <span className="text-white font-black text-lg tracking-tight block leading-none">
+                    {schoolName}
+                  </span>
+                </div>
+              </>
+            ) : (
+              <img src={logo} alt="EduCore Logo" className="h-10 brightness-0 invert" />
+            )}
           </div>
 
           {/* Central hero text */}

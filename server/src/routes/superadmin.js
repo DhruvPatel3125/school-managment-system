@@ -9,6 +9,8 @@ const Staff = require('../models/staff');
 const ActivityLog = require('../models/activityLog');
 const auth = require('../middlewares/auth');
 const checkPermission = require('../middlewares/rbac');
+const crypto = require('crypto');
+const { body, validationResult } = require('express-validator');
 
 // GET /api/v1/superadmin/metrics - Retrieve platform-wide aggregate counts
 router.get(
@@ -58,8 +60,20 @@ router.post(
   '/tenants',
   auth,
   checkPermission('manage:tenants'),
+  [
+    body('schoolName').notEmpty().withMessage('School name is required'),
+    body('subdomain').matches(/^[a-z0-9-]+$/).withMessage('Subdomain must be lowercase alphanumeric and hyphens only'),
+    body('adminName').notEmpty().withMessage('Admin name is required'),
+    body('adminEmail').isEmail().withMessage('Valid admin email is required'),
+    body('adminPassword').isLength({ min: 6 }).withMessage('Admin password must be at least 6 characters long')
+  ],
   async (req, res, next) => {
     try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, error: errors.array()[0].msg });
+      }
+
       const {
         schoolName,
         subdomain,
@@ -75,14 +89,6 @@ router.post(
         razorpay_payment_id,
         razorpay_signature
       } = req.body;
-
-      // Validate required inputs
-      if (!schoolName || !subdomain || !adminName || !adminEmail || !adminPassword) {
-        return res.status(400).json({
-          success: false,
-          error: 'Please fill in all required fields (schoolName, subdomain, adminName, adminEmail, adminPassword).'
-        });
-      }
 
       // Verify Payment if a paid plan is selected
       if (plan === 'starter' || plan === 'professional') {

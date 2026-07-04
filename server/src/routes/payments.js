@@ -4,7 +4,13 @@ const Razorpay = require('razorpay');
 const auth = require('../middlewares/auth');
 const checkPermission = require('../middlewares/rbac');
 const crypto = require('crypto');
+const rateLimit = require('express-rate-limit');
 
+const paymentLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20, // limit each IP to 20 payment requests per windowMs
+  message: { success: false, error: 'Too many payment requests, please try again later.' }
+});
 // Initialize Razorpay instance
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_placeholder',
@@ -16,6 +22,7 @@ const razorpay = new Razorpay({
 router.post(
   '/create-razorpay-order',
   auth,
+  paymentLimiter,
   checkPermission('manage:tenants'),
   async (req, res, next) => {
     try {

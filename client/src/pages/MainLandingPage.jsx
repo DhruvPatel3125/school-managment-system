@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5001`;
+
 import { useNavigate } from 'react-router-dom';
 import {
   School, Shield, ArrowRight, Layers, Sparkles, CheckCircle,
@@ -8,6 +11,7 @@ import {
   CreditCard, Bell, Calendar, Lock, Award, TrendingUp,
   Clock, Check, Play, Phone, Mail, MapPin, ChevronDown
 } from 'lucide-react';
+import logo from '../assets/logo.svg';
 
 /* ── Inline social SVG icons (lucide-react doesn't export these) ── */
 const FacebookIcon = () => (
@@ -80,7 +84,7 @@ const MainLandingPage = () => {
   }, []);
 
   useEffect(() => {
-    axios.get('http://localhost:5001/api/v1/tenants')
+    axios.get(`${API_URL}/api/v1/tenants`)
       .then(r => setSchools(r.data.data || []))
       .catch(() => {})
       .finally(() => setLoadingSchools(false));
@@ -167,11 +171,8 @@ const MainLandingPage = () => {
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-100' : 'bg-transparent'}`}>
         <div className="max-w-7xl mx-auto px-6 md:px-10 h-16 flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-violet-600 flex items-center justify-center shadow-md shadow-blue-500/25">
-              <GraduationCap className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-[17px] font-black tracking-tight text-slate-900">Edu<span className="text-blue-600">Core</span></span>
+          <div className="flex items-center">
+            <img src={logo} alt="EduCore Logo" className="h-15" />
           </div>
 
           {/* Desktop Nav */}

@@ -1,9 +1,18 @@
+const logger = require('../utils/logger');
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const Tenant = require('../models/tenant');
 const auth = require('../middlewares/auth');
+const { body, validationResult } = require('express-validator');
+const rateLimit = require('express-rate-limit');
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { success: false, error: 'Too many requests from this IP, please try again after 15 minutes.' }
+});
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_jwt_secret_key_1234567890';
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'dev_jwt_refresh_secret_key_1234567890';
@@ -33,14 +42,17 @@ const generateTokens = (user) => {
 };
 
 // 1. POST /login - Authenticate user credentials and return tokens
-router.post('/login', async (req, res, next) => {
+router.post('/login', authLimiter, [
+  body('email').isEmail().withMessage('Valid email is required'),
+  body('password').notEmpty().withMessage('Password is required')
+], async (req, res, next) => {
   try {
-    const { email, password } = req.body;
-
-    // Validate request inputs
-    if (!email || !password) {
-      return res.status(400).json({ success: false, error: 'Email and password are required.' });
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ success: false, error: errors.array()[0].msg });
     }
+    
+    const { email, password } = req.body;
 
     // Find the user by email and populate their assigned role and permissions
     const user = await User.findOne({ email: email.toLowerCase() }).populate({

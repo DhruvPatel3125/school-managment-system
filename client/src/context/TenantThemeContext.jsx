@@ -1,6 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
+const API_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5001`;
+
+
 const TenantThemeContext = createContext(null);
 
 export const TenantThemeProvider = ({ children }) => {
@@ -45,7 +48,7 @@ export const TenantThemeProvider = ({ children }) => {
 
         // 2. Fetch tenant profile from backend
         // We call the server running on port 5001 (standard dev port)
-        const response = await axios.get(`http://${window.location.hostname}:5001/api/v1/tenants/current`, {
+        const response = await axios.get(`${API_URL}/api/v1/tenants/current`, {
           headers: {
             'x-tenant-subdomain': subdomain
           }

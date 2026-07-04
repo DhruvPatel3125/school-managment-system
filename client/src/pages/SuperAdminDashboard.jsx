@@ -2,11 +2,17 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { 
+  Building2, 
+  Users, 
+  GraduationCap, 
   Shield, 
-  Plus, 
   LogOut, 
+  Plus, 
+  RefreshCw, 
+  Activity,
   Sparkles
 } from 'lucide-react';
+import logo from '../assets/logo.svg';
 
 import DashboardMetrics from './superadmin/components/DashboardMetrics';
 import TenantTable from './superadmin/components/TenantTable';
@@ -122,23 +128,15 @@ const SuperAdminDashboard = () => {
 
       {/* Top Navbar */}
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200 h-16 flex items-center justify-between px-6 shadow-sm">
-        <div className="flex items-center space-x-2">
-          <div className="p-2 bg-indigo-50 rounded-xl border border-indigo-100">
-            <Shield className="w-5 h-5 text-indigo-600" />
-          </div>
+        <div className="flex items-center space-x-3 ml-5">
+          <img src={logo} alt="EduCore Logo" className="h-12" />
           <div>
-            <h1 className="text-sm font-extrabold tracking-tight leading-none text-slate-900 flex items-center gap-1.5">
-              EduCore <span className="px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700 text-[10px] uppercase font-bold tracking-wider border border-indigo-200">SuperAdmin</span>
-            </h1>
-            <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider mt-0.5 block">SaaS Platform Console</span>
+    
           </div>
         </div>
 
         <div className="flex items-center space-x-4">
-          <div className="hidden sm:flex items-center space-x-2 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-lg text-xs">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span className="text-slate-500">Status: <strong className="text-slate-800">Session Secure</strong></span>
-          </div>
+        
           <button 
             onClick={logout}
             className="px-3.5 py-2 text-xs font-semibold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg active:scale-95 transition-all flex items-center gap-1.5"
