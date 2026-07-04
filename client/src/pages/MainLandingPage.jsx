@@ -585,6 +585,84 @@ const MainLandingPage = () => {
         </div>
       </section>
 
+      {/* ══════════════════ CONTACT US ══════════════════ */}
+      <section id="contact" className="py-24 bg-white border-t border-slate-100">
+        <div className="max-w-7xl mx-auto px-6 md:px-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+            {/* Left Info */}
+            <div>
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-xs font-bold uppercase tracking-widest mb-5">
+                <Mail className="w-3.5 h-3.5" /> Get in Touch
+              </div>
+              <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight mb-6">
+                Have a Question? <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-violet-600">Let's Talk.</span>
+              </h2>
+              <p className="text-slate-500 text-base leading-relaxed mb-8 max-w-md">
+                Whether you need a custom enterprise plan or just want a personalized demo, our team is here to help you digitally transform your school.
+              </p>
+              
+              <div className="space-y-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
+                    <Mail className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-800 text-sm mb-1">Email Us</h4>
+                    <p className="text-slate-500 text-sm">dhruvjpatel5@gmail.com</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center flex-shrink-0">
+                    <Phone className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-800 text-sm mb-1">Call Us</h4>
+                    <p className="text-slate-500 text-sm">+91 98249 34361</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                    <MapPin className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-800 text-sm mb-1">Visit Us</h4>
+                    <p className="text-slate-500 text-sm">Surat, Gujarat, India</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Form */}
+            <div className="bg-white border border-slate-100 shadow-xl shadow-slate-200/40 rounded-3xl p-8 md:p-10">
+              <h3 className="text-2xl font-black text-slate-800 mb-6">Send a Message</h3>
+              <form className="space-y-5" onSubmit={(e) => { e.preventDefault(); alert("Thanks for contacting us! We'll get back to you soon."); }}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">First Name</label>
+                    <input type="text" required className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 text-sm focus:outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/15 transition-all" placeholder="John" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Last Name</label>
+                    <input type="text" required className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 text-sm focus:outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/15 transition-all" placeholder="Doe" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Email Address</label>
+                  <input type="email" required className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 text-sm focus:outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/15 transition-all" placeholder="you@school.com" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Message</label>
+                  <textarea required rows="4" className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 text-sm focus:outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/15 transition-all resize-none" placeholder="How can we help your school?"></textarea>
+                </div>
+                <button type="submit" className="w-full py-3.5 mt-2 rounded-xl bg-slate-900 hover:bg-blue-600 text-white font-bold text-sm shadow-md transition-colors">
+                  Send Message
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ══════════════════ CTA BANNER ══════════════════ */}
       <section className="py-24 bg-gradient-to-br from-blue-600 via-blue-700 to-violet-700 relative overflow-hidden">
         <div className="absolute -top-24 -right-24 w-96 h-96 bg-white/5 rounded-full" />
@@ -650,9 +728,11 @@ const MainLandingPage = () => {
             <div>
               <h4 className="font-bold text-white text-sm mb-4">Company</h4>
               <ul className="space-y-2.5">
-                {['About Us', 'Blog', 'Careers', 'Privacy Policy', 'Terms of Service'].map(l => (
-                  <li key={l}><a href="#" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">{l}</a></li>
-                ))}
+                <li><a href="#" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">About Us</a></li>
+                <li><a href="#" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">Blog</a></li>
+                <li><a href="#" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">Careers</a></li>
+                <li><a onClick={() => navigate('/privacy-policy')} className="text-sm text-slate-500 hover:text-blue-400 transition-colors cursor-pointer">Privacy Policy</a></li>
+                <li><a onClick={() => navigate('/terms-of-service')} className="text-sm text-slate-500 hover:text-blue-400 transition-colors cursor-pointer">Terms of Service</a></li>
               </ul>
             </div>
 
@@ -682,8 +762,8 @@ const MainLandingPage = () => {
           <div className="pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-600">
             <span>© {new Date().getFullYear()} EduCore Multi-Tenant ERP. All rights reserved.</span>
             <div className="flex items-center gap-5">
-              <a href="#" className="hover:text-slate-400 transition-colors">Privacy</a>
-              <a href="#" className="hover:text-slate-400 transition-colors">Terms</a>
+              <a onClick={() => navigate('/privacy-policy')} className="hover:text-slate-400 transition-colors cursor-pointer">Privacy</a>
+              <a onClick={() => navigate('/terms-of-service')} className="hover:text-slate-400 transition-colors cursor-pointer">Terms</a>
               <a href="#" className="hover:text-slate-400 transition-colors">Cookies</a>
             </div>
           </div>

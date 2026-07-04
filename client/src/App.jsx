@@ -12,6 +12,8 @@ import Classes from './pages/Classes';
 import Students from './pages/Students';
 import Staff from './pages/Staff';
 import NotFound from './pages/NotFound';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
 
 // Wrapper that displays the dynamic brand tenant resolving view
 const AppContent = () => {
@@ -56,6 +58,10 @@ const AppContent = () => {
         {/* Public Login Route */}
         <Route path="/login" element={<Login />} />
 
+        {/* Legal Routes */}
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms-of-service" element={<TermsOfService />} />
+
         {/* Protected Global Super Admin Dashboard */}
         <Route 
           path="/super-admin" 
@@ -77,6 +83,10 @@ const AppContent = () => {
     <Routes>
       {/* Public Login Route (Gets custom theme variables dynamically) */}
       <Route path="/login" element={<Login />} />
+
+      {/* Legal Routes */}
+      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+      <Route path="/terms-of-service" element={<TermsOfService />} />
 
       {/* Protected School Tenant Routes */}
       <Route 
