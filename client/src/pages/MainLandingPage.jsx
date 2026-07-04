@@ -660,13 +660,13 @@ const MainLandingPage = () => {
               <h4 className="font-bold text-white text-sm mb-4">Contact</h4>
               <ul className="space-y-3">
                 <li className="flex items-center gap-2.5 text-sm text-slate-500">
-                  <Mail className="w-4 h-4 text-blue-400 flex-shrink-0" /> hello@educore.app
+                  <Mail className="w-4 h-4 text-blue-400 flex-shrink-0" /> dhruvjpatel5@gmail.com
                 </li>
                 <li className="flex items-center gap-2.5 text-sm text-slate-500">
-                  <Phone className="w-4 h-4 text-blue-400 flex-shrink-0" /> +91 98765 43210
+                  <Phone className="w-4 h-4 text-blue-400 flex-shrink-0" /> +91 98249 34361
                 </li>
                 <li className="flex items-start gap-2.5 text-sm text-slate-500">
-                  <MapPin className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" /> Ahmedabad, Gujarat, India
+                  <MapPin className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" /> Surat, Gujarat, India
                 </li>
               </ul>
               <button
