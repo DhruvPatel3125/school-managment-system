@@ -292,7 +292,7 @@ router.post('/', isAuthorizedStaff, async (req, res, next) => {
     if (currentCount >= maxStudentsLimit) {
       return res.status(400).json({ 
         success: false, 
-        error: `Admission limit reached. Under your school's plan (${(req.tenant.plan || 'free_trial').toUpperCase()}), you can admit a maximum of ${maxStudentsLimit} students. Please contact the platform Admin to upgrade your subscription.` 
+        error: `Admission limit reached. Under your school's plan (${(req.tenant.plan || 'starter').toUpperCase()}), you can admit a maximum of ${maxStudentsLimit} students. Please contact the platform Admin to upgrade your subscription.` 
       });
     }
 

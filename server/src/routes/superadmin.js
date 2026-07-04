@@ -70,7 +70,10 @@ router.post(
         adminEmail,
         adminPassword,
         plan,
-        maxStudents
+        maxStudents,
+        razorpay_order_id,
+        razorpay_payment_id,
+        razorpay_signature
       } = req.body;
 
       // Validate required inputs
@@ -79,6 +82,30 @@ router.post(
           success: false,
           error: 'Please fill in all required fields (schoolName, subdomain, adminName, adminEmail, adminPassword).'
         });
+      }
+
+      // Verify Payment if a paid plan is selected
+      if (plan === 'starter' || plan === 'professional') {
+        if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+          return res.status(402).json({
+            success: false,
+            error: 'Payment details are missing. Please complete the payment to subscribe to this plan.'
+          });
+        }
+
+        const crypto = require('crypto');
+        const secret = process.env.RAZORPAY_KEY_SECRET || 'secret_placeholder';
+        const generated_signature = crypto
+          .createHmac('sha256', secret)
+          .update(razorpay_order_id + '|' + razorpay_payment_id)
+          .digest('hex');
+
+        if (generated_signature !== razorpay_signature) {
+          return res.status(400).json({
+            success: false,
+            error: 'Payment verification failed. Invalid digital signature.'
+          });
+        }
       }
 
       // Check if subdomain is already registered
@@ -116,7 +143,7 @@ router.post(
         primaryColor: primaryColor || '#1e3a8a',
         secondaryColor: secondaryColor || '#d97706',
         status: 'active',
-        plan: plan || 'free_trial',
+        plan: plan || 'starter',
         maxStudents: maxStudents !== undefined ? maxStudents : 10
       });
 

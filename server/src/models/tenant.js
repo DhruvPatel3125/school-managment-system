@@ -32,12 +32,12 @@ const TenantSchema = new mongoose.Schema({
   },
   plan: {
     type: String,
-    enum: ['free_trial', 'standard', 'enterprise'],
-    default: 'free_trial'
+    enum: ['starter', 'professional', 'enterprise'],
+    default: 'starter'
   },
   maxStudents: {
     type: Number,
-    default: 10 // Free trial limit
+    default: 200 // Starter limit
   }
 }, {
   timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } // Maps to frontend snake_case standard

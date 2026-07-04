@@ -57,8 +57,8 @@ const SuperAdminDashboard = () => {
   const [adminName, setAdminName] = useState('');
   const [adminEmail, setAdminEmail] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
-  const [plan, setPlan] = useState('free_trial');
-  const [maxStudents, setMaxStudents] = useState(10);
+  const [plan, setPlan] = useState('starter');
+  const [maxStudents, setMaxStudents] = useState(200);
 
   // Editing stepped modal navigation (1: Profile, 2: Plan)
   const [showEditModal, setShowEditModal] = useState(false);
@@ -69,8 +69,8 @@ const SuperAdminDashboard = () => {
   const [editPrimaryColor, setEditPrimaryColor] = useState('#4f46e5');
   const [editSecondaryColor, setEditSecondaryColor] = useState('#06b6d4');
   const [editStatus, setEditStatus] = useState('active');
-  const [editPlan, setEditPlan] = useState('free_trial');
-  const [editMaxStudents, setEditMaxStudents] = useState(10);
+  const [editPlan, setEditPlan] = useState('starter');
+  const [editMaxStudents, setEditMaxStudents] = useState(200);
 
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -79,9 +79,9 @@ const SuperAdminDashboard = () => {
 
   // Plans details configuration
   const plansConfig = [
-    { id: 'free_trial', name: 'Free Trial', limit: 10, price: '$0', desc: 'Sandbox sandbox testing tier.' },
-    { id: 'standard', name: 'Standard Plan', limit: 250, price: '$149', desc: 'Ideal for medium growth schools.' },
-    { id: 'enterprise', name: 'Enterprise VIP', limit: 10000, price: '$499', desc: 'Full custom branding & scale.' }
+    { id: 'starter', name: 'Starter', limit: 200, price: '₹1,999/mo', desc: 'Perfect for small schools just getting started.' },
+    { id: 'professional', name: 'Professional', limit: 1000, price: '₹4,499/mo', desc: 'The complete package for growing institutions.' },
+    { id: 'enterprise', name: 'Enterprise', limit: 10000, price: 'Custom', desc: 'For large institutions & school chains.' }
   ];
 
   // Fetch tenants
@@ -142,8 +142,8 @@ const SuperAdminDashboard = () => {
   }, []);
 
   const handlePlanChange = (selectedPlan, isEdit = false) => {
-    let limit = 10;
-    if (selectedPlan === 'standard') limit = 250;
+    let limit = 200;
+    if (selectedPlan === 'professional') limit = 1000;
     if (selectedPlan === 'enterprise') limit = 10000;
     
     if (isEdit) {
@@ -198,49 +198,106 @@ const SuperAdminDashboard = () => {
     setSubmitLoading(true);
 
     try {
-      const payload = {
-        schoolName,
-        subdomain,
-        logoUrl,
-        primaryColor,
-        secondaryColor,
-        adminName,
-        adminEmail,
-        adminPassword,
-        plan,
-        maxStudents: Number(maxStudents)
+      if (plan === 'enterprise') {
+        setSubmitError('Enterprise plans require custom setup. Please contact sales.');
+        setSubmitLoading(false);
+        return;
+      }
+
+      // Step 1: Create Razorpay Order
+      const orderRes = await axios.post('http://localhost:5001/api/v1/payments/create-razorpay-order', { plan }, {
+        withCredentials: true
+      });
+      
+      const { order_id, amount, currency } = orderRes.data.data;
+
+      // Step 2: Initialize Razorpay Checkout
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_placeholder', // You'll need this in .env of client or just pass from backend
+        amount: amount,
+        currency: currency,
+        name: "EduCore ERP",
+        description: `${plan.charAt(0).toUpperCase() + plan.slice(1)} Subscription`,
+        image: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?q=80&w=200&h=200&fit=crop", // optional logo
+        order_id: order_id,
+        handler: async function (response) {
+          try {
+            // Payment success - Proceed to onboard tenant
+            const payload = {
+              schoolName,
+              subdomain,
+              logoUrl,
+              primaryColor,
+              secondaryColor,
+              adminName,
+              adminEmail,
+              adminPassword,
+              plan,
+              maxStudents: Number(maxStudents),
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature
+            };
+
+            await axios.post('http://localhost:5001/api/v1/superadmin/tenants', payload, {
+              withCredentials: true
+            });
+            
+            setSubmitSuccess(`Payment verified! Successfully onboarded school '${schoolName}'!`);
+            
+            // Reset form fields
+            setSchoolName('');
+            setSubdomain('');
+            setLogoUrl('');
+            setPrimaryColor('#4f46e5');
+            setSecondaryColor('#06b6d4');
+            setAdminName('');
+            setAdminEmail('');
+            setAdminPassword('');
+            setPlan('starter');
+            setMaxStudents(200);
+            setModalStep(1);
+
+            // Refresh data
+            fetchTenants();
+            fetchMetrics();
+            fetchLogs();
+
+            // Close modal after delay
+            setTimeout(() => {
+              setShowModal(false);
+              setSubmitSuccess('');
+            }, 2000);
+          } catch (tenantErr) {
+            setSubmitError(tenantErr.response?.data?.error || 'Failed to create tenant after payment.');
+          } finally {
+            setSubmitLoading(false);
+          }
+        },
+        prefill: {
+          name: adminName,
+          email: adminEmail
+        },
+        theme: {
+          color: "#4f46e5"
+        },
+        modal: {
+          ondismiss: function() {
+            setSubmitError('Payment was cancelled.');
+            setSubmitLoading(false);
+          }
+        }
       };
 
-      await axios.post('http://localhost:5001/api/v1/superadmin/tenants', payload);
-      
-      setSubmitSuccess(`Successfully onboarded school '${schoolName}'!`);
-      
-      // Reset form fields
-      setSchoolName('');
-      setSubdomain('');
-      setLogoUrl('');
-      setPrimaryColor('#4f46e5');
-      setSecondaryColor('#06b6d4');
-      setAdminName('');
-      setAdminEmail('');
-      setAdminPassword('');
-      setPlan('free_trial');
-      setMaxStudents(10);
-      setModalStep(1);
+      const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', function (response){
+        setSubmitError(`Payment failed: ${response.error.description}`);
+        setSubmitLoading(false);
+      });
+      rzp.open();
 
-      // Refresh data
-      fetchTenants();
-      fetchMetrics();
-      fetchLogs();
-
-      // Close modal after delay
-      setTimeout(() => {
-        setShowModal(false);
-        setSubmitSuccess('');
-      }, 2000);
     } catch (err) {
-      setSubmitError(err.response?.data?.error || 'Onboarding request failed.');
-    } finally {
+      setSubmitError(err.response?.data?.error || 'Failed to initiate payment.');
       setSubmitLoading(false);
     }
   };
@@ -252,7 +309,7 @@ const SuperAdminDashboard = () => {
     setEditPrimaryColor(school.primaryColor || '#4f46e5');
     setEditSecondaryColor(school.secondaryColor || '#06b6d4');
     setEditStatus(school.status || 'active');
-    setEditPlan(school.plan || 'free_trial');
+    setEditPlan(school.plan || 'starter');
     setEditMaxStudents(school.maxStudents || 10);
     setEditModalStep(1);
     setSubmitError('');
@@ -478,7 +535,7 @@ const SuperAdminDashboard = () => {
                       </td>
                       <td className="px-6 py-4">
                         <span className="inline-flex px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-indigo-400 bg-indigo-950/40 border border-indigo-500/20 rounded">
-                          {school.plan || 'free_trial'}
+                          {school.plan || 'starter'}
                         </span>
                       </td>
                       <td className="px-6 py-4">
@@ -501,7 +558,7 @@ const SuperAdminDashboard = () => {
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end space-x-2">
                           <button 
-                            onClick={() => window.open(`${window.location.protocol}//${window.location.hostname}:${window.location.port}/?tenant=${school.subdomain}`, "_blank")}
+                            onClick={() => window.open(`${window.location.protocol}//${school.subdomain}.${window.location.hostname}:${window.location.port}`, "_blank")}
                             className="p-2 bg-indigo-500/10 hover:bg-indigo-600/30 text-indigo-400 border border-indigo-500/20 rounded-lg transition-all"
                             title="Launch School Portal"
                           >
