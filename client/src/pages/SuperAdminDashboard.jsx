@@ -19,6 +19,7 @@ import TenantTable from './superadmin/components/TenantTable';
 import SystemHealthSidebar from './superadmin/components/SystemHealthSidebar';
 import OnboardTenantModal from './superadmin/components/OnboardTenantModal';
 import EditTenantModal from './superadmin/components/EditTenantModal';
+import ContactInquiries from './superadmin/components/ContactInquiries';
 
 const SuperAdminDashboard = () => {
   const { logout } = useAuth();
@@ -181,6 +182,9 @@ const SuperAdminDashboard = () => {
           openEditModal={openEditModal}
           handleDeleteTenant={handleDeleteTenant}
         />
+
+        {/* Contact Inquiries */}
+        <ContactInquiries />
 
         {/* Live System Health & Audit logs */}
         <SystemHealthSidebar 

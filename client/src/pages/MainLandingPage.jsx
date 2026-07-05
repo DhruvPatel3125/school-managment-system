@@ -76,6 +76,21 @@ const MainLandingPage = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeFaq, setActiveFaq] = useState(null);
   const [scrolled, setScrolled] = useState(false);
+  const [contactForm, setContactForm] = useState({ firstName: '', lastName: '', email: '', message: '' });
+  const [contactStatus, setContactStatus] = useState({ loading: false, success: false, error: '' });
+
+  const handleContactSubmit = async (e) => {
+    e.preventDefault();
+    setContactStatus({ loading: true, success: false, error: '' });
+    try {
+      await axios.post(`${API_URL}/api/v1/contacts`, contactForm);
+      setContactStatus({ loading: false, success: true, error: '' });
+      setContactForm({ firstName: '', lastName: '', email: '', message: '' });
+      setTimeout(() => setContactStatus(s => ({ ...s, success: false })), 5000);
+    } catch (err) {
+      setContactStatus({ loading: false, success: false, error: err.response?.data?.error || 'Failed to send message.' });
+    }
+  };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -635,27 +650,41 @@ const MainLandingPage = () => {
             {/* Right Form */}
             <div className="bg-white border border-slate-100 shadow-xl shadow-slate-200/40 rounded-3xl p-8 md:p-10">
               <h3 className="text-2xl font-black text-slate-800 mb-6">Send a Message</h3>
-              <form className="space-y-5" onSubmit={(e) => { e.preventDefault(); alert("Thanks for contacting us! We'll get back to you soon."); }}>
+              
+              {contactStatus.success && (
+                <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-700 text-sm flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                  <p>Thanks for contacting us! We'll get back to you soon.</p>
+                </div>
+              )}
+              {contactStatus.error && (
+                <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-100 text-red-700 text-sm flex items-start gap-3">
+                  <X className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                  <p>{contactStatus.error}</p>
+                </div>
+              )}
+
+              <form className="space-y-5" onSubmit={handleContactSubmit}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
                     <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">First Name</label>
-                    <input type="text" required className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 text-sm focus:outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/15 transition-all" placeholder="John" />
+                    <input type="text" required className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 text-sm focus:outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/15 transition-all" placeholder="John" value={contactForm.firstName} onChange={(e) => setContactForm({ ...contactForm, firstName: e.target.value })} />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Last Name</label>
-                    <input type="text" required className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 text-sm focus:outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/15 transition-all" placeholder="Doe" />
+                    <input type="text" required className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 text-sm focus:outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/15 transition-all" placeholder="Doe" value={contactForm.lastName} onChange={(e) => setContactForm({ ...contactForm, lastName: e.target.value })} />
                   </div>
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Email Address</label>
-                  <input type="email" required className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 text-sm focus:outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/15 transition-all" placeholder="you@school.com" />
+                  <input type="email" required className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 text-sm focus:outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/15 transition-all" placeholder="you@school.com" value={contactForm.email} onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })} />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Message</label>
-                  <textarea required rows="4" className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 text-sm focus:outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/15 transition-all resize-none" placeholder="How can we help your school?"></textarea>
+                  <textarea required rows="4" className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 text-sm focus:outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/15 transition-all resize-none" placeholder="How can we help your school?" value={contactForm.message} onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}></textarea>
                 </div>
-                <button type="submit" className="w-full py-3.5 mt-2 rounded-xl bg-slate-900 hover:bg-blue-600 text-white font-bold text-sm shadow-md transition-colors">
-                  Send Message
+                <button type="submit" disabled={contactStatus.loading} className="w-full py-3.5 mt-2 rounded-xl bg-slate-900 hover:bg-blue-600 text-white font-bold text-sm shadow-md transition-colors disabled:opacity-70 disabled:cursor-not-allowed">
+                  {contactStatus.loading ? 'Sending...' : 'Send Message'}
                 </button>
               </form>
             </div>
