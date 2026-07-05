@@ -15,6 +15,7 @@ const adminRouter = require('./routes/admin');
 const uploadRouter = require('./routes/upload');
 const paymentsRouter = require('./routes/payments');
 const contactsRouter = require('./routes/contacts');
+const announcementsRouter = require('./routes/announcements');
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
@@ -56,6 +57,7 @@ app.use('/api/v1/admin', adminRouter);
 app.use('/api/v1/upload', uploadRouter);
 app.use('/api/v1/payments', paymentsRouter);
 app.use('/api/v1/contacts', contactsRouter);
+app.use('/api/v1/announcements', announcementsRouter);
 
 // Fallback for unhandled endpoints
 app.use((req, res, next) => {

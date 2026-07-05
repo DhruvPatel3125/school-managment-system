@@ -14,6 +14,7 @@ import Staff from './pages/Staff';
 import NotFound from './pages/NotFound';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
+import Announcements from './pages/Announcements';
 
 // Wrapper that displays the dynamic brand tenant resolving view
 const AppContent = () => {
@@ -104,7 +105,7 @@ const AppContent = () => {
         <Route path="fees" element={<Home />} />
         <Route path="exams" element={<Home />} />
         <Route path="timetable" element={<Home />} />
-        <Route path="announcements" element={<Home />} />
+        <Route path="announcements" element={<Announcements />} />
         <Route path="messages" element={<Home />} />
         <Route path="documents" element={<Home />} />
         <Route 
