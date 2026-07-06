@@ -55,6 +55,52 @@ router.get(
   }
 );
 
+// POST /api/v1/superadmin/tenants/validate - Pre-validate tenant data before payment
+router.post(
+  '/tenants/validate',
+  auth,
+  checkPermission('manage:tenants'),
+  [
+    body('schoolName').notEmpty().withMessage('School name is required'),
+    body('subdomain').matches(/^[a-z0-9-]+$/).withMessage('Subdomain must be lowercase alphanumeric and hyphens only'),
+    body('adminName').notEmpty().withMessage('Admin name is required'),
+    body('adminEmail').isEmail().withMessage('Valid admin email is required'),
+    body('adminPassword').isLength({ min: 6 }).withMessage('Admin password must be at least 6 characters long')
+  ],
+  async (req, res, next) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, error: errors.array()[0].msg });
+      }
+
+      const { subdomain, adminEmail } = req.body;
+
+      // Check if subdomain is already registered
+      const existingTenant = await Tenant.findOne({ subdomain: subdomain.toLowerCase() });
+      if (existingTenant) {
+        return res.status(400).json({
+          success: false,
+          error: `Subdomain '${subdomain}' is already taken by another school.`
+        });
+      }
+
+      // Check if administrator email is already registered globally
+      const existingUser = await User.findOne({ email: adminEmail.toLowerCase() });
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          error: `Email '${adminEmail}' is already registered in the system.`
+        });
+      }
+
+      res.status(200).json({ success: true, message: 'Validation successful' });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 // POST /api/v1/superadmin/tenants - Onboard a new school tenant
 router.post(
   '/tenants',

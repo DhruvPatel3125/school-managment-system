@@ -104,6 +104,19 @@ router.post('/login', authLimiter, [
       ? user.roleId.permissions.map(p => p.name) 
       : [];
 
+    // Fetch plan info
+    let planInfo = null;
+    if (user.tenantId && user.roleId?.name !== 'super_admin') {
+      const tenant = await Tenant.findById(user.tenantId);
+      if (tenant) {
+        const PLAN_LIMITS = require('../config/plans');
+        planInfo = {
+          plan: tenant.plan || 'starter',
+          features: PLAN_LIMITS[tenant.plan || 'starter']?.features || []
+        };
+      }
+    }
+
     res.status(200).json({
       success: true,
       accessToken,
@@ -115,7 +128,8 @@ router.post('/login', authLimiter, [
         role: user.roleId?.name || null,
         permissions,
         tenantId: user.tenantId ? user.tenantId.toString() : null
-      }
+      },
+      planInfo
     });
   } catch (error) {
     next(error);
@@ -207,11 +221,27 @@ router.post('/logout', async (req, res, next) => {
 });
 
 // 4. GET /me - Retrieve current authenticated session info
-router.get('/me', auth, (req, res) => {
-  res.status(200).json({
-    success: true,
-    user: req.user
-  });
+router.get('/me', auth, async (req, res, next) => {
+  try {
+    let planInfo = null;
+    if (req.user.tenantId && req.user.role !== 'super_admin') {
+      const tenant = await Tenant.findById(req.user.tenantId);
+      if (tenant) {
+        const PLAN_LIMITS = require('../config/plans');
+        planInfo = {
+          plan: tenant.plan || 'starter',
+          features: PLAN_LIMITS[tenant.plan || 'starter']?.features || []
+        };
+      }
+    }
+    res.status(200).json({
+      success: true,
+      user: req.user,
+      planInfo
+    });
+  } catch (err) {
+    next(err);
+  }
 });
 
 module.exports = router;

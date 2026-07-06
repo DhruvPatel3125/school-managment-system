@@ -78,6 +78,26 @@ const OnboardTenantModal = ({ onClose, onSuccess }) => {
         return;
       }
 
+      // Step 1: Pre-validate tenant details before initiating payment
+      const validationPayload = {
+        schoolName,
+        subdomain,
+        adminName,
+        adminEmail,
+        adminPassword
+      };
+      
+      try {
+        await axios.post('http://localhost:5001/api/v1/superadmin/tenants/validate', validationPayload, {
+          withCredentials: true
+        });
+      } catch (validationErr) {
+        setSubmitError(validationErr.response?.data?.error || 'Validation failed.');
+        setSubmitLoading(false);
+        return;
+      }
+
+      // Step 2: Proceed with creating Razorpay order
       const orderRes = await axios.post('http://localhost:5001/api/v1/payments/create-razorpay-order', { plan }, {
         withCredentials: true
       });

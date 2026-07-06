@@ -288,8 +288,11 @@ router.post('/', isAuthorizedStaff, async (req, res, next) => {
 
     // Verify tenant plan limits
     const currentCount = await Student.countDocuments({ tenantId: req.tenantId });
-    const maxStudentsLimit = req.tenant.maxStudents || 10;
-    if (currentCount >= maxStudentsLimit) {
+    const PLAN_LIMITS = require('../config/plans');
+    const planLimits = PLAN_LIMITS[req.tenant.plan || 'starter'];
+    const maxStudentsLimit = planLimits.maxStudents;
+
+    if (maxStudentsLimit !== Infinity && currentCount >= maxStudentsLimit) {
       return res.status(400).json({ 
         success: false, 
         error: `Admission limit reached. Under your school's plan (${(req.tenant.plan || 'starter').toUpperCase()}), you can admit a maximum of ${maxStudentsLimit} students. Please contact the platform Admin to upgrade your subscription.` 

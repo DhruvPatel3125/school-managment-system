@@ -54,6 +54,28 @@ router.post('/', isSchoolAdmin, async (req, res, next) => {
       return res.status(400).json({ success: false, error: `Employee ID "${employeeId}" already exists under this school.` });
     }
 
+    const isTeacher = designation.toLowerCase().includes('teacher') || !designation.toLowerCase().includes('admin');
+    
+    // Verify tenant plan limits for teachers
+    if (isTeacher) {
+      const PLAN_LIMITS = require('../config/plans');
+      const planLimits = PLAN_LIMITS[req.tenant.plan || 'starter'];
+      const maxTeachersLimit = planLimits.maxTeachers;
+      
+      if (maxTeachersLimit !== Infinity) {
+        const teacherRole = await Role.findOne({ name: 'teacher' });
+        if (teacherRole) {
+          const currentTeacherCount = await User.countDocuments({ tenantId: req.tenantId, roleId: teacherRole._id });
+          if (currentTeacherCount >= maxTeachersLimit) {
+            return res.status(400).json({ 
+              success: false, 
+              error: `Teacher limit reached. Under your school's plan (${(req.tenant.plan || 'starter').toUpperCase()}), you can onboard a maximum of ${maxTeachersLimit} teachers. Please upgrade your subscription.` 
+            });
+          }
+        }
+      }
+    }
+
     const newStaff = await Staff.create({
       employeeId,
       name,
@@ -65,7 +87,6 @@ router.post('/', isSchoolAdmin, async (req, res, next) => {
     });
 
     // Auto-create User credentials based on designation
-    const isTeacher = designation.toLowerCase().includes('teacher') || !designation.toLowerCase().includes('admin');
     const roleName = isTeacher ? 'teacher' : 'school_admin';
     const staffRole = await Role.findOne({ name: roleName });
     if (!staffRole) {
