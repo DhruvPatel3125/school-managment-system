@@ -66,6 +66,7 @@ const BaseLayout = () => {
     if (path.startsWith('/announcements')) return 'announcements';
     if (path.startsWith('/messages')) return 'messages';
     if (path.startsWith('/documents')) return 'documents';
+    if (path.startsWith('/subscription')) return 'subscription';
     return 'overview';
   };
   const activeTab = getActiveTab();
@@ -103,7 +104,7 @@ const BaseLayout = () => {
       { to: '/classes',     tab: 'classes',       icon: GraduationCap,   label: 'Classes & Sections' },
       { to: '/students',    tab: 'students',      icon: Users,           label: 'Students (SIS)' },
       { to: '/staff',       tab: 'staff',         icon: Users2,          label: 'Staff Directory' },
-      { to: '#',            tab: 'fees',          icon: CreditCard,      label: 'Fee Management',    disabled: true },
+      { to: '/subscription',tab: 'subscription',  icon: CreditCard,      label: 'Subscription & Billing' },
       { divider: true },
       { title: 'Tenant Settings' },
       { to: '#',            tab: 'branding',      icon: Palette,         label: 'Branding Config',   disabled: true },

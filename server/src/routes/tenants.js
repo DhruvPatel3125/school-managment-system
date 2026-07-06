@@ -65,7 +65,9 @@ router.get('/current', tenantResolver, (req, res) => {
       logoUrl: req.tenant.logoUrl,
       primaryColor: req.tenant.primaryColor,
       secondaryColor: req.tenant.secondaryColor,
-      status: req.tenant.status
+      status: req.tenant.status,
+      plan: req.tenant.plan,
+      maxStudents: req.tenant.maxStudents
     }
   });
 });

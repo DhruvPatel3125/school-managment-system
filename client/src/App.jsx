@@ -15,6 +15,7 @@ import NotFound from './pages/NotFound';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import Announcements from './pages/Announcements';
+import Subscription from './pages/Subscription';
 
 // Wrapper that displays the dynamic brand tenant resolving view
 const AppContent = () => {
@@ -129,6 +130,14 @@ const AppContent = () => {
           element={
             <ProtectedRoute requiredRole="school_admin">
               <Staff />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="subscription" 
+          element={
+            <ProtectedRoute requiredRole="school_admin">
+              <Subscription />
             </ProtectedRoute>
           } 
         />
