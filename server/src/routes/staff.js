@@ -11,10 +11,10 @@ const { generateTempPassword, sendCredentialsEmail } = require('../utils/mailer'
 router.use(auth);
 router.use(tenantResolver);
 
-// 1. GET /api/v1/staff - List staff directory (Accessible by School Admin and Teachers)
+// 1. GET /api/v1/staff - List staff directory (Accessible by School Admin, Teachers, and Super Admin)
 router.get('/', async (req, res, next) => {
   try {
-    if (req.user.role !== 'school_admin' && req.user.role !== 'teacher') {
+    if (req.user.role !== 'school_admin' && req.user.role !== 'teacher' && req.user.role !== 'super_admin') {
       return res.status(403).json({ success: false, error: 'Access Denied: Unauthorized role.' });
     }
 
@@ -25,9 +25,9 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-// Helper check: Restrict modifications to School Admin (Principal) only
+// Helper check: Restrict modifications to School Admin (Principal) and Super Admin only
 const isSchoolAdmin = (req, res, next) => {
-  if (req.user.role !== 'school_admin') {
+  if (req.user.role !== 'school_admin' && req.user.role !== 'super_admin') {
     return res.status(403).json({ success: false, error: 'Access Denied: Only school administrators can onboard/modify staff.' });
   }
   next();

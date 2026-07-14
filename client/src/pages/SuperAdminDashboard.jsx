@@ -8,7 +8,7 @@ import {
   ExternalLink, Pencil, Trash2,
   ChevronLeft, ChevronRight, Upload, Loader2,
   AlertTriangle, Check, X, Sun, Moon, Download,
-  SortAsc, SortDesc, MessageSquare
+  SortAsc, SortDesc, MessageSquare, Menu
 } from 'lucide-react';
 import logo from '../assets/logo.svg';
 
@@ -399,11 +399,81 @@ const AdminStyles = () => (
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
 
+    /* Mobile Hamburger Menu Button */
+    .mobile-menu-btn {
+      display: none !important;
+    }
+
+    /* Responsive Grid Layouts */
+    .layout-grid-dashboard {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 16px;
+    }
+    .layout-grid-settings {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 16px;
+    }
+    .layout-grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .layout-grid-form-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
     /* Responsive: collapse sidebar below 768px */
     @media (max-width: 768px) {
-      .admin-sidebar { transform: translateX(-100%); transition: transform 0.25s; }
-      .admin-sidebar.open { transform: translateX(0); }
-      .admin-topbar, .admin-main { margin-left: 0 !important; left: 0 !important; }
+      .mobile-menu-btn {
+        display: inline-flex !important;
+      }
+      .admin-sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.25s ease-in-out;
+        z-index: 55;
+      }
+      .admin-sidebar.open {
+        transform: translateX(0);
+      }
+      .admin-topbar {
+        left: 0 !important;
+        padding: 0 12px !important;
+      }
+      .admin-main {
+        margin-left: 0 !important;
+      }
+      .admin-content {
+        padding: 16px !important;
+      }
+      
+      /* Grid Stacking for layouts on mobile */
+      .layout-grid-dashboard,
+      .layout-grid-settings,
+      .layout-grid-2col,
+      .layout-grid-form-2col {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* Stack section header buttons and titles on mobile */
+      .section-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+      }
+      .section-header > div:last-child {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .section-header button {
+        flex: 1;
+        justify-content: center;
+      }
     }
 
     /* Health metrics */
@@ -596,7 +666,7 @@ const OnboardModal = ({ onClose, onSuccess }) => {
           <form onSubmit={handleSubmit}>
             {step === 1 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div className="layout-grid-form-2col">
                   <div>
                     <label className="form-label">School Name</label>
                     <input className="admin-input" value={schoolName} onChange={e => setSchoolName(e.target.value)} placeholder="Greenwood High School" required />
@@ -620,7 +690,7 @@ const OnboardModal = ({ onClose, onSuccess }) => {
                     <span style={{ fontSize: 11, color: 'var(--text4)' }}>PNG, JPG up to 5MB</span>
                   </div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div className="layout-grid-form-2col">
                   {[['Primary Color', primaryColor, setPrimary], ['Secondary Color', secondaryColor, setSecondary]].map(([label, val, set]) => (
                     <div key={label}>
                       <label className="form-label">{label}</label>
@@ -662,7 +732,7 @@ const OnboardModal = ({ onClose, onSuccess }) => {
                   <label className="form-label">Administrator Full Name</label>
                   <input className="admin-input" value={adminName} onChange={e => setAdminName(e.target.value)} placeholder="Principal Jane Doe" required />
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div className="layout-grid-form-2col">
                   <div>
                     <label className="form-label">Admin Email</label>
                     <input className="admin-input mono" type="email" value={adminEmail} onChange={e => setAdminEmail(e.target.value)} placeholder="admin@school.com" required />
@@ -766,7 +836,7 @@ const EditModal = ({ school, onClose, onSuccess }) => {
                     </label>
                   </div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div className="layout-grid-form-2col">
                   {[['Primary Color', primary, setPrimary], ['Secondary Color', secondary, setSecondary]].map(([label, val, set]) => (
                     <div key={label}>
                       <label className="form-label">{label}</label>
@@ -856,7 +926,7 @@ const DashboardView = ({ tenants, metrics, logs, onOpenOnboard, onNav }) => {
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 16 }}>
+      <div className="layout-grid-dashboard">
         {/* Recent activity */}
         <div className="card">
           <div className="card-header">
@@ -1139,7 +1209,7 @@ const BillingView = ({ tenants }) => {
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+      <div className="layout-grid-2col">
         <div className="card">
           <div className="card-header"><span className="card-title">Revenue by Plan</span></div>
           <div style={{ overflowX: 'auto' }}>
@@ -1331,7 +1401,7 @@ const HealthView = ({ systemHealth, logs, fetchLogs, onNav }) => {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 16 }}>
+      <div className="layout-grid-settings">
         {/* Metrics panel */}
         <div className="card">
           <div className="card-header"><span className="card-title">Infrastructure</span><span className="badge badge-green" style={{ fontSize: 10 }}><span className="badge-dot" style={{ background: 'var(--green)', animation: 'pulse 2s infinite' }} />Live</span></div>
@@ -1506,6 +1576,7 @@ const SuperAdminDashboard = () => {
   const [globalSearch, setGlobalSearch] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
   const [newInquiries, setNewInquiries] = useState(0);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   /* Dark mode */
   useEffect(() => {
@@ -1583,7 +1654,7 @@ const SuperAdminDashboard = () => {
       <style>{`@keyframes spin { to { transform: rotate(360deg); } } @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }`}</style>
 
       {/* ── SIDEBAR ── */}
-      <aside className="admin-sidebar">
+      <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
         {/* Logo */}
         <div style={{ padding: '14px 16px 10px', borderBottom: '1px solid var(--border)' }}>
           <img src={logo} alt="EduCore" style={{ height: 30 }} />
@@ -1594,14 +1665,14 @@ const SuperAdminDashboard = () => {
         <nav style={{ padding: '8px 0', flex: 1 }}>
           <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--text4)', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '8px 20px 4px' }}>Platform</div>
           {navItems.map(({ id, icon: Icon, label, badge }) => (
-            <button key={id} className={`nav-item ${view === id ? 'active' : ''}`} onClick={() => setView(id)}>
+            <button key={id} className={`nav-item ${view === id ? 'active' : ''}`} onClick={() => { setView(id); setSidebarOpen(false); }}>
               <Icon style={{ width: 14, height: 14 }} />
               <span style={{ flex: 1 }}>{label}</span>
               {badge > 0 && <span style={{ background: 'var(--amber)', color: '#fff', borderRadius: 10, fontSize: 9, padding: '1px 5px', fontWeight: 700, minWidth: 16, textAlign: 'center' }}>{badge}</span>}
             </button>
           ))}
           <div style={{ height: 1, background: 'var(--border)', margin: '8px 16px' }} />
-          <button className={`nav-item ${view === 'settings' ? 'active' : ''}`} onClick={() => setView('settings')}>
+          <button className={`nav-item ${view === 'settings' ? 'active' : ''}`} onClick={() => { setView('settings'); setSidebarOpen(false); }}>
             <Settings style={{ width: 14, height: 14 }} /> Settings
           </button>
         </nav>
@@ -1615,8 +1686,25 @@ const SuperAdminDashboard = () => {
         </div>
       </aside>
 
+      {/* Backdrop overlay for mobile drawer */}
+      {sidebarOpen && (
+        <div 
+          onClick={() => setSidebarOpen(false)} 
+          style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(4px)', zIndex: 49 }} 
+        />
+      )}
+
       {/* ── TOPBAR ── */}
       <header className="admin-topbar">
+        {/* Mobile Menu Button */}
+        <button 
+          className="btn btn-icon mobile-menu-btn" 
+          onClick={() => setSidebarOpen(s => !s)} 
+          title="Toggle menu"
+          style={{ marginRight: 8 }}
+        >
+          {sidebarOpen ? <X style={{ width: 14, height: 14 }} /> : <Menu style={{ width: 14, height: 14 }} />}
+        </button>
         {/* Global search */}
         <div style={{ position: 'relative', flex: 1, maxWidth: 380 }}>
           <Search style={{ width: 13, height: 13, position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text4)' }} />

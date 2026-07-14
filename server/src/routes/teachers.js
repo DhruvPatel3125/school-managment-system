@@ -12,9 +12,9 @@ const Assignment = require('../models/assignment');
 router.use(auth);
 router.use(tenantResolver);
 
-// Ensure the caller is a Teacher or a School Admin
+// Ensure the caller is a Teacher, School Admin, or Super Admin
 const isTeacherOrAdmin = (req, res, next) => {
-  if (req.user.role !== 'teacher' && req.user.role !== 'school_admin') {
+  if (req.user.role !== 'teacher' && req.user.role !== 'school_admin' && req.user.role !== 'super_admin') {
     return res.status(403).json({ success: false, error: 'Access Denied: Only teachers or school administrators can perform this action.' });
   }
   next();

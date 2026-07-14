@@ -8,9 +8,9 @@ const tenantResolver = require('../middlewares/tenantResolver');
 router.use(auth);
 router.use(tenantResolver);
 
-// Helper check: Only allow School Admin and Teachers to access academic configurations
+// Helper check: Only allow School Admin, Teachers, and Super Admin to access academic configurations
 const isAuthorizedStaff = (req, res, next) => {
-  if (req.user.role !== 'school_admin' && req.user.role !== 'teacher') {
+  if (req.user.role !== 'school_admin' && req.user.role !== 'teacher' && req.user.role !== 'super_admin') {
     return res.status(403).json({ success: false, error: 'Unauthorized: Access restricted to staff members.' });
   }
   next();

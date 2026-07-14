@@ -1,10 +1,14 @@
 import React from 'react';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, ChevronDown, Download, Award, Calendar, Home } from 'lucide-react';
+import { useTenantTheme } from '../../../../context/TenantThemeContext';
 
-const StudentExams = ({ studentAssignments }) => {
+const StudentExams = () => {
+  const { tenant } = useTenantTheme();
   const profile = JSON.parse(localStorage.getItem('user')) || {};
   const classSection = localStorage.getItem('studentClassSection') || 'Class 3 - Section A';
   
+  const primaryBrandColor = tenant?.primaryColor || '#0D1B2A';
+
   const mockExams = [
     { id: 1, subject: 'Mathematics', code: 'MATH-301', date: '2026-07-15', time: '09:00 AM - 12:00 PM', room: 'Lab 2', invigilator: 'Mr. R. K. Sen', maxMarks: 100, syllabus: 'Algebra, Geometry, Fractions' },
     { id: 2, subject: 'General Science', code: 'SCI-302', date: '2026-07-17', time: '09:00 AM - 12:00 PM', room: 'Hall A', invigilator: 'Mrs. S. Sharma', maxMarks: 100, syllabus: 'Human Body, Light, Plants structure' },
@@ -13,40 +17,41 @@ const StudentExams = ({ studentAssignments }) => {
   ];
 
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8 shadow-2xl space-y-8 text-left">
+    <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-5 sm:p-6 space-y-6 text-left">
       <div>
-        <h3 className="text-lg font-extrabold text-slate-900">Upcoming Examinations</h3>
-        <p className="text-xs text-slate-400 mt-1">Review scheduled tests, seat numbers, and curriculum files.</p>
+        <h3 className="text-base font-bold text-slate-900 leading-tight">Upcoming Examinations</h3>
+        <p className="text-xs text-slate-500 mt-0.5">Review examination schedules, center locations, and seat allocations.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Roster Table */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="overflow-hidden rounded-2xl border border-slate-200">
-            <table className="w-full border-collapse text-left text-xs text-slate-400">
-              <thead className="bg-slate-50 border-b border-slate-200 text-[9px] uppercase font-black tracking-widest text-slate-900">
+          <div className="overflow-hidden rounded-lg border border-slate-200">
+            <table className="w-full border-collapse text-left text-xs text-slate-600 font-medium">
+              <thead className="bg-slate-50 border-b border-slate-200 text-[9px] uppercase font-semibold tracking-wider text-slate-600">
                 <tr>
-                  <th className="px-5 py-4">Subject</th>
-                  <th className="px-5 py-4">Schedule</th>
-                  <th className="px-5 py-4 text-center">Room/Seat</th>
-                  <th className="px-5 py-4 text-center">Max Marks</th>
+                  <th className="px-5 py-3">Subject</th>
+                  <th className="px-5 py-3">Schedule</th>
+                  <th className="px-5 py-3 text-center">Center / Seat</th>
+                  <th className="px-5 py-3 text-center">Max Marks</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200 bg-white">
+              <tbody className="divide-y divide-slate-100 bg-white">
                 {mockExams.map((ex) => (
                   <tr key={ex.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-5 py-4 space-y-0.5">
-                      <strong className="text-slate-900 font-extrabold text-sm block">{ex.subject}</strong>
-                      <span className="text-[9px] text-slate-500 block font-mono">{ex.code}</span>
+                    <td className="px-5 py-3.5 space-y-0.5">
+                      <strong className="text-slate-800 font-bold block text-xs">{ex.subject}</strong>
+                      <span className="text-[9px] text-slate-450 block font-mono">{ex.code}</span>
                     </td>
-                    <td className="px-5 py-4 space-y-0.5 font-medium">
-                      <span className="text-slate-700 block font-bold">{new Date(ex.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-                      <span className="text-[9px] text-slate-500 block">{ex.time}</span>
+                    <td className="px-5 py-3.5 space-y-0.5">
+                      <span className="text-slate-700 block font-semibold">{new Date(ex.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                      <span className="text-[9px] text-slate-400 block">{ex.time}</span>
                     </td>
-                    <td className="px-5 py-4 text-center font-semibold text-slate-600">
-                      <span className="block">{ex.room}</span>
-                      <span className="text-[8px] text-slate-500 font-bold block uppercase">{ex.invigilator}</span>
+                    <td className="px-5 py-3.5 text-center font-medium text-slate-600">
+                      <span className="block text-xs">{ex.room}</span>
+                      <span className="text-[8px] text-slate-400 block uppercase font-bold">{ex.invigilator}</span>
                     </td>
-                    <td className="px-5 py-4 text-center text-sm font-black text-slate-900">{ex.maxMarks}</td>
+                    <td className="px-5 py-3.5 text-center text-xs font-bold text-slate-850">{ex.maxMarks}</td>
                   </tr>
                 ))}
               </tbody>
@@ -54,28 +59,53 @@ const StudentExams = ({ studentAssignments }) => {
           </div>
         </div>
 
+        {/* Sidebar ticket info */}
         <div className="space-y-6">
-          <div className="bg-blue-50 p-5 rounded-2xl border border-blue-100 space-y-4">
-            <h4 className="text-xs font-black uppercase text-blue-700 tracking-widest border-b border-blue-100 pb-2">Academic Seat Ticket</h4>
-            <div className="space-y-3 text-[11px] text-slate-600 font-semibold">
-              <p className="flex justify-between"><span>Admission Roster:</span> <strong className="text-slate-900 font-mono">{profile?.admissionNo || 'ADM-2026-2153'}</strong></p>
-              <p className="flex justify-between"><span>Testing Center:</span> <strong className="text-slate-900">Main School Block</strong></p>
-              <p className="flex justify-between"><span>Class Allocation:</span> <strong className="text-slate-900">{classSection}</strong></p>
-              <p className="flex justify-between"><span>Verification Status:</span> <strong className="text-emerald-600 uppercase">PASSED</strong></p>
+          {/* Boarding Pass Seat Ticket */}
+          <div className="bg-[#FAF9F6] border border-slate-200 rounded-xl overflow-hidden relative shadow-sm">
+            <div className="p-4 text-center border-b border-dashed border-slate-300 relative">
+              <span className="px-2 py-0.5 rounded bg-slate-200/60 text-slate-600 text-[8px] font-bold uppercase tracking-wider block w-fit mx-auto mb-2 border border-slate-300">Official Pass</span>
+              <h4 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Academic Seat Ticket</h4>
+              
+              {/* Ticket Cutouts */}
+              <div className="absolute w-4 h-4 bg-white border-r border-slate-200 rounded-full -left-2 bottom-[-8px]"></div>
+              <div className="absolute w-4 h-4 bg-white border-l border-slate-200 rounded-full -right-2 bottom-[-8px]"></div>
             </div>
-            <button
-              onClick={() => alert('Downloading admit ticket PDF... Done.')}
-              className="w-full py-2.5 bg-primary hover:bg-primary/95 text-white font-extrabold text-[10px] rounded-xl uppercase tracking-wider shadow-md transition-all active:scale-95"
-            >
-              Download Admit Pass
-            </button>
+            
+            <div className="p-5 space-y-3.5 text-xs text-slate-600 font-medium">
+              <div className="flex justify-between items-center">
+                <span>Admission No:</span> 
+                <strong className="text-slate-850 font-mono tracking-wider">{profile?.admissionNo || 'ADM-2026-2153'}</strong>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>Testing Center:</span> 
+                <strong className="text-slate-800">Main School Block</strong>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>Class Section:</span> 
+                <strong className="text-slate-800">{classSection}</strong>
+              </div>
+              <div className="flex justify-between items-center border-t border-slate-100 pt-3">
+                <span>Verification Check:</span> 
+                <strong className="text-emerald-700 font-bold uppercase text-[10px]">PASSED</strong>
+              </div>
+              
+              <button
+                onClick={() => alert('Downloading admit pass PDF... Done.')}
+                className="w-full py-2 bg-slate-900 text-white font-semibold text-[10px] rounded-lg uppercase tracking-wider shadow-sm transition-all active:scale-95 flex items-center justify-center gap-1.5 mt-2 hover:opacity-95"
+                style={{ backgroundColor: primaryBrandColor }}
+              >
+                <Download className="w-3.5 h-3.5" /> Download Admit Pass
+              </button>
+            </div>
           </div>
 
-          <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-2.5">
-            <h5 className="text-[10px] font-black uppercase text-amber-500 tracking-wider flex items-center gap-1.5">
-              <AlertTriangle className="w-3.5 h-3.5" /> Exam Regulations
+          {/* Regulations */}
+          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+            <h5 className="text-[10px] font-bold uppercase text-amber-700 tracking-wider flex items-center gap-1.5">
+              <AlertTriangle className="w-3.5 h-3.5 text-amber-600" /> Exam Regulations
             </h5>
-            <ul className="text-[10px] text-slate-450 space-y-1.5 list-disc pl-4 font-semibold leading-relaxed">
+            <ul className="text-[10px] text-slate-500 space-y-1 list-disc pl-4 font-medium leading-relaxed">
               <li>Arrive at the testing room 15 minutes before slot timing.</li>
               <li>Possession of smart devices in examination desk is prohibited.</li>
               <li>Keep your printed Digital Admit Card on desk for verification.</li>

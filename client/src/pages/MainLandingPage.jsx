@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   Shield, ArrowRight, CheckCircle,
   ExternalLink, Users, BookOpen, BarChart3, Globe,
@@ -1002,11 +1002,19 @@ const MainLandingPage = () => {
                 <ul className="space-y-2.5">
                   {links.map(({ label, href }) => (
                     <li key={label}>
-                      <a href={href} className="text-sm transition-colors" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'DM Sans, sans-serif' }}
-                        onMouseEnter={e => e.currentTarget.style.color='#fff'}
-                        onMouseLeave={e => e.currentTarget.style.color='rgba(255,255,255,0.45)'}>
-                        {label}
-                      </a>
+                      {href.startsWith('/') ? (
+                        <Link to={href} className="text-sm transition-colors" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'DM Sans, sans-serif' }}
+                          onMouseEnter={e => e.currentTarget.style.color='#fff'}
+                          onMouseLeave={e => e.currentTarget.style.color='rgba(255,255,255,0.45)'}>
+                          {label}
+                        </Link>
+                      ) : (
+                        <a href={href} className="text-sm transition-colors" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'DM Sans, sans-serif' }}
+                          onMouseEnter={e => e.currentTarget.style.color='#fff'}
+                          onMouseLeave={e => e.currentTarget.style.color='rgba(255,255,255,0.45)'}>
+                          {label}
+                        </a>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -1016,8 +1024,8 @@ const MainLandingPage = () => {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-8 text-xs" style={{ borderTop: '1px solid rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.2)', fontFamily: 'DM Sans, sans-serif' }}>
             <span>© {new Date().getFullYear()} EduCore. All rights reserved. Built with care in Surat, Gujarat.</span>
             <div className="flex gap-5">
-              <a href="/privacy-policy" style={{ color: 'rgba(255,255,255,0.25)' }}>Privacy Policy</a>
-              <a href="/terms-of-service" style={{ color: 'rgba(255,255,255,0.25)' }}>Terms of Service</a>
+              <Link to="/privacy-policy" style={{ color: 'rgba(255,255,255,0.25)' }}>Privacy Policy</Link>
+              <Link to="/terms-of-service" style={{ color: 'rgba(255,255,255,0.25)' }}>Terms of Service</Link>
             </div>
           </div>
         </div>

@@ -12,6 +12,7 @@ import StudentTimetable from './components/StudentTimetable';
 import StudentAnnouncements from './components/StudentAnnouncements';
 import StudentMessages from './components/StudentMessages';
 import StudentDocuments from './components/StudentDocuments';
+import StudentProfile from './components/StudentProfile';
 import { Sparkles, Loader2 } from 'lucide-react';
 
 const StudentPortal = () => {
@@ -100,19 +101,19 @@ const StudentPortal = () => {
   return (
     <div className="space-y-8 pb-12 antialiased">
       {studentActiveTab === 'overview' && (
-        <div className="relative overflow-hidden rounded-3xl border border-blue-100 bg-gradient-to-r from-blue-600 to-violet-700 p-6 sm:p-8 shadow-xl shadow-blue-500/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div className="text-left relative z-10 space-y-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black text-white border border-white/30 bg-white/15 tracking-widest uppercase">
-              <Sparkles className="w-3.5 h-3.5 animate-pulse" /> Active Session
+        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-[#FAF9F6] p-6 sm:p-8 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div className="text-left relative z-10 space-y-1.5">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-slate-200/60 text-slate-700 text-[9px] font-bold tracking-wider uppercase border border-slate-300">
+              <Sparkles className="w-3 h-3 text-slate-500" /> Academic Session 2026-27
             </span>
-            <h2 className="text-3xl font-extrabold text-white tracking-tight">
-              Welcome back, {user?.name?.split(' ')[0]}! 👋
+            <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
+              Welcome back, {user?.name?.split(' ')[0]}
             </h2>
-            <p className="text-sm text-blue-100 font-medium max-w-md">
-              Here's a comprehensive review of your educational status, schedules, and active tasks.
+            <p className="text-xs text-slate-500 font-medium max-w-md">
+              Below is the comprehensive ledger of your academic progress, classes, and administrative tasks.
             </p>
           </div>
-          <div className="absolute right-0 top-0 w-64 h-64 bg-white/10 rounded-full blur-[80px]"></div>
+          <div className="absolute right-0 top-0 w-48 h-48 bg-slate-150 rounded-full blur-[50px] pointer-events-none opacity-30"></div>
         </div>
       )}
 
@@ -125,6 +126,7 @@ const StudentPortal = () => {
       {studentActiveTab === 'announcements' && <StudentAnnouncements studentAssignments={studentAssignments} />}
       {studentActiveTab === 'messages' && <StudentMessages />}
       {studentActiveTab === 'documents' && <StudentDocuments />}
+      {studentActiveTab === 'profile' && <StudentProfile studentDashData={studentDashData} user={user} />}
     </div>
   );
 };

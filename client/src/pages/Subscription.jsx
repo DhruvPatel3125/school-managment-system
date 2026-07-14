@@ -56,14 +56,12 @@ const Subscription = () => {
     try {
       const API_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5001`;
       
-      // 1. Create order
       const orderRes = await axios.post(`${API_URL}/api/v1/payments/upgrade-plan-order`, { plan: planId }, {
         withCredentials: true
       });
       
       const { order_id, amount, currency } = orderRes.data.data;
 
-      // 2. Open Razorpay
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_placeholder',
         amount: amount,
@@ -87,7 +85,6 @@ const Subscription = () => {
             
             setUpgradeSuccess(`Successfully upgraded to ${planId.charAt(0).toUpperCase() + planId.slice(1)} Plan!`);
             
-            // Reload page to reflect changes in tenant context
             setTimeout(() => {
               window.location.reload();
             }, 2000);
@@ -98,7 +95,7 @@ const Subscription = () => {
           }
         },
         prefill: { name: user.name, email: user.email },
-        theme: { color: tenant?.primaryColor || "#4f46e5" },
+        theme: { color: tenant?.primaryColor || "#0D1B2A" },
         modal: {
           ondismiss: function() {
             setUpgradeError('Payment was cancelled.');
@@ -123,7 +120,7 @@ const Subscription = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-full">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <Loader2 className="w-8 h-8 animate-spin" style={{ color: tenant?.primaryColor || '#0D1B2A' }} />
       </div>
     );
   }
@@ -131,139 +128,154 @@ const Subscription = () => {
   const getPlanIndex = (planName) => plansConfig.findIndex(p => p.id === planName);
   const currentPlanIndex = getPlanIndex(currentPlan);
 
+  const primaryBrandColor = tenant?.primaryColor || '#0D1B2A';
+  const usageRatio = studentCount / maxStudents;
+
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      <div className="flex justify-between items-end">
+    <div className="space-y-6">
+      {/* Calm Header */}
+      <div className="flex justify-between items-end bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">Subscription & Billing</h1>
-          <p className="text-sm text-slate-500 font-medium mt-1">Manage your school's plan and view current usage limits.</p>
+          <h1 className="text-lg font-bold text-slate-900 tracking-tight">Subscription & Billing</h1>
+          <p className="text-xs text-slate-500 mt-0.5">Manage your school's plan and view current usage limits.</p>
         </div>
       </div>
 
       {error && (
-        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-sm font-medium flex items-center gap-2">
-          <AlertTriangle className="w-5 h-5" /> {error}
+        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-lg text-xs font-medium flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4 shrink-0" /> {error}
         </div>
       )}
       
       {upgradeError && (
-        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-sm font-medium flex items-center gap-2">
-          <AlertTriangle className="w-5 h-5" /> {upgradeError}
+        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-lg text-xs font-medium flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4 shrink-0" /> {upgradeError}
         </div>
       )}
 
       {upgradeSuccess && (
-        <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl text-sm font-medium flex items-center gap-2">
-          <CheckCircle className="w-5 h-5" /> {upgradeSuccess}
+        <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-lg text-xs font-medium flex items-center gap-2">
+          <CheckCircle className="w-4 h-4 shrink-0" /> {upgradeSuccess}
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Current Usage Card */}
-        <div className="col-span-1 md:col-span-3 bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+      <div className="grid grid-cols-1 gap-5">
+        {/* Usage Card */}
+        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
           <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
             <div>
-              <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                Current Plan: <span className="uppercase text-blue-600 bg-blue-50 px-2 py-1 rounded-md text-sm">{currentPlan}</span>
-              </h3>
-              <p className="text-sm text-slate-500 mt-1">
-                You are currently using <strong>{studentCount}</strong> out of <strong>{maxStudents}</strong> available student seats.
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Current Account Plan</span>
+                <span className="inline-flex px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider text-slate-600 bg-slate-100 border border-slate-200">
+                  {currentPlan}
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 mt-2 font-medium">
+                Your school uses <strong className="text-slate-800 font-mono">{studentCount}</strong> seats out of a total capacity limit of <strong className="text-slate-800 font-mono">{maxStudents}</strong> students.
               </p>
             </div>
             
             <div className="w-full md:w-1/3">
-              <div className="flex justify-between text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">
-                <span>Usage</span>
-                <span>{Math.round((studentCount / maxStudents) * 100)}%</span>
+              <div className="flex justify-between text-[10px] font-bold text-slate-400 mb-1.5 uppercase tracking-wider">
+                <span>Usage Seat Cap</span>
+                <span className="font-mono">{Math.round(usageRatio * 100)}%</span>
               </div>
-              <div className="h-3 w-full bg-slate-100 rounded-full overflow-hidden">
+              <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
                 <div 
                   className={`h-full rounded-full transition-all duration-500 ${
-                    (studentCount / maxStudents) > 0.9 ? 'bg-rose-500' : 
-                    (studentCount / maxStudents) > 0.75 ? 'bg-amber-500' : 'bg-emerald-500'
+                    usageRatio > 0.9 ? 'bg-red-500' : 
+                    usageRatio > 0.75 ? 'bg-amber-500' : 'bg-emerald-500'
                   }`} 
-                  style={{ width: `${Math.min((studentCount / maxStudents) * 100, 100)}%` }}
+                  style={{ width: `${Math.min(usageRatio * 100, 100)}%` }}
                 />
               </div>
             </div>
           </div>
         </div>
 
-        {/* Upgrade Plans */}
-        {plansConfig.map((p, idx) => {
-          const isCurrent = p.id === currentPlan;
-          const isDowngrade = idx < currentPlanIndex;
-          
-          return (
-            <div 
-              key={p.id} 
-              className={`relative bg-white rounded-2xl shadow-sm border ${isCurrent ? 'border-blue-500 ring-2 ring-blue-500/20' : 'border-slate-200'} p-6 flex flex-col transition-all duration-300 hover:shadow-md`}
-            >
-              {isCurrent && (
-                <div className="absolute top-0 right-0 bg-blue-500 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-bl-xl rounded-tr-xl">
-                  Current Plan
-                </div>
-              )}
-              
-              <div className="mb-4">
-                <h3 className="text-xl font-black text-slate-900">{p.name}</h3>
-                <div className="mt-2 text-2xl font-bold text-slate-700">{p.price}</div>
-                <p className="text-xs text-slate-500 mt-2 font-medium h-10">{p.desc}</p>
-              </div>
-              
-              <div className="mb-6 space-y-3 flex-1">
-                <div className="flex items-center gap-2 text-sm text-slate-700 font-medium">
-                  <CheckCircle className="w-4 h-4 text-emerald-500" /> Up to {p.limit} Students
-                </div>
-                {p.id === 'professional' && (
-                  <>
-                    <div className="flex items-center gap-2 text-sm text-slate-700 font-medium">
-                      <CheckCircle className="w-4 h-4 text-emerald-500" /> Advanced Analytics
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-slate-700 font-medium">
-                      <CheckCircle className="w-4 h-4 text-emerald-500" /> SMS Integration
-                    </div>
-                  </>
-                )}
-                {p.id === 'enterprise' && (
-                  <>
-                    <div className="flex items-center gap-2 text-sm text-slate-700 font-medium">
-                      <CheckCircle className="w-4 h-4 text-emerald-500" /> Custom Integrations
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-slate-700 font-medium">
-                      <CheckCircle className="w-4 h-4 text-emerald-500" /> Priority Support
-                    </div>
-                  </>
-                )}
-              </div>
-              
-              <button 
-                onClick={() => handleUpgrade(p.id)}
-                disabled={isCurrent || isDowngrade || upgradeLoading}
-                className={`w-full py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${
-                  isCurrent ? 'bg-blue-50 text-blue-600 border border-blue-200 cursor-default' : 
-                  isDowngrade ? 'bg-slate-50 text-slate-400 border border-slate-200 cursor-not-allowed' :
-                  p.id === 'enterprise' ? 'bg-slate-900 text-white hover:bg-slate-800' :
-                  'bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-500/25 active:scale-95'
-                }`}
+        {/* Upgrade Plans Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {plansConfig.map((p, idx) => {
+            const isCurrent = p.id === currentPlan;
+            const isDowngrade = idx < currentPlanIndex;
+            
+            return (
+              <div 
+                key={p.id} 
+                className="bg-white rounded-xl border border-slate-200 p-5 flex flex-col justify-between shadow-sm relative hover:border-slate-300 transition-colors"
               >
-                {upgradeLoading && p.id !== 'enterprise' ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : isCurrent ? (
-                  'Active Plan'
-                ) : isDowngrade ? (
-                  'Downgrade Not Supported'
-                ) : p.id === 'enterprise' ? (
-                  'Contact Sales'
-                ) : (
-                  <>
-                    <Zap className="w-4 h-4" /> Upgrade to {p.name}
-                  </>
+                {isCurrent && (
+                  <span className="absolute top-3 right-3 text-[9px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded uppercase tracking-wider">
+                    Current Plan
+                  </span>
                 )}
-              </button>
-            </div>
-          );
-        })}
+                
+                <div className="mb-4">
+                  <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">{p.name}</h3>
+                  <div className="mt-2 text-2xl font-bold text-slate-800 tracking-tight">{p.price}</div>
+                  <p className="text-[11px] text-slate-500 mt-1 font-medium leading-relaxed">{p.desc}</p>
+                </div>
+                
+                <div className="my-4 space-y-2.5 flex-1 border-t border-slate-100 pt-3">
+                  <div className="flex items-center gap-2 text-xs text-slate-700">
+                    <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                    <span>Up to {p.limit === 'Unlimited' ? p.limit : `${fmt => p.limit} students`} limit</span>
+                  </div>
+                  {p.id === 'professional' && (
+                    <>
+                      <div className="flex items-center gap-2 text-xs text-slate-700">
+                        <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                        <span>Advanced Academic Analytics</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-slate-700">
+                        <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                        <span>SMS Portal integrations</span>
+                      </div>
+                    </>
+                  )}
+                  {p.id === 'enterprise' && (
+                    <>
+                      <div className="flex items-center gap-2 text-xs text-slate-700">
+                        <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                        <span>Custom database configuration</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-slate-700">
+                        <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                        <span>24/7 dedicated support staff</span>
+                      </div>
+                    </>
+                  )}
+                </div>
+                
+                {isCurrent ? (
+                  <div className="w-full py-2 bg-slate-50 border border-slate-200 text-slate-500 text-xs font-bold rounded-lg text-center select-none uppercase tracking-wider">
+                    Current active tier
+                  </div>
+                ) : isDowngrade ? (
+                  <div className="w-full py-2 bg-slate-50 border border-slate-200 text-slate-400 text-xs font-bold rounded-lg text-center select-none uppercase tracking-wider opacity-60">
+                    Downgrade locked
+                  </div>
+                ) : (
+                  <button 
+                    onClick={() => handleUpgrade(p.id)}
+                    disabled={upgradeLoading}
+                    className="w-full py-2 text-white text-xs font-bold rounded-lg shadow-sm hover:opacity-95 transition-all flex items-center justify-center gap-1.5 uppercase tracking-wider"
+                    style={{ backgroundColor: primaryBrandColor }}
+                  >
+                    {upgradeLoading ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <>
+                        <Zap className="w-3.5 h-3.5" />
+                        <span>Upgrade to {p.name}</span>
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
