@@ -24,11 +24,10 @@ const AppContent = () => {
 
   if (tenantLoading || authLoading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 text-white space-y-4">
-        {/* Animated spinner */}
-        <div className="w-12 h-12 border-4 border-slate-800 border-t-indigo-500 rounded-full animate-spin"></div>
-        <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider animate-pulse">
-          Initializing EduCore Security Session...
+      <div className="min-h-screen flex flex-col items-center justify-center space-y-4" style={{ background: '#0D1B2A', fontFamily: 'DM Sans, -apple-system, sans-serif' }}>
+        <div className="w-8 h-8 rounded-full border-2 animate-spin" style={{ borderColor: 'rgba(255,255,255,0.12)', borderTopColor: '#C4613A' }} />
+        <p className="text-xs font-semibold uppercase tracking-widest animate-pulse" style={{ color: 'rgba(255,255,255,0.35)' }}>
+          Initializing EduCore...
         </p>
       </div>
     );
@@ -36,13 +35,14 @@ const AppContent = () => {
 
   if (tenantError) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 text-white p-6 text-center">
-        <div className="text-6xl mb-4">⚠️</div>
-        <h2 className="text-2xl font-bold text-rose-500">Connection Failed</h2>
-        <p className="mt-2 text-slate-400 max-w-md">{tenantError}</p>
-        <button 
-          onClick={() => window.location.reload()} 
-          className="mt-6 px-4 py-2 bg-indigo-600 hover:bg-indigo-550 rounded-lg text-white font-semibold shadow transition-all active:scale-95"
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center" style={{ background: '#0D1B2A', fontFamily: 'DM Sans, -apple-system, sans-serif' }}>
+        <div className="text-5xl mb-5">⚠</div>
+        <h2 className="text-xl font-semibold mb-2" style={{ color: '#E8957A' }}>Connection Failed</h2>
+        <p className="text-sm max-w-md mb-6" style={{ color: 'rgba(255,255,255,0.4)' }}>{tenantError}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="px-5 py-2.5 rounded-lg text-white font-semibold text-sm transition-all active:scale-95"
+          style={{ background: '#C4613A' }}
         >
           Retry Connection
         </button>
