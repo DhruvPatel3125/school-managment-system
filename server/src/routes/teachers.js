@@ -7,6 +7,7 @@ const Student = require('../models/student');
 const Class = require('../models/class');
 const Attendance = require('../models/attendance');
 const Assignment = require('../models/assignment');
+const { createNotification } = require('../utils/notificationHelper');
 
 // Apply auth and tenant resolution to all routes
 router.use(auth);
@@ -198,6 +199,17 @@ router.post('/portal/assignments', async (req, res, next) => {
       submissions: [],
       tenantId: req.tenantId
     });
+
+    // Auto-dispatch notification to students
+    createNotification({
+      tenantId: req.tenantId,
+      recipientRole: 'student',
+      title: `📝 New Assignment: ${title} (${subject})`,
+      message: `Due Date: ${new Date(dueDate).toLocaleDateString('en-IN')}. ${description.substring(0, 80)}...`,
+      type: 'ASSIGNMENT',
+      link: '/homework',
+      createdBy: req.user.id
+    }).catch(() => {});
 
     res.status(201).json({ success: true, data: assignment });
   } catch (error) {

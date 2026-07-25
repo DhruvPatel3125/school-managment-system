@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useTenantTheme } from '../context/TenantThemeContext';
 import { useAuth } from '../context/AuthContext';
-import axios from 'axios';
 import {
   LayoutDashboard,
   GraduationCap,
@@ -24,34 +23,14 @@ import {
   X
 } from 'lucide-react';
 import logo from '../assets/logo.svg';
+import NotificationBell from '../components/NotificationBell';
 
 const BaseLayout = () => {
   const { tenant } = useTenantTheme();
   const { logout, user } = useAuth();
   const location = useLocation();
 
-  const [announcements, setAnnouncements] = useState([]);
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [announcementCount, setAnnouncementCount] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  React.useEffect(() => {
-    const fetchAnnouncements = async () => {
-      try {
-        const API_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5001`;
-        const res = await axios.get(`${API_URL}/api/v1/announcements`);
-        if (res.data.success) {
-          setAnnouncementCount(res.data.count);
-          setAnnouncements(res.data.data.slice(0, 5));
-        }
-      } catch (err) {
-        console.error('Failed to fetch announcements for notification count', err);
-      }
-    };
-    if (user && tenant) {
-      fetchAnnouncements();
-    }
-  }, [user, tenant]);
 
   const getActiveTab = () => {
     const path = location.pathname;
@@ -131,14 +110,7 @@ const BaseLayout = () => {
           )}
         </div>
         <div className="flex items-center gap-2">
-          <Link to="/announcements" className="p-1.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-500 hover:text-slate-800 transition-colors relative">
-            <Bell className="w-4 h-4" />
-            {announcementCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-3 h-3 bg-rose-500 text-white font-bold text-[7px] rounded-full flex items-center justify-center">
-                {announcementCount}
-              </span>
-            )}
-          </Link>
+          <NotificationBell />
           <div 
             onClick={logout}
             className="w-7 h-7 rounded text-white flex items-center justify-center font-bold text-[10px] uppercase cursor-pointer"
@@ -265,45 +237,7 @@ const BaseLayout = () => {
 
           <div className="flex items-center gap-3">
             {/* Notification Bell */}
-            <div className="relative">
-              <button 
-                onClick={() => setShowNotifications(!showNotifications)}
-                className="relative p-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-800 transition-colors shrink-0"
-              >
-                <Bell className="w-4 h-4" />
-                {announcementCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-rose-500 text-white font-bold text-[8px] rounded-full flex items-center justify-center border border-white">
-                    {announcementCount}
-                  </span>
-                )}
-              </button>
-              
-              {/* Notifications Dropdown */}
-              {showNotifications && (
-                <div className="absolute top-full right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-slate-200 overflow-hidden z-50 animate-in slide-in-from-top-2 fade-in duration-200">
-                  <div className="p-3 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-                    <h3 className="text-xs font-semibold text-slate-700 uppercase tracking-wider">Notifications</h3>
-                    <Link to="/announcements" onClick={() => setShowNotifications(false)} className="text-[10px] font-bold text-blue-600 hover:text-blue-700">View All</Link>
-                  </div>
-                  <div className="max-h-72 overflow-y-auto p-2 space-y-1">
-                    {announcements.length === 0 ? (
-                      <div className="p-4 text-center text-xs text-slate-400 font-medium">No new notifications</div>
-                    ) : (
-                      announcements.map((ann) => (
-                        <div key={ann._id} className="p-2.5 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer border border-transparent hover:border-slate-100 group">
-                          <div className="flex justify-between items-start mb-0.5">
-                            <span className="text-[8px] font-bold uppercase tracking-wider text-slate-500 bg-slate-100 px-1 rounded">{ann.tag}</span>
-                            <span className="text-[8px] text-slate-400 font-medium">{new Date(ann.created_at).toLocaleDateString()}</span>
-                          </div>
-                          <h4 className="text-xs font-semibold text-slate-800 group-hover:text-slate-950 line-clamp-1">{ann.title}</h4>
-                          <p className="text-[10px] text-slate-500 mt-0.5 line-clamp-2 leading-relaxed">{ann.description}</p>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
+            <NotificationBell />
 
             {/* Profile */}
             <div className="flex items-center gap-3 border-l border-slate-200 pl-3">

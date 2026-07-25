@@ -3,6 +3,7 @@ const router = express.Router();
 const Announcement = require('../models/announcement');
 const auth = require('../middlewares/auth');
 const tenantResolver = require('../middlewares/tenantResolver');
+const { createNotification } = require('../utils/notificationHelper');
 
 router.use(auth);
 router.use(tenantResolver);
@@ -49,6 +50,17 @@ router.post('/', isAdmin, async (req, res) => {
       tenantId: req.tenantId,
       createdBy: req.user.id
     });
+
+    // Auto-dispatch notification to tenant users
+    createNotification({
+      tenantId: req.tenantId,
+      recipientRole: 'all',
+      title: `📢 New Announcement: ${title}`,
+      message: description.substring(0, 120) + (description.length > 120 ? '...' : ''),
+      type: 'ANNOUNCEMENT',
+      link: '/announcements',
+      createdBy: req.user.id
+    }).catch(() => {});
 
     res.status(201).json({
       success: true,
