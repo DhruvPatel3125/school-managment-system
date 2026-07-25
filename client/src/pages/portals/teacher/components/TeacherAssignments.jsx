@@ -1,5 +1,8 @@
 import React from 'react';
-import { Plus, Loader2, Award, X } from 'lucide-react';
+import axios from 'axios';
+import { Plus, Loader2, Award } from 'lucide-react';
+
+const API_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5001`;
 
 const TeacherAssignments = ({
   teacherClasses,
@@ -41,8 +44,7 @@ const TeacherAssignments = ({
     }
     try {
       setCreatingAssignment(true);
-      const axios = (await import('axios')).default;
-      const res = await axios.post('http://localhost:5001/api/v1/teachers/portal/assignments', {
+      const res = await axios.post(`${API_URL}/api/v1/teachers/portal/assignments`, {
         title: assignTitle,
         description: assignDescription,
         dueDate: assignDueDate,
@@ -70,8 +72,7 @@ const TeacherAssignments = ({
     e.preventDefault();
     try {
       setSubmittingGrade(true);
-      const axios = (await import('axios')).default;
-      const res = await axios.put(`http://localhost:5001/api/v1/teachers/portal/assignments/${gradeSubmissionModal.assignmentId}/submissions/${gradeSubmissionModal.studentId}/grade`, {
+      const res = await axios.put(`${API_URL}/api/v1/teachers/portal/assignments/${gradeSubmissionModal.assignmentId}/submissions/${gradeSubmissionModal.studentId}/grade`, {
         grade: inputGrade,
         feedback: inputFeedback
       });

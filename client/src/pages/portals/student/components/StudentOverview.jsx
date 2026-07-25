@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  GraduationCap, Calendar, Clock, BookOpen, Award, CreditCard, 
-  AlertTriangle, Check, UserCheck, Printer, Users
+  Clock, Award, AlertTriangle, Check, UserCheck
 } from 'lucide-react';
 
 const StudentOverview = ({ studentDashData, studentAttendance, studentAssignments, studentFees, user, tenant }) => {

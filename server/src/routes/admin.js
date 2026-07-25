@@ -14,7 +14,7 @@ router.get(
   checkPermission('manage:school'),
   async (req, res, next) => {
     try {
-      const tenantId = req.user.tenantId;
+      const tenantId = req.tenantId || req.user.tenantId;
       
       // 1. Total Students
       const totalStudents = await Student.countDocuments({ tenantId });

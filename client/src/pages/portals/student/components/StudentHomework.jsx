@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Loader2, Search, BookOpen, Clock, CheckCircle, ChevronDown, ClipboardList } from 'lucide-react';
+import { Loader2, Search, ClipboardList } from 'lucide-react';
 import { useTenantTheme } from '../../../../context/TenantThemeContext';
 import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5001`;
 
 const StudentHomework = ({ studentAssignments, fetchStudentAssignments, fetchStudentDashboard }) => {
   const { tenant } = useTenantTheme();
@@ -24,7 +26,7 @@ const StudentHomework = ({ studentAssignments, fetchStudentAssignments, fetchStu
 
     try {
       setSubmittingAssignment(true);
-      const res = await axios.post(`http://localhost:5001/api/v1/students/portal/assignments/${submitAssignmentModal._id}/submit`, {
+      const res = await axios.post(`${API_URL}/api/v1/students/portal/assignments/${submitAssignmentModal._id}/submit`, {
         answerText: submitAnswerText.trim()
       });
       if (res.data.success) {

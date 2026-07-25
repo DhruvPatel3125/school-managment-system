@@ -1,16 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Calendar, Bell, Info } from 'lucide-react';
-import { useTenantTheme } from '../../../../context/TenantThemeContext';
+import { Calendar, Bell } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5001`;
 
 const StudentAnnouncements = ({ studentAssignments }) => {
-  const { tenant } = useTenantTheme();
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  const primaryBrandColor = tenant?.primaryColor || '#0D1B2A';
 
   useEffect(() => {
     const fetchAnnouncements = async () => {

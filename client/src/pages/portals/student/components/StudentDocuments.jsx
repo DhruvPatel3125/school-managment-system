@@ -1,12 +1,7 @@
 import React from 'react';
 import { FileText, Download } from 'lucide-react';
-import { useTenantTheme } from '../../../../context/TenantThemeContext';
 
 const StudentDocuments = () => {
-  const { tenant } = useTenantTheme();
-  
-  const primaryBrandColor = tenant?.primaryColor || '#0D1B2A';
-
   const mockDocuments = [
     { id: 'doc-1', name: 'Annual Report Card - Term 1.pdf', size: '1.4 MB', type: 'PDF', category: 'Academic Report', date: '2026-06-15' },
     { id: 'doc-2', name: 'Syllabus & Curriculum Guide 2026-27.pdf', size: '3.8 MB', type: 'PDF', category: 'Syllabus', date: '2026-06-01' },

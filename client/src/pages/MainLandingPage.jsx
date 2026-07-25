@@ -3,10 +3,10 @@ import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   Shield, ArrowRight, CheckCircle,
-  ExternalLink, Users, BookOpen, BarChart3, Globe,
+  ExternalLink, Users, BookOpen, BarChart3,
   Menu, X, Building2, GraduationCap,
-  CreditCard, Bell, Lock, TrendingUp,
-  Clock, Check, Phone, Mail, MapPin, ChevronDown,
+  CreditCard, Lock, TrendingUp,
+  Check, Phone, Mail, MapPin, ChevronDown,
   Database, Server, FileText, Zap, ArrowUpRight
 } from 'lucide-react';
 import logo from '../assets/logo.svg';

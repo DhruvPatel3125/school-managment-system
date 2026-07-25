@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Send, UserCheck, MessageSquare, ChevronDown } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { useTenantTheme } from '../../../../context/TenantThemeContext';
 
 const StudentMessages = () => {

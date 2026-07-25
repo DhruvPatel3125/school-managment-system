@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useTenantTheme } from '../../../../context/TenantThemeContext';
-import { Loader2, CheckCircle, AlertTriangle, FileText, X, Lock, CreditCard, Award } from 'lucide-react';
+import { CheckCircle, AlertTriangle, FileText, X, Lock, CreditCard } from 'lucide-react';
+
+const API_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5001`;
 
 const StudentFees = ({ studentFees, fetchStudentFees, fetchStudentDashboard }) => {
   const { tenant } = useTenantTheme();
@@ -12,7 +14,7 @@ const StudentFees = ({ studentFees, fetchStudentFees, fetchStudentDashboard }) =
   const [checkoutFeeModal, setCheckoutFeeModal] = useState(null);
   const [paymentStep, setPaymentStep] = useState('form');
   const [processingStatus, setProcessingStatus] = useState('');
-  const [processingPayment, setProcessingPayment] = useState(false);
+  const [_processingPayment, _setProcessingPayment] = useState(false);
   const [paymentSuccessMsg, setPaymentSuccessMsg] = useState('');
   
   const [cardNumber, setCardNumber] = useState('4111 2222 3333 4444');
@@ -34,7 +36,7 @@ const StudentFees = ({ studentFees, fetchStudentFees, fetchStudentDashboard }) =
       setProcessingStatus('Posting authorized ledger transaction...');
       await new Promise(r => setTimeout(r, 600));
 
-      const res = await axios.post(`http://localhost:5001/api/v1/students/portal/fees/${checkoutFeeModal._id}/pay`);
+      const res = await axios.post(`${API_URL}/api/v1/students/portal/fees/${checkoutFeeModal._id}/pay`);
       if (res.data.success) {
         setPaymentStep('success');
         setPaymentSuccessMsg(`Payment Processed Successfully! Transaction ID: ${res.data.data.transactionId}`);

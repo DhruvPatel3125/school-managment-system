@@ -15,13 +15,15 @@ import StudentDocuments from './components/StudentDocuments';
 import StudentProfile from './components/StudentProfile';
 import { Sparkles, Loader2 } from 'lucide-react';
 
+const API_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5001`;
+
 const StudentPortal = () => {
   const { tenant } = useTenantTheme();
   const { user } = useAuth();
   const location = useLocation();
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [_error, setError] = useState('');
   const [studentDashData, setStudentDashData] = useState(null);
   const [studentAttendance, setStudentAttendance] = useState([]);
   const [studentAssignments, setStudentAssignments] = useState([]);
@@ -53,7 +55,7 @@ const StudentPortal = () => {
     try {
       setLoading(true);
       setError('');
-      const res = await axios.get('http://localhost:5001/api/v1/students/portal/dashboard');
+      const res = await axios.get(`${API_URL}/api/v1/students/portal/dashboard`);
       if (res.data.success) {
         setStudentDashData(res.data.data);
         const studentData = res.data.data.student;
@@ -71,21 +73,21 @@ const StudentPortal = () => {
 
   const fetchStudentAttendance = async () => {
     try {
-      const res = await axios.get('http://localhost:5001/api/v1/students/portal/attendance');
+      const res = await axios.get(`${API_URL}/api/v1/students/portal/attendance`);
       if (res.data.success) setStudentAttendance(res.data.data);
     } catch (err) { console.error('Failed to load student attendance logs', err); }
   };
 
   const fetchStudentAssignments = async () => {
     try {
-      const res = await axios.get('http://localhost:5001/api/v1/students/portal/assignments');
+      const res = await axios.get(`${API_URL}/api/v1/students/portal/assignments`);
       if (res.data.success) setStudentAssignments(res.data.data);
     } catch (err) { console.error('Failed to load student assignments', err); }
   };
 
   const fetchStudentFees = async () => {
     try {
-      const res = await axios.get('http://localhost:5001/api/v1/students/portal/fees');
+      const res = await axios.get(`${API_URL}/api/v1/students/portal/fees`);
       if (res.data.success) setStudentFees(res.data.data);
     } catch (err) { console.error('Failed to load student fees logs', err); }
   };

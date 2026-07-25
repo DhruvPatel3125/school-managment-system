@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useTenantTheme } from '../context/TenantThemeContext';
-import { Bell, Plus, Trash2, Calendar, AlertCircle, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
+import { Bell, Plus, Trash2, AlertCircle, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5001`;
 

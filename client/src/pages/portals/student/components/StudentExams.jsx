@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertTriangle, ChevronDown, Download, Award, Calendar, Home } from 'lucide-react';
+import { AlertTriangle, Download } from 'lucide-react';
 import { useTenantTheme } from '../../../../context/TenantThemeContext';
 
 const StudentExams = () => {

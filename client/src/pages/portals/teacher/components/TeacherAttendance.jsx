@@ -1,5 +1,8 @@
 import React from 'react';
+import axios from 'axios';
 import { Loader2, UserCheck } from 'lucide-react';
+
+const API_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5001`;
 
 const TeacherAttendance = ({
   teacherClasses,
@@ -27,8 +30,7 @@ const TeacherAttendance = ({
       setSavingAttendance(true);
       setAttendanceMsg('');
       const records = attendanceRoster.map(s => ({ studentId: s._id, status: s.status }));
-      const axios = (await import('axios')).default;
-      const res = await axios.post('http://localhost:5001/api/v1/teachers/portal/attendance', {
+      const res = await axios.post(`${API_URL}/api/v1/teachers/portal/attendance`, {
         classId: attendanceClassId,
         section: attendanceSection,
         date: attendanceDate,

@@ -14,6 +14,15 @@ const authLimiter = rateLimit({
   message: { success: false, error: 'Too many requests from this IP, please try again after 15 minutes.' }
 });
 
+if (process.env.NODE_ENV === 'production') {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('FATAL SECURITY ERROR: JWT_SECRET environment variable must be set in production!');
+  }
+  if (!process.env.JWT_REFRESH_SECRET) {
+    throw new Error('FATAL SECURITY ERROR: JWT_REFRESH_SECRET environment variable must be set in production!');
+  }
+}
+
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_jwt_secret_key_1234567890';
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'dev_jwt_refresh_secret_key_1234567890';
 

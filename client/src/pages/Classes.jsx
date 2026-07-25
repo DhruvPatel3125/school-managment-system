@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useTenantTheme } from '../context/TenantThemeContext';
 import { Plus, Edit2, Trash2, BookOpen, AlertTriangle, Loader2 } from 'lucide-react';
 
+const API_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5001`;
+
 const Classes = () => {
   const { tenant } = useTenantTheme();
   const [classes, setClasses] = useState([]);
@@ -19,7 +21,7 @@ const Classes = () => {
     try {
       setLoading(true);
       setError('');
-      const res = await axios.get('http://localhost:5001/api/v1/classes');
+      const res = await axios.get(`${API_URL}/api/v1/classes`);
       setClasses(res.data.data);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to fetch classes.');
@@ -67,12 +69,12 @@ const Classes = () => {
 
     try {
       if (editingClass) {
-        await axios.put(`http://localhost:5001/api/v1/classes/${editingClass._id}`, {
+        await axios.put(`${API_URL}/api/v1/classes/${editingClass._id}`, {
           name: className.trim(),
           sections
         });
       } else {
-        await axios.post('http://localhost:5001/api/v1/classes', {
+        await axios.post(`${API_URL}/api/v1/classes`, {
           name: className.trim(),
           sections
         });
@@ -90,7 +92,7 @@ const Classes = () => {
     }
 
     try {
-      await axios.delete(`http://localhost:5001/api/v1/classes/${classId}`);
+      await axios.delete(`${API_URL}/api/v1/classes/${classId}`);
       fetchClasses();
     } catch (err) {
       alert(err.response?.data?.error || 'Failed to delete class.');

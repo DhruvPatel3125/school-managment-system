@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Clock, BookOpen, User, MapPin } from 'lucide-react';
+import { Clock, User, MapPin } from 'lucide-react';
 import { useTenantTheme } from '../../../../context/TenantThemeContext';
 
 const StudentTimetable = () => {

@@ -1,19 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import { Loader2 } from 'lucide-react';
 import TeacherOverview from './components/TeacherOverview';
 import TeacherAttendance from './components/TeacherAttendance';
 import TeacherAssignments from './components/TeacherAssignments';
 
+const API_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5001`;
+
 const TeacherPortal = () => {
   const { user } = useAuth();
+  const location = useLocation();
   
   // Teacher States
   const [teacherDashData, setTeacherDashData] = useState(null);
   const [teacherClasses, setTeacherClasses] = useState([]);
   const [teacherActiveTab, setTeacherActiveTab] = useState('overview');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const path = location.pathname;
+    if (path === '/attendance') setTeacherActiveTab('attendance');
+    else if (path === '/homework') setTeacherActiveTab('assignments');
+    else setTeacherActiveTab('overview');
+  }, [location.pathname]);
 
   // Attendance Tracker state
   const [attendanceClassId, setAttendanceClassId] = useState('');
@@ -50,7 +61,7 @@ const TeacherPortal = () => {
   const fetchTeacherDashboard = async () => {
     try {
       setLoading(true);
-      const res = await axios.get('http://localhost:5001/api/v1/teachers/portal/dashboard');
+      const res = await axios.get(`${API_URL}/api/v1/teachers/portal/dashboard`);
       if (res.data.success) {
         setTeacherDashData(res.data.data);
       }
@@ -63,7 +74,7 @@ const TeacherPortal = () => {
 
   const fetchTeacherClasses = async () => {
     try {
-      const res = await axios.get('http://localhost:5001/api/v1/teachers/portal/classes');
+      const res = await axios.get(`${API_URL}/api/v1/teachers/portal/classes`);
       if (res.data.success) {
         setTeacherClasses(res.data.data);
         if (res.data.data.length > 0) {
@@ -82,7 +93,7 @@ const TeacherPortal = () => {
 
   const fetchTeacherAssignments = async () => {
     try {
-      const res = await axios.get('http://localhost:5001/api/v1/teachers/portal/assignments');
+      const res = await axios.get(`${API_URL}/api/v1/teachers/portal/assignments`);
       if (res.data.success) {
         setTeacherAssignments(res.data.data);
       }
@@ -91,12 +102,12 @@ const TeacherPortal = () => {
     }
   };
 
-  const loadAttendanceRoster = async () => {
+  const loadAttendanceRoster = useCallback(async () => {
     if (!attendanceClassId || !attendanceSection) return;
     try {
       setLoadingRoster(true);
       setAttendanceMsg('');
-      const res = await axios.get(`http://localhost:5001/api/v1/teachers/portal/attendance?classId=${attendanceClassId}&section=${attendanceSection}&date=${attendanceDate}`);
+      const res = await axios.get(`${API_URL}/api/v1/teachers/portal/attendance?classId=${attendanceClassId}&section=${attendanceSection}&date=${attendanceDate}`);
       if (res.data.success) {
         const roster = res.data.data.map(stud => ({
           ...stud,
@@ -109,13 +120,13 @@ const TeacherPortal = () => {
     } finally {
       setLoadingRoster(false);
     }
-  };
+  }, [attendanceClassId, attendanceSection, attendanceDate]);
 
   useEffect(() => {
     if (teacherActiveTab === 'attendance') {
       loadAttendanceRoster();
     }
-  }, [attendanceClassId, attendanceSection, attendanceDate, teacherActiveTab]);
+  }, [teacherActiveTab, loadAttendanceRoster]);
 
   return (
     <div className="space-y-6 animate-fade-in">

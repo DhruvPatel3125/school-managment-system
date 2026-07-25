@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const Contact = require('../models/contact');
+const auth = require('../middlewares/auth');
+const checkPermission = require('../middlewares/rbac');
 
 // @route   POST /api/contacts
 // @desc    Submit a contact form
@@ -31,8 +33,8 @@ router.post('/', async (req, res) => {
 
 // @route   GET /api/contacts
 // @desc    Get all contact submissions
-// @access  Public (should be protected for Super Admin in production)
-router.get('/', async (req, res) => {
+// @access  Protected (Super Admin only)
+router.get('/', auth, checkPermission('manage:tenants'), async (req, res) => {
   try {
     const contacts = await Contact.find().sort({ createdAt: -1 });
     res.status(200).json({ success: true, data: contacts });

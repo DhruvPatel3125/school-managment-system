@@ -1,0 +1,360 @@
+/*
+ * Admin Portal — Design System
+ * Clean CSS for the School Admin dashboard
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* ── CSS Variables ── */
+:root {
+  --admin-bg:         #F8FAFC;
+  --admin-bg-card:    #FFFFFF;
+  --admin-border:     #E2E8F0;
+  --admin-border-sm:  #CBD5E1;
+  --admin-text:       #0F172A;
+  --admin-text2:      #334155;
+  --admin-text3:      #64748B;
+  --admin-text4:      #94A3B8;
+  --admin-accent:     var(--tenant-primary, #1e3a8a);
+  --admin-success:    #10B981;
+  --admin-warning:    #F59E0B;
+  --admin-danger:     #EF4444;
+  --admin-radius:     12px;
+  --admin-radius-sm:  8px;
+  --admin-shadow:     0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --admin-shadow-md:  0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* ── Admin Root ── */
+.admin-portal-root {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--admin-bg);
+  color: var(--admin-text);
+  min-height: 100%;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─────────────── STAT CARDS ─────────────── */
+.ap-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.ap-stat-card {
+  background: var(--admin-bg-card);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  padding: 20px;
+  box-shadow: var(--admin-shadow);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.ap-stat-card:hover {
+  box-shadow: var(--admin-shadow-md);
+  transform: translateY(-1px);
+}
+
+.ap-stat-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--admin-text4);
+  margin-bottom: 8px;
+}
+
+.ap-stat-value {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--admin-text);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.ap-stat-change {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.ap-stat-change.up {
+  background: #ECFDF5;
+  color: #059669;
+}
+
+.ap-stat-change.down {
+  background: #FEF2F2;
+  color: #DC2626;
+}
+
+/* ─────────────── SECTION CARD ─────────────── */
+.ap-card {
+  background: var(--admin-bg-card);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  box-shadow: var(--admin-shadow);
+  overflow: hidden;
+}
+
+.ap-card-header {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--admin-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ap-card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--admin-text4);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.ap-card-body {
+  padding: 20px;
+}
+
+/* ─────────────── WELCOME HEADER ─────────────── */
+.ap-welcome {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 20px 24px;
+  background: var(--admin-bg-card);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  box-shadow: var(--admin-shadow);
+  margin-bottom: 20px;
+}
+
+.ap-welcome-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.ap-welcome-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--admin-text4);
+  margin-bottom: 4px;
+}
+
+.ap-welcome-badge .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10B981;
+  animation: apPulse 2s infinite;
+}
+
+.ap-welcome h2 {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--admin-text);
+  line-height: 1.2;
+  margin: 0;
+}
+
+.ap-welcome p {
+  font-size: 12px;
+  color: var(--admin-text3);
+  margin: 2px 0 0;
+}
+
+/* ─────────────── BUTTONS ─────────────── */
+.ap-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--admin-radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-decoration: none;
+  white-space: nowrap;
+  font-family: 'Inter', sans-serif;
+}
+
+.ap-btn:active {
+  transform: scale(0.97);
+}
+
+.ap-btn-primary {
+  background: var(--admin-accent);
+  color: #fff;
+  border-color: var(--admin-accent);
+}
+
+.ap-btn-primary:hover {
+  opacity: 0.9;
+}
+
+.ap-btn-outline {
+  background: var(--admin-bg-card);
+  color: var(--admin-text2);
+  border-color: var(--admin-border-sm);
+}
+
+.ap-btn-outline:hover {
+  background: var(--admin-bg);
+  color: var(--admin-text);
+}
+
+/* ─────────────── QUICK ACTION TILES ─────────────── */
+.ap-action-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.ap-action-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-sm);
+  background: var(--admin-bg);
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.15s;
+  cursor: pointer;
+}
+
+.ap-action-tile:hover {
+  background: var(--admin-bg-card);
+  border-color: var(--admin-border-sm);
+  box-shadow: var(--admin-shadow-md);
+  transform: translateY(-2px);
+}
+
+.ap-action-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--admin-radius-sm);
+  background: var(--admin-bg-card);
+  border: 1px solid var(--admin-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--admin-shadow);
+  transition: transform 0.15s;
+}
+
+.ap-action-tile:hover .ap-action-icon {
+  transform: scale(1.08);
+}
+
+.ap-action-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--admin-text);
+}
+
+.ap-action-desc {
+  font-size: 10px;
+  color: var(--admin-text3);
+  line-height: 1.4;
+}
+
+/* ─────────────── STATUS INDICATOR ─────────────── */
+.ap-status-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-sm);
+  background: var(--admin-bg);
+}
+
+.ap-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.ap-status-dot.online {
+  background: #10B981;
+  animation: apPulse 2s infinite;
+}
+
+.ap-status-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--admin-text2);
+}
+
+.ap-status-desc {
+  font-size: 10px;
+  color: var(--admin-text4);
+  margin-top: 2px;
+}
+
+/* ─────────────── LOADING SPINNER ─────────────── */
+.ap-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+.ap-spinner {
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--admin-border);
+  border-top-color: var(--admin-accent);
+  border-radius: 50%;
+  animation: apSpin 0.7s linear infinite;
+}
+
+/* ─────────────── ANIMATIONS ─────────────── */
+@keyframes apSpin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes apPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ─────────────── RESPONSIVE ─────────────── */
+@media (max-width: 640px) {
+  .ap-stat-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .ap-welcome-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ap-action-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 400px) {
+  .ap-stat-grid {
+    grid-template-columns: 1fr;
+  }
+}

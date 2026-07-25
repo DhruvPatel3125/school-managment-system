@@ -25,9 +25,27 @@ app.use(helmet({
   crossOriginResourcePolicy: false
 }));
 
-// Configure CORS to allow credentials and wildcard subdomains
+// Configure CORS with explicit origin validation and wildcard subdomain support
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
+  : [];
+
 app.use(cors({
-  origin: true, // Allow request's actual origin
+  origin: (origin, callback) => {
+    // Allow non-browser requests (Postman, mobile apps, server-to-server)
+    if (!origin) return callback(null, true);
+
+    // Development & Subdomain patterns match (e.g. localhost, schoola.localhost, 127.0.0.1)
+    const isAllowedLocal = /^http:\/\/(?:[a-z0-9-]+\.)*localhost(?::\d+)?$/i.test(origin);
+    const isAllowedIP = /^http:\/\/127\.0\.0\.1(?::\d+)?$/i.test(origin);
+    const isExplicitlyAllowed = allowedOrigins.includes(origin);
+
+    if (isAllowedLocal || isAllowedIP || isExplicitlyAllowed) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS Access Denied: Origin '${origin}' is not authorized.`));
+    }
+  },
   credentials: true
 }));
 

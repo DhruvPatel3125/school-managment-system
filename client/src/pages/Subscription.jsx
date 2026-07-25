@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useTenantTheme } from '../context/TenantThemeContext';
-import { CreditCard, Loader2, AlertTriangle, CheckCircle, Zap } from 'lucide-react';
+import { Loader2, AlertTriangle, CheckCircle, Zap } from 'lucide-react';
 
 const plansConfig = [
   { id: 'starter', name: 'Starter', price: '₹1,999/mo', desc: 'Perfect for small schools just getting started.', limit: 200 },
@@ -219,7 +219,7 @@ const Subscription = () => {
                 <div className="my-4 space-y-2.5 flex-1 border-t border-slate-100 pt-3">
                   <div className="flex items-center gap-2 text-xs text-slate-700">
                     <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                    <span>Up to {p.limit === 'Unlimited' ? p.limit : `${fmt => p.limit} students`} limit</span>
+                    <span>Up to {p.limit === 'Unlimited' ? p.limit : `${p.limit} students`} limit</span>
                   </div>
                   {p.id === 'professional' && (
                     <>

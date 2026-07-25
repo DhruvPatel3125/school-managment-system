@@ -3,36 +3,34 @@ import axios from 'axios';
 import { useTenantTheme } from '../../../../context/TenantThemeContext';
 import { useAuth } from '../../../../context/AuthContext';
 import {
-  GraduationCap,
-  Users,
-  Calendar,
-  CreditCard,
-  Plus,
-  FileText,
-  Loader2,
-  TrendingUp,
-  Activity,
-  Award
+  GraduationCap, Users, CreditCard, FileText,
+  TrendingUp, Activity, Award
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+/* ── CSS ── */
+import '../../../../styles/admin.css';
+
+/**
+ * AdminOverview — School admin dashboard with stats, quick actions, and system status
+ */
 const AdminOverview = () => {
   const { tenant } = useTenantTheme();
-  const { user } = useAuth();
+  const { user }   = useAuth();
+
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
-    totalStudents: 0,
-    activeTeachers: 0,
+    totalStudents:        0,
+    activeTeachers:       0,
     attendancePercentage: '0.0',
-    feesCollected: '₹0'
+    feesCollected:        '₹0',
   });
 
   useEffect(() => {
     const fetchDashboardStats = async () => {
       try {
-        const res = await axios.get('http://localhost:5001/api/v1/admin/dashboard', {
-          withCredentials: true
-        });
+        const API_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5001`;
+        const res = await axios.get(`${API_URL}/api/v1/admin/dashboard`, { withCredentials: true });
         if (res.data.success) {
           setStats(res.data.data);
         }
@@ -46,122 +44,136 @@ const AdminOverview = () => {
     fetchDashboardStats();
   }, []);
 
-  const primaryBrandColor = tenant?.primaryColor || '#0D1B2A';
+  const primaryBrandColor = tenant?.primaryColor || '#1e3a8a';
 
+  /* ── Stat card definitions ── */
   const statCards = [
-    { name: 'Total Students', value: stats.totalStudents, change: '+4.75%', changeType: 'increase' },
-    { name: 'Active Teachers', value: stats.activeTeachers, change: '+2.1%', changeType: 'increase' },
-    { name: 'Daily Attendance', value: `${stats.attendancePercentage}%`, change: '-0.4%', changeType: 'decrease' },
-    { name: 'Fees Collected (Mtd)', value: stats.feesCollected, change: '+12.5%', changeType: 'increase' }
+    { name: 'Total Students',       value: stats.totalStudents,               change: '+4.75%', changeType: 'increase', icon: Users },
+    { name: 'Active Teachers',      value: stats.activeTeachers,              change: '+2.1%',  changeType: 'increase', icon: GraduationCap },
+    { name: 'Daily Attendance',     value: `${stats.attendancePercentage}%`,  change: '-0.4%',  changeType: 'decrease', icon: Activity },
+    { name: 'Fees Collected (Mtd)', value: stats.feesCollected,               change: '+12.5%', changeType: 'increase', icon: CreditCard },
+  ];
+
+  /* ── Quick action definitions ── */
+  const quickActions = [
+    { to: '/students', label: 'Manage Students',  desc: 'Browse SIS, admit pupils',        icon: Users,       color: '#3B82F6' },
+    { to: '/staff',    label: 'Staff Directory',   desc: 'Manage teachers & admins',        icon: Award,       color: '#10B981' },
+    { to: '/classes',  label: 'Academic Setup',    desc: 'Configure sections & grades',     icon: TrendingUp,  color: '#F59E0B' },
+    { to: '/announcements', label: 'Announcements', desc: 'Post school-wide updates',       icon: FileText,    color: '#8B5CF6' },
+  ];
+
+  /* ── System status items ── */
+  const systemStatus = [
+    { title: 'Database Connection', desc: 'Live operations normal' },
+    { title: 'Cloud Storage Sync',  desc: 'Synced 2m ago' },
+    { title: 'Active Connections',  desc: '14 active administrators' },
   ];
 
   if (loading) {
     return (
-      <div className="flex h-64 items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin" style={{ color: primaryBrandColor }} />
+      <div className="ap-loader">
+        <div className="ap-spinner" style={{ borderTopColor: primaryBrandColor }} />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 pb-12">
-      {/* Flat & Calm Welcoming Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-        <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">Active Session</span>
-          </div>
-          <h2 className="text-xl font-bold text-slate-900 leading-tight">
-            Welcome back, {user?.name || 'Administrator'}
-          </h2>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Dashboard for {tenant?.schoolName || 'EduCore School'} · {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Link
-            to="/students"
-            className="inline-flex items-center gap-1.5 px-4 py-2 text-white text-xs font-semibold rounded-lg shadow-sm hover:opacity-95 active:scale-95 transition-all"
-            style={{ backgroundColor: primaryBrandColor }}
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Add Student Admission</span>
-          </Link>
-          <Link
-            to="/classes"
-            className="inline-flex items-center gap-1.5 px-4 py-2 border border-slate-200 bg-white text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-50 active:scale-95 transition-all shadow-sm"
-          >
-            <FileText className="w-3.5 h-3.5 text-slate-400" />
-            <span>Manage Classes</span>
-          </Link>
-        </div>
-      </div>
+    <div className="admin-portal-root" style={{ padding: '0 0 48px' }}>
 
-      {/* Grid of Flat Stat Cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {statCards.map((item) => (
-          <div
-            key={item.name}
-            className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm transition-all"
-          >
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{item.name}</p>
-            <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-2xl font-bold text-slate-900 tracking-tight">{item.value}</span>
-              <span className={`text-[10px] font-semibold px-1 py-0.5 rounded ${
-                item.changeType === 'increase' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
-              }`}>
-                {item.change}
-              </span>
+      {/* ── Welcome Header ── */}
+      <div className="ap-welcome">
+        <div className="ap-welcome-row">
+          <div>
+            <div className="ap-welcome-badge">
+              <span className="dot" />
+              Active Session
             </div>
-            <p className="text-[9px] text-slate-400 mt-2 font-medium">vs. previous month</p>
+            <h2>Welcome back, {user?.name || 'Administrator'}</h2>
+            <p>
+              Dashboard for {tenant?.schoolName || 'EduCore School'} ·{' '}
+              {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+            </p>
           </div>
-        ))}
+
+          {/* Action buttons */}
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <Link
+              to="/students"
+              className="ap-btn ap-btn-primary"
+              style={{ backgroundColor: primaryBrandColor }}
+            >
+              + Add Student Admission
+            </Link>
+            <Link to="/classes" className="ap-btn ap-btn-outline">
+              <FileText style={{ width: 14, height: 14 }} />
+              Manage Classes
+            </Link>
+          </div>
+        </div>
       </div>
 
-      {/* Quick Actions / Recent Activity Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {/* Quick Actions Grid */}
-        <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Quick Actions Hub</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {[
-              { to: '/students', label: 'Manage Students', desc: 'Browse SIS, admit pupils', icon: Users, color: '#3B82F6' },
-              { to: '/staff', label: 'Staff Directory', desc: 'Manage teachers & admins', icon: Award, color: '#10B981' },
-              { to: '/classes', label: 'Academic Setup', desc: 'Configure sections & grades', icon: TrendingUp, color: '#F59E0B' }
-            ].map((act) => {
-              const ActionIcon = act.icon;
-              return (
-                <Link
-                  key={act.to}
-                  to={act.to}
-                  className="p-4 rounded-lg border border-slate-100 bg-slate-50 hover:bg-slate-100/50 hover:border-slate-200 transition-colors flex flex-col gap-1 group text-left"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center border border-slate-200 shadow-sm group-hover:scale-105 transition-transform" style={{ color: act.color }}>
-                    <ActionIcon className="w-4 h-4" />
-                  </div>
-                  <span className="text-xs font-semibold text-slate-800 mt-2 block">{act.label}</span>
-                  <span className="text-[10px] text-slate-500 leading-tight block">{act.desc}</span>
-                </Link>
-              );
-            })}
+      {/* ── Stat Cards ── */}
+      <div className="ap-stat-grid">
+        {statCards.map((item) => {
+          const Icon = item.icon;
+          return (
+            <div className="ap-stat-card" key={item.name}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                <p className="ap-stat-label">{item.name}</p>
+                <div style={{ width: 32, height: 32, borderRadius: 8, background: `${primaryBrandColor}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon style={{ width: 15, height: 15, color: primaryBrandColor }} />
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                <span className="ap-stat-value">{item.value}</span>
+                <span className={`ap-stat-change ${item.changeType === 'increase' ? 'up' : 'down'}`}>
+                  {item.change}
+                </span>
+              </div>
+              <p style={{ fontSize: 10, color: 'var(--admin-text4)', marginTop: 6, fontWeight: 500 }}>vs. previous month</p>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ── Bottom Grid: Quick Actions + System Status ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 16 }}>
+
+        {/* Quick Actions */}
+        <div className="ap-card">
+          <div className="ap-card-header">
+            <span className="ap-card-title">Quick Actions Hub</span>
+          </div>
+          <div className="ap-card-body">
+            <div className="ap-action-grid">
+              {quickActions.map((act) => {
+                const Icon = act.icon;
+                return (
+                  <Link key={act.to} to={act.to} className="ap-action-tile">
+                    <div className="ap-action-icon" style={{ color: act.color }}>
+                      <Icon style={{ width: 16, height: 16 }} />
+                    </div>
+                    <span className="ap-action-label">{act.label}</span>
+                    <span className="ap-action-desc">{act.desc}</span>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         </div>
 
-        {/* System Status Panel */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">System Status</h3>
-          <div className="space-y-3">
-            {[
-              { title: 'Database Connection', status: 'Online', desc: 'Live operations normal' },
-              { title: 'Cloud Storage Sync', status: 'Online', desc: 'Synced 2m ago' },
-              { title: 'Active Connections', status: 'Stable', desc: '14 active administrators' }
-            ].map((stat) => (
-              <div key={stat.title} className="flex gap-3 p-3 rounded-lg border border-slate-100 bg-slate-50">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 flex-shrink-0 animate-pulse"></span>
+        {/* System Status */}
+        <div className="ap-card">
+          <div className="ap-card-header">
+            <span className="ap-card-title">System Status</span>
+          </div>
+          <div className="ap-card-body" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {systemStatus.map((stat) => (
+              <div key={stat.title} className="ap-status-item">
+                <span className="ap-status-dot online" />
                 <div>
-                  <h4 className="text-xs font-bold text-slate-700">{stat.title}</h4>
-                  <p className="text-[10px] text-slate-500 mt-0.5">{stat.desc}</p>
+                  <h4 className="ap-status-name">{stat.title}</h4>
+                  <p className="ap-status-desc">{stat.desc}</p>
                 </div>
               </div>
             ))}

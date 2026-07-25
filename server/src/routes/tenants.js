@@ -2,9 +2,11 @@ const express = require('express');
 const router = express.Router();
 const Tenant = require('../models/tenant');
 const tenantResolver = require('../middlewares/tenantResolver');
+const auth = require('../middlewares/auth');
+const checkPermission = require('../middlewares/rbac');
 
 // 1. Create a new school tenant (Super Admin operation / Dev Tool)
-router.post('/', async (req, res, next) => {
+router.post('/', auth, checkPermission('manage:tenants'), async (req, res, next) => {
   try {
     const { schoolName, subdomain, logoUrl, primaryColor, secondaryColor } = req.body;
 
@@ -40,13 +42,36 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-// 2. List all tenants (Super Admin operation / Dev Tool)
+// 2. List tenants (Returns active school tenants; Super Admin gets all tenants including inactive)
 router.get('/', async (req, res, next) => {
   try {
-    const tenants = await Tenant.find();
+    const jwt = require('jsonwebtoken');
+    const User = require('../models/user');
+    const JWT_SECRET = process.env.JWT_SECRET || 'dev_jwt_secret_key_1234567890';
+
+    let token = null;
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+      token = req.headers.authorization.split(' ')[1];
+    }
+
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const user = await User.findById(decoded.id).populate('roleId');
+        if (user && user.roleId && user.roleId.name === 'super_admin') {
+          const allTenants = await Tenant.find().sort({ schoolName: 1 });
+          return res.status(200).json({ success: true, data: allTenants });
+        }
+      } catch (err) {
+        // Fallback to active tenants list
+      }
+    }
+
+    // Public / default response: return list of active school tenants
+    const activeTenants = await Tenant.find({ status: 'active' }).sort({ schoolName: 1 });
     res.status(200).json({
       success: true,
-      data: tenants
+      data: activeTenants
     });
   } catch (error) {
     next(error);

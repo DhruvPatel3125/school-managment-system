@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, CheckCircle, AlertTriangle, AlertCircle, Info, ChevronDown } from 'lucide-react';
+import { Calendar, CheckCircle, AlertCircle, ChevronDown } from 'lucide-react';
 
 const StudentAttendance = ({ studentAttendance, studentDashData }) => {
   const [attendanceMonth, setAttendanceMonth] = useState('all');

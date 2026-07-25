@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Mail, Calendar, GraduationCap, ShieldCheck, Heart, Phone, Award } from 'lucide-react';
+import { User, Mail, Calendar, GraduationCap, ShieldCheck, Heart, Phone } from 'lucide-react';
 import { useTenantTheme } from '../../../../context/TenantThemeContext';
 
 const StudentProfile = ({ studentDashData, user }) => {

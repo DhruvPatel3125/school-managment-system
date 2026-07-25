@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FileText, ArrowLeft, AlertCircle, Handshake, ScrollText, Scale, ShieldCheck } from 'lucide-react';
+import { FileText, ArrowLeft, AlertCircle, Handshake, ScrollText, Scale } from 'lucide-react';
 import logo from '../assets/logo.svg';
 
 const TermsOfService = () => {

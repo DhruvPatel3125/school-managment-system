@@ -3,6 +3,10 @@ const User = require('../models/user');
 const Role = require('../models/role');
 const Permission = require('../models/permission');
 
+if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
+  throw new Error('FATAL SECURITY ERROR: JWT_SECRET environment variable must be set in production!');
+}
+
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_jwt_secret_key_1234567890';
 
 /**

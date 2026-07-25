@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTenantTheme } from '../context/TenantThemeContext';
 import {
-  GraduationCap, Eye, EyeOff, ArrowRight, Shield,
+  Eye, EyeOff, ArrowRight, Shield,
   CheckCircle, Info, Mail, Lock
 } from 'lucide-react';
 import logo from '../assets/logo.svg';
@@ -91,9 +91,6 @@ const Login = () => {
   };
 
   const schoolName = tenant?.schoolName || 'EduCore';
-
-  /* ── Tenant primary colour for branded left panel ── */
-  const brandColor = tenant?.primaryColor || 'var(--navy)';
 
   return (
     <div
