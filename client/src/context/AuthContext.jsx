@@ -1,8 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5001`;
-
+import { API_URL } from '../config/api';
 
 const AuthContext = createContext(null);
 
@@ -31,9 +29,13 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const requestInterceptor = axios.interceptors.request.use(
       (config) => {
-        // Rewrite localhost:5001 to the current hostname:5001 to prevent CORS/subdomain issues
-        if (config.url && config.url.includes('localhost:5001') && !import.meta.env.VITE_API_URL) {
-          config.url = config.url.replace('localhost:5001', `${window.location.hostname}:5001`);
+        // Handle HTTPS / Netlify relative path rewrites
+        if (config.url && config.url.includes('localhost:5001')) {
+          if (window.location.protocol === 'https:' && !import.meta.env.VITE_API_URL) {
+            config.url = config.url.replace(/http:\/\/[^/]+:5001/, '');
+          } else if (!import.meta.env.VITE_API_URL) {
+            config.url = config.url.replace('localhost:5001', `${window.location.hostname}:5001`);
+          }
         }
 
         if (accessToken) {

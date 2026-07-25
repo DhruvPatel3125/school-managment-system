@@ -1,8 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5001`;
-
+import { API_URL } from '../config/api';
 
 const TenantThemeContext = createContext(null);
 
@@ -47,7 +45,6 @@ export const TenantThemeProvider = ({ children }) => {
         console.log(`Resolving branding settings for tenant: "${subdomain}"`);
 
         // 2. Fetch tenant profile from backend
-        // We call the server running on port 5001 (standard dev port)
         const response = await axios.get(`${API_URL}/api/v1/tenants/current`, {
           headers: {
             'x-tenant-subdomain': subdomain
@@ -58,27 +55,22 @@ export const TenantThemeProvider = ({ children }) => {
         setTenant(tenantData);
 
         // 3. Inject CSS variables dynamically into document root
-        if (tenantData.primaryColor) {
-          document.documentElement.style.setProperty('--tenant-primary', tenantData.primaryColor);
+        if (tenantData?.branding) {
+          const root = document.documentElement;
+          if (tenantData.branding.primaryColor) {
+            root.style.setProperty('--color-primary', tenantData.branding.primaryColor);
+          }
+          if (tenantData.branding.secondaryColor) {
+            root.style.setProperty('--color-secondary', tenantData.branding.secondaryColor);
+          }
+          if (tenantData.branding.accentColor) {
+            root.style.setProperty('--color-accent', tenantData.branding.accentColor);
+          }
         }
-        if (tenantData.secondaryColor) {
-          document.documentElement.style.setProperty('--tenant-secondary', tenantData.secondaryColor);
-        }
-
-        // Update browser page title and favicon
-        document.title = `${tenantData.schoolName} - EduCore ERP`;
-
-        let favicon = document.querySelector("link[rel~='icon']");
-        if (!favicon) {
-          favicon = document.createElement('link');
-          favicon.rel = 'icon';
-          document.getElementsByTagName('head')[0].appendChild(favicon);
-        }
-        favicon.href = tenantData.logoUrl || '/favicon.ico';
-
       } catch (err) {
-        console.error('Failed to resolve tenant configuration:', err);
-        setError(err.response?.data?.error || 'Failed to connect to school server. Please verify your connection.');
+        console.warn('Failed to resolve tenant configuration:', err);
+        setError(err.response?.data?.error || 'Tenant not found');
+        setTenant(null);
       } finally {
         setLoading(false);
       }
@@ -94,10 +86,12 @@ export const TenantThemeProvider = ({ children }) => {
   );
 };
 
-export const useTenantTheme = () => {
+export const useTenant = () => {
   const context = useContext(TenantThemeContext);
   if (!context) {
-    throw new Error('useTenantTheme must be used within a TenantThemeProvider');
+    throw new Error('useTenant must be used within a TenantThemeProvider');
   }
   return context;
 };
+
+export const useTenantTheme = useTenant;
