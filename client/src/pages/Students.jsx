@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useTenantTheme } from '../context/TenantThemeContext';
+import useDebounce from '../hooks/useDebounce';
 import { 
   Search, 
   UserPlus, 
@@ -28,6 +29,7 @@ const Students = () => {
   
   // Filters & Pagination
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const [selectedClassFilter, setSelectedClassFilter] = useState('');
   const [page, setPage] = useState(1);
   const perPage = 25;
@@ -62,7 +64,7 @@ const Students = () => {
       let studentsUrl = `${API_URL}/api/v1/students`;
       const params = [];
       if (selectedClassFilter) params.push(`classId=${selectedClassFilter}`);
-      if (searchTerm) params.push(`search=${encodeURIComponent(searchTerm)}`);
+      if (debouncedSearchTerm) params.push(`search=${encodeURIComponent(debouncedSearchTerm)}`);
       
       if (params.length > 0) {
         studentsUrl += `?${params.join('&')}`;
@@ -75,7 +77,7 @@ const Students = () => {
     } finally {
       setLoading(false);
     }
-  }, [selectedClassFilter, searchTerm]);
+  }, [selectedClassFilter, debouncedSearchTerm]);
 
   useEffect(() => {
     fetchData();
@@ -214,38 +216,42 @@ const Students = () => {
       `}</style>
 
       {/* Header Panel */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-        <div>
-          <h2 className="text-lg font-bold text-slate-900">Student Directory (SIS)</h2>
-          <p className="text-xs text-slate-500 mt-0.5">Manage admissions, view student rosters, and generate identity cards.</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <div className="p-2 rounded-xl bg-[#C4613A]/10 text-[#C4613A] border border-[#C4613A]/20">
+              <GraduationCap className="w-5 h-5" />
+            </div>
+            <h1 className="text-xl font-extrabold text-[#0D1B2A] tracking-tight">Student Directory (SIS)</h1>
+          </div>
+          <p className="text-xs text-slate-500">Manage student admissions, view class rosters, and generate student identity cards for {tenant?.schoolName || 'EduCore School'}.</p>
         </div>
         <button
           onClick={openAdmissionModal}
-          className="inline-flex items-center gap-1.5 px-4 py-2 text-white text-xs font-semibold rounded-lg shadow-sm hover:opacity-95 active:scale-95 transition-all"
-          style={{ backgroundColor: primaryBrandColor }}
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#C4613A] hover:bg-[#b0532e] active:scale-95 text-white font-bold text-xs shadow-md transition-all shrink-0"
         >
-          <UserPlus className="w-4 h-4" /> New Admission
+          <UserPlus className="w-4 h-4" /> <span>+ New Admission</span>
         </button>
       </div>
 
       {/* Search and Filters */}
-      <div className="flex flex-col sm:flex-row gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+      <div className="flex flex-col sm:flex-row gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
         <div className="flex-1 relative">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
             placeholder="Search by student name or Admission No..."
             value={searchTerm}
             onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
-            className="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-300 text-xs focus:outline-none focus:border-slate-500 bg-white placeholder-slate-400 text-slate-800 transition-all shadow-sm"
+            className="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
           />
-          <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
         </div>
         
         <div className="w-full sm:w-60">
           <select
             value={selectedClassFilter}
             onChange={(e) => { setSelectedClassFilter(e.target.value); setPage(1); }}
-            className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs focus:outline-none focus:border-slate-500 bg-white text-slate-800 transition-all shadow-sm"
+            className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
           >
             <option value="">All Classes</option>
             {classes.map((cls) => (

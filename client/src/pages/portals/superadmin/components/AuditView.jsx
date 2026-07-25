@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
+import useDebounce from '../../../../hooks/useDebounce';
 import { RefreshCw, Search, Download, ClipboardList } from 'lucide-react';
 
 /**
  * AuditView — Full paginated audit log with search and filter
  */
 const AuditView = ({ logs, fetchLogs }) => {
-  const [search, setSearch] = useState('');
+  const [search, setSearch]   = useState('');
+  const debouncedSearch       = useDebounce(search, 300);
   const [action, setAction] = useState('all');
   const [page, setPage]     = useState(1);
   const perPage = 50;
@@ -13,7 +15,7 @@ const AuditView = ({ logs, fetchLogs }) => {
   const actions = [...new Set(logs.map(l => l.action).filter(Boolean))];
 
   const filtered = logs.filter(l => {
-    const q = search.toLowerCase();
+    const q = debouncedSearch.toLowerCase();
     if (
       q &&
       !l.action?.toLowerCase().includes(q) &&

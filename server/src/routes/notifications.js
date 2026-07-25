@@ -38,7 +38,7 @@ router.get('/', async (req, res, next) => {
       unreadCount,
       data: notifications
     });
-  } catch (error) {announcementCount
+  } catch (error) {
     next(error);
   }
 });

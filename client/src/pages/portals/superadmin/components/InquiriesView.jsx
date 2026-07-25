@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import useDebounce from '../../../../hooks/useDebounce';
 import { RefreshCw, Search, Mail, MessageSquare, Loader2 } from 'lucide-react';
 
 const API = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5001`;
@@ -15,6 +16,7 @@ const InquiriesView = () => {
   const [loading, setLoading]     = useState(true);
   const [error, setError]         = useState('');
   const [search, setSearch]       = useState('');
+  const debouncedSearch           = useDebounce(search, 300);
   const [statusFilter, setStatus] = useState('all');
   const [expanded, setExpanded]   = useState(null);
 
@@ -41,7 +43,7 @@ const InquiriesView = () => {
   };
 
   const filtered = contacts.filter(c => {
-    const q = search.toLowerCase();
+    const q = debouncedSearch.toLowerCase();
     if (q && !`${c.firstName} ${c.lastName} ${c.email}`.toLowerCase().includes(q)) return false;
     if (statusFilter !== 'all' && c.status !== statusFilter) return false;
     return true;

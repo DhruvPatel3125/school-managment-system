@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useTenantTheme } from '../context/TenantThemeContext';
+import useDebounce from '../hooks/useDebounce';
 import { 
   Plus, 
   Edit2, 
@@ -27,6 +28,7 @@ const Staff = () => {
   
   // Filters & Search
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const [selectedDeptFilter, setSelectedDeptFilter] = useState('ALL');
 
   // Modal states
@@ -140,7 +142,7 @@ const Staff = () => {
 
   // Filter logic
   const filteredStaff = staffList.filter(s => {
-    const q = searchTerm.toLowerCase();
+    const q = debouncedSearchTerm.toLowerCase();
     if (q && !s.name?.toLowerCase().includes(q) && !s.employeeId?.toLowerCase().includes(q)) return false;
     if (selectedDeptFilter !== 'ALL' && s.department !== selectedDeptFilter) return false;
     return true;
@@ -149,39 +151,43 @@ const Staff = () => {
   return (
     <div className="space-y-6">
       {/* Header details */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-        <div>
-          <h2 className="text-lg font-bold text-slate-900">Staff Directory</h2>
-          <p className="text-xs text-slate-500 mt-0.5">Manage details of faculty members, teachers, and administrative personnel.</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <div className="p-2 rounded-xl bg-[#C4613A]/10 text-[#C4613A] border border-[#C4613A]/20">
+              <Users2 className="w-5 h-5" />
+            </div>
+            <h1 className="text-xl font-extrabold text-[#0D1B2A] tracking-tight">Staff Directory & Faculty Roster</h1>
+          </div>
+          <p className="text-xs text-slate-500">Manage educators, teachers, and administrative staff personnel for {tenant?.schoolName || 'EduCore School'}.</p>
         </div>
         {isPrincipal && (
           <button
             onClick={openAddModal}
-            className="inline-flex items-center gap-1.5 px-4 py-2 text-white text-xs font-semibold rounded-lg shadow-sm hover:opacity-95 active:scale-95 transition-all"
-            style={{ backgroundColor: primaryBrandColor }}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#C4613A] hover:bg-[#b0532e] active:scale-95 text-white font-bold text-xs shadow-md transition-all shrink-0"
           >
-            <Plus className="w-4 h-4" /> Onboard Employee
+            <Plus className="w-4 h-4" /> <span>+ Onboard Employee</span>
           </button>
         )}
       </div>
 
       {/* Filters */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-sm items-center">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm items-center">
         <div className="sm:col-span-2 relative">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
             placeholder="Search by staff name or employee ID..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-300 text-xs focus:outline-none focus:border-slate-500 bg-white placeholder-slate-400 text-slate-800 transition-all shadow-sm"
+            className="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
           />
-          <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
         </div>
         <div>
           <select
             value={selectedDeptFilter}
             onChange={(e) => setSelectedDeptFilter(e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs focus:outline-none focus:border-slate-500 bg-white text-slate-800 transition-all shadow-sm"
+            className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
           >
             {departments.map(d => (
               <option key={d} value={d}>{d === 'ALL' ? 'All Departments' : d}</option>

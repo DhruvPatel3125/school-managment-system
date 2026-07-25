@@ -16,6 +16,7 @@ const fmtDate = (d) =>
  */
 const SchoolsView = ({ tenants, loading, error, refreshData, onOpenOnboard, onOpenEdit, onDelete }) => {
   const [search, setSearch]           = useState('');
+  const debouncedSearch               = useDebounce(search, 300);
   const [planFilter, setPlanFilter]   = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sortCol, setSortCol]         = useState('schoolName');
@@ -44,7 +45,7 @@ const SchoolsView = ({ tenants, loading, error, refreshData, onOpenOnboard, onOp
 
   const filtered = tenants
     .filter(t => {
-      const q = search.toLowerCase();
+      const q = debouncedSearch.toLowerCase();
       if (q && !t.schoolName?.toLowerCase().includes(q) && !t.subdomain?.toLowerCase().includes(q)) return false;
       if (planFilter !== 'all' && t.plan !== planFilter) return false;
       if (statusFilter !== 'all' && t.status !== statusFilter) return false;

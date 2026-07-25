@@ -4,6 +4,8 @@ const Student = require('../models/student');
 const Staff = require('../models/staff');
 const Attendance = require('../models/attendance');
 const Fee = require('../models/fee');
+const Announcement = require('../models/announcement');
+const Class = require('../models/class');
 const auth = require('../middlewares/auth');
 const checkPermission = require('../middlewares/rbac');
 
@@ -19,10 +21,13 @@ router.get(
       // 1. Total Students
       const totalStudents = await Student.countDocuments({ tenantId });
       
-      // 2. Active Teachers (Staff with role teacher/active)
+      // 2. Active Teachers
       const activeTeachers = await Staff.countDocuments({ tenantId, status: 'active' });
 
-      // 3. Daily Attendance (percentage)
+      // 3. Total Classes Configured
+      const totalClasses = await Class.countDocuments({ tenantId });
+
+      // 4. Daily Attendance (percentage)
       const startOfDay = new Date();
       startOfDay.setHours(0, 0, 0, 0);
       const endOfDay = new Date();
@@ -39,7 +44,7 @@ router.get(
         attendancePercentage = ((presentCount / totalStudents) * 100).toFixed(1);
       }
 
-      // 4. Fees Collected (Current Month)
+      // 5. Fees Collected (Current Month)
       const startOfMonth = new Date();
       startOfMonth.setDate(1);
       startOfMonth.setHours(0, 0, 0, 0);
@@ -52,7 +57,6 @@ router.get(
       
       const feesCollected = fees.reduce((sum, fee) => sum + fee.amount, 0);
       
-      // Format feesCollected for display (e.g. 14.2L)
       let formattedFees = `₹${feesCollected.toLocaleString('en-IN')}`;
       if (feesCollected >= 100000) {
         formattedFees = `₹${(feesCollected / 100000).toFixed(1)}L`;
@@ -60,14 +64,28 @@ router.get(
         formattedFees = `₹${(feesCollected / 1000).toFixed(1)}K`;
       }
 
+      // 6. Recent Student Admissions
+      const recentStudents = await Student.find({ tenantId })
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .populate('classId', 'name');
+
+      // 7. Recent Announcements
+      const recentAnnouncements = await Announcement.find({ tenantId })
+        .sort({ created_at: -1, createdAt: -1 })
+        .limit(4);
+
       res.status(200).json({
         success: true,
         data: {
           totalStudents,
           activeTeachers,
+          totalClasses,
           attendancePercentage,
           feesCollected: formattedFees,
-          feesCollectedRaw: feesCollected
+          feesCollectedRaw: feesCollected,
+          recentStudents,
+          recentAnnouncements
         }
       });
     } catch (error) {
