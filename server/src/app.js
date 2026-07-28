@@ -39,9 +39,10 @@ app.use(cors({
     // Development & Subdomain patterns match (e.g. localhost, schoola.localhost, 127.0.0.1)
     const isAllowedLocal = /^http:\/\/(?:[a-z0-9-]+\.)*localhost(?::\d+)?$/i.test(origin);
     const isAllowedIP = /^http:\/\/127\.0\.0\.1(?::\d+)?$/i.test(origin);
+    const isAllowedVercel = /^https:\/\/(?:[a-z0-9-]+\.)*vercel\.app$/i.test(origin);
     const isExplicitlyAllowed = allowedOrigins.includes(origin);
 
-    if (isAllowedLocal || isAllowedIP || isExplicitlyAllowed) {
+    if (isAllowedLocal || isAllowedIP || isAllowedVercel || isExplicitlyAllowed) {
       callback(null, true);
     } else {
       callback(new Error(`CORS Access Denied: Origin '${origin}' is not authorized.`));
