@@ -21,7 +21,7 @@ export const TenantThemeProvider = ({ children }) => {
         let subdomain = null;
 
         // If host has a subdomain (e.g. schoola.localhost or schoola.educore.app)
-        if (parts.length > 1) {
+        if (parts.length > 1 && !host.endsWith('.vercel.app')) {
           const firstPart = parts[0];
           // Exclude main domains/subdomains
           if (firstPart !== 'www' && firstPart !== 'localhost' && firstPart !== 'educore') {

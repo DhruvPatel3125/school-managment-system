@@ -30,7 +30,7 @@ const tenantResolver = async (req, res, next) => {
       // If host is like schoola.educore.app or schoola.localhost
       // For localhost, parts length is 2 (schoola.localhost)
       // For educore.app, parts length is 3 (schoola.educore.app)
-      if (parts.length > 1) {
+      if (parts.length > 1 && !host.endsWith('.vercel.app')) {
         // Exclude standard domains like www or main domain
         const isMainDomain = parts[0] === 'www' || parts[0] === 'localhost' || parts[0] === 'educore';
         if (!isMainDomain) {
