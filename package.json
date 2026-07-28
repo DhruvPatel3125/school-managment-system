@@ -1,0 +1,14 @@
+{
+  "name": "educore-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "EduCore Multi-Tenant School Management System Monorepo",
+  "scripts": {
+    "build:server": "cd server && npm install",
+    "build:client": "cd client && npm install && npm run build",
+    "build": "npm run build:server && npm run build:client"
+  },
+  "dependencies": {
+    "serverless-http": "^3.2.0"
+  }
+}
