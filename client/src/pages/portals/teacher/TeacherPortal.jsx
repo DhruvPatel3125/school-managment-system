@@ -7,7 +7,7 @@ import TeacherOverview from './components/TeacherOverview';
 import TeacherAttendance from './components/TeacherAttendance';
 import TeacherAssignments from './components/TeacherAssignments';
 
-const API_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5001`;
+import { API_URL } from '../../../config/api';
 
 const TeacherPortal = () => {
   const { user } = useAuth();

@@ -17,7 +17,7 @@ import {
   Search
 } from 'lucide-react';
 
-const API_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5001`;
+import { API_URL } from '../config/api';
 
 const Staff = () => {
   const { user: currentUser } = useAuth();

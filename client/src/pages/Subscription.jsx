@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useTenantTheme } from '../context/TenantThemeContext';
 import { Loader2, AlertTriangle, CheckCircle, Zap } from 'lucide-react';
+import { API_URL } from '../config/api';
 
 const plansConfig = [
   { id: 'starter', name: 'Starter', price: '₹1,999/mo', desc: 'Perfect for small schools just getting started.', limit: 200 },
@@ -27,7 +28,6 @@ const Subscription = () => {
   useEffect(() => {
     const fetchUsage = async () => {
       try {
-        const API_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5001`;
         const res = await axios.get(`${API_URL}/api/v1/students`, {
           withCredentials: true
         });
@@ -54,8 +54,6 @@ const Subscription = () => {
     setUpgradeLoading(true);
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5001`;
-      
       const orderRes = await axios.post(`${API_URL}/api/v1/payments/upgrade-plan-order`, { plan: planId }, {
         withCredentials: true
       });

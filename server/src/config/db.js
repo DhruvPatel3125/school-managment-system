@@ -26,7 +26,7 @@ const connectDB = async () => {
     return conn;
   } catch (error) {
     logger.error('❌ MongoDB Connection Failed:', error.message);
-    if (process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+    if (process.env.VERCEL || process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.NODE_ENV === 'production') {
       throw error;
     }
     process.exit(1);

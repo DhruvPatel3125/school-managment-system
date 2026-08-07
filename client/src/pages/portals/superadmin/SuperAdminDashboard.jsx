@@ -24,7 +24,7 @@ import SettingsView   from './components/SettingsView';
 import OnboardModal from './modals/OnboardModal';
 import EditModal    from './modals/EditModal';
 
-const API = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5001`;
+import { API } from '../../../config/api';
 
 /**
  * SuperAdminDashboard — Main shell component

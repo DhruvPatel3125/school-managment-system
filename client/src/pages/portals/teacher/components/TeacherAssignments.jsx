@@ -2,7 +2,7 @@ import React from 'react';
 import axios from 'axios';
 import { Plus, Loader2, Award } from 'lucide-react';
 
-const API_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5001`;
+import { API_URL } from '../../../../config/api';
 
 const TeacherAssignments = ({
   teacherClasses,

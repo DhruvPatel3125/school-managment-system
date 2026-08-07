@@ -3,7 +3,7 @@ import { Loader2, Search, ClipboardList } from 'lucide-react';
 import { useTenantTheme } from '../../../../context/TenantThemeContext';
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5001`;
+import { API_URL } from '../../../../config/api';
 
 const StudentHomework = ({ studentAssignments, fetchStudentAssignments, fetchStudentDashboard }) => {
   const { tenant } = useTenantTheme();

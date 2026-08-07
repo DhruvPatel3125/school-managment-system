@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Calendar, Bell } from 'lucide-react';
 
-const API_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5001`;
+import { API_URL } from '../../../../config/api';
 
 const StudentAnnouncements = ({ studentAssignments }) => {
   const [announcements, setAnnouncements] = useState([]);

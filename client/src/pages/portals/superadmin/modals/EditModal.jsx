@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 import Stepper from '../components/Stepper';
 
-const API = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5001`;
+import { API } from '../../../../config/api';
 
 const planConfig = [
   { id: 'starter',      name: 'Starter',     price: '₹1,999/mo' },

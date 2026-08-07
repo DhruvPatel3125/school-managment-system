@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "description": "EduCore Multi-Tenant School Management System Monorepo",
+  "workspaces": [
+    "server",
+    "client"
+  ],
   "scripts": {
     "build:server": "cd server && npm install",
     "build:client": "cd client && npm install && npm run build",
@@ -12,3 +16,4 @@
     "serverless-http": "^3.2.0"
   }
 }
+

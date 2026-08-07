@@ -29,9 +29,9 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const requestInterceptor = axios.interceptors.request.use(
       (config) => {
-        // Handle HTTPS / Netlify relative path rewrites
-        if (config.url && config.url.includes('localhost:5001')) {
-          if (window.location.protocol === 'https:' && !import.meta.env.VITE_API_URL) {
+        // Handle HTTPS / Vercel / Netlify relative path rewrites
+        if (config.url && config.url.includes(':5001')) {
+          if ((window.location.protocol === 'https:' || import.meta.env.PROD) && !import.meta.env.VITE_API_URL) {
             config.url = config.url.replace(/http:\/\/[^/]+:5001/, '');
           } else if (!import.meta.env.VITE_API_URL) {
             config.url = config.url.replace('localhost:5001', `${window.location.hostname}:5001`);

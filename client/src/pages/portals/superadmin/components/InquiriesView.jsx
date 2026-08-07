@@ -3,7 +3,7 @@ import axios from 'axios';
 import useDebounce from '../../../../hooks/useDebounce';
 import { RefreshCw, Search, Mail, MessageSquare, Loader2 } from 'lucide-react';
 
-const API = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5001`;
+import { API } from '../../../../config/api';
 
 const fmtDate = (d) =>
   d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';

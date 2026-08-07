@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 
 import '../../../../styles/admin.css';
+import { API_URL } from '../../../../config/api';
 
 const AdminOverview = () => {
   const { tenant } = useTenantTheme();
@@ -28,7 +29,6 @@ const AdminOverview = () => {
   useEffect(() => {
     const fetchDashboardStats = async () => {
       try {
-        const API_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5001`;
         const res = await axios.get(`${API_URL}/api/v1/admin/dashboard`, { withCredentials: true });
         if (res.data.success) {
           setDashboardData(prev => ({ ...prev, ...res.data.data }));
