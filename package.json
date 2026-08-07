@@ -8,9 +8,8 @@
     "client"
   ],
   "scripts": {
-    "build:server": "cd server && npm install",
-    "build:client": "cd client && npm install && npm run build",
-    "build": "npm run build:server && npm run build:client"
+    "build:client": "npm run build --workspace=client",
+    "build": "npm run build:client"
   },
   "dependencies": {
     "serverless-http": "^3.2.0"
